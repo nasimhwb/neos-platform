@@ -1,16 +1,33 @@
 version: '3.8'
 
 services:
-  # Portainer Community Edition for secure GUI container management
   portainer:
     image: portainer/portainer-ce:${PORTAINER_VERSION:-2.20.3-alpine}
     container_name: neos_portainer
-    restart: always
+    restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
+      # Mount host Docker socket as read-only for security hardening
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - portainer_data:/data
     networks:
-      - backend
-    # Portainer is not exposed directly. Accessible via proxy (configured internally).
+      - neos-private
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 64M

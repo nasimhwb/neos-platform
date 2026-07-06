@@ -2,36 +2,78 @@ version: '3.8'
 
 services:
   # ------------------------------------------------------------------------------
-  # Uptime Kuma (Self-hosted Uptime & Status Page monitoring)
+  # Uptime Kuma (Service uptime and status checker)
   # ------------------------------------------------------------------------------
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.11-alpine
     container_name: neos_uptime_kuma
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - uptime_kuma_data:/app/data
     networks:
-      - frontend
-      - backend
-    # Accessible via reverse proxy (e.g. status.neos-platform.local)
+      - neos-public
+      - neos-private
+      - neos-monitoring
+    healthcheck:
+      test: ["CMD", "node", "extra/healthcheck.js"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 128M
     profiles:
       - infrastructure
 
   # ------------------------------------------------------------------------------
   # Application Placeholders (SaaS Products)
   # ------------------------------------------------------------------------------
-  
+
   # 1. Neos ERP
   erp:
-    image: nginx:1.26-alpine # Standard placeholder container
+    image: nginx:1.26-alpine
     container_name: neos_erp_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - DATABASE_URL=postgres://erp_user:${ERP_DB_PASSWORD}@db:5432/neos_erp
       - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/0
       - S3_ENDPOINT=object-store:9000
     networks:
-      - backend
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     profiles:
       - apps
 
@@ -39,12 +81,33 @@ services:
   crm:
     image: nginx:1.26-alpine
     container_name: neos_crm_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - DATABASE_URL=postgres://crm_user:${CRM_DB_PASSWORD}@db:5432/neos_crm
       - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/1
     networks:
-      - backend
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     profiles:
       - apps
 
@@ -52,11 +115,32 @@ services:
   hrms:
     image: nginx:1.26-alpine
     container_name: neos_hrms_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - DATABASE_URL=postgres://hrms_user:${HRMS_DB_PASSWORD}@db:5432/neos_hrms
     networks:
-      - backend
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     profiles:
       - apps
 
@@ -64,12 +148,34 @@ services:
   inventory:
     image: nginx:1.26-alpine
     container_name: neos_inventory_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - DATABASE_URL=postgres://inventory_user:${INVENTORY_DB_PASSWORD}@db:5432/neos_inventory
       - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/2
     networks:
-      - backend
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     profiles:
       - apps
 
@@ -77,23 +183,99 @@ services:
   billing:
     image: nginx:1.26-alpine
     container_name: neos_billing_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - DATABASE_URL=postgres://billing_user:${BILLING_DB_PASSWORD}@db:5432/neos_billing
     networks:
-      - backend
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
     profiles:
       - apps
 
-  # 6. Neos AI Services
+  # 6. Neos Visitor Management
+  visitor-management:
+    image: nginx:1.26-alpine
+    container_name: neos_visitor_app
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - DATABASE_URL=postgres://visitor_user:${VISITOR_DB_PASSWORD}@db:5432/neos_visitor
+    networks:
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    profiles:
+      - apps
+
+  # 7. Neos AI Services
   ai-services:
     image: nginx:1.26-alpine
     container_name: neos_ai_app
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     environment:
       - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/3
-      - OLLAMA_HOST=http://ai-services-model:11434 # Future expansion
+      - OLLAMA_HOST=http://ai-services-model:11434
     networks:
-      - backend
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
     profiles:
       - apps

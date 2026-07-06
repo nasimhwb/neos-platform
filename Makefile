@@ -1,11 +1,11 @@
 # ==============================================================================
-# NEOS PLATFORM SHARED INFRASTRUCTURE - MAKEFILE COMMANDS
+# NEOS PLATFORM SHARED INFRASTRUCTURE - MAKEFILE COMMANDS v3
 # ==============================================================================
-# Use this Makefile to run host operations and manage docker container stacks.
+# Master orchestration interface for Hostinger VPS private cloud nodes.
 
-.PHONY: bootstrap up down restart ps logs reload-nginx backup restore config-check
+.PHONY: bootstrap up up-apps down restart ps logs reload-nginx doctor backup restore verify-backup config-check update clean
 
-# Combined docker compose command referencing all modular configurations
+# Compile all modular compose files
 COMPOSE_CMD = docker compose \
 	-f compose/compose.base.yml \
 	-f compose/compose.database.yml \
@@ -17,11 +17,11 @@ COMPOSE_CMD = docker compose \
 
 # 1. System Host Provisioning
 bootstrap:
-	@echo "Starting full VPS provisioning..."
-	chmod +x bootstrap/*.sh backups/*.sh
+	@echo "Bootstrapping VPS node environment..."
+	chmod +x bootstrap/*.sh backups/*.sh scripts/*.sh
 	sudo ./bootstrap/install.sh
 
-# 2. Deploy Container Stacks (Base infrastructure)
+# 2. Deploy Container Stacks (Infrastructure core)
 up:
 	@echo "Starting Neos Platform Infrastructure..."
 	$(COMPOSE_CMD) up -d --build --remove-orphans
@@ -36,11 +36,16 @@ down:
 	@echo "Stopping Neos Platform Infrastructure..."
 	$(COMPOSE_CMD) down --remove-orphans
 
-# 5. Service Status Check
+# 5. Service Restart Trigger
+restart:
+	@echo "Restarting Neos Platform containers..."
+	$(COMPOSE_CMD) restart
+
+# 6. Service Status Check
 ps:
 	$(COMPOSE_CMD) ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
 
-# 6. Tail Logs (usage: make logs service=db)
+# 7. Tail Logs (usage: make logs service=db)
 service ?= 
 logs:
 	@if [ -z "$(service)" ]; then \
@@ -49,26 +54,50 @@ logs:
 		$(COMPOSE_CMD) logs -f $(service); \
 	fi
 
-# 7. Reload Nginx reverse-proxy
+# 8. Reload Nginx configs
 reload-nginx:
-	@echo "Reloading Nginx configurations..."
+	@echo "Reloading Nginx proxy configurations..."
 	$(COMPOSE_CMD) exec -t reverse-proxy nginx -s reload
 
-# 8. Trigger Database & Storage Backup
+# 9. Holistic System Diagnosis
+doctor:
+	@echo "Running diagnostic health check..."
+	chmod +x scripts/doctor.sh
+	./scripts/doctor.sh
+
+# 10. Trigger Data Backups
 backup:
-	@echo "Triggering backup script..."
+	@echo "Running shared database and storage backup..."
+	chmod +x backups/backup.sh
 	./backups/backup.sh
 
-# 9. Trigger Restore Script (usage: make restore archive=path/to/archive.tar.gz)
+# 11. Trigger Backup Verification
+verify-backup:
+	@echo "Running backup verification check..."
+	chmod +x backups/verify-backup.sh
+	./backups/verify-backup.sh
+
+# 12. Trigger Restore Script (usage: make restore archive=path/to/archive.tar.gz)
 archive ?=
 restore:
 	@if [ -z "$(archive)" ]; then \
-		echo "Error: Please specify the backup archive path. Example: make restore archive=/srv/neos/backups/neos_backup_...tar.gz"; \
+		echo "Error: Please specify the backup archive path. Example: make restore archive=/srv/neos/shared/backups/neos_backup_...tar.gz"; \
 		exit 1; \
 	fi; \
+	chmod +x backups/restore.sh; \
 	./backups/restore.sh $(archive)
 
-# 10. Validate Compose Configurations Syntax
+# 13. Validate Compose Configuration Syntax
 config-check:
-	@echo "Validating Docker Compose configurations..."
+	@echo "Validating Docker Compose configs..."
 	$(COMPOSE_CMD) config
+
+# 14. Git codebase pull
+update:
+	@echo "Pulling latest git changes..."
+	git pull
+
+# 15. Garbage Collection and System cleanup
+clean:
+	@echo "Cleaning up dangling volumes and container cache..."
+	docker system prune -af --volumes

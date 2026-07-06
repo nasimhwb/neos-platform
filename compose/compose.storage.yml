@@ -4,7 +4,14 @@ services:
   object-store:
     image: minio/minio:${MINIO_VERSION:-RELEASE.2024-06-06T09-36-42Z}
     container_name: neos_minio
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -12,10 +19,18 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     networks:
-      - frontend
-      - backend
+      - neos-storage
+      - neos-monitoring
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M

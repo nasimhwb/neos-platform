@@ -1,0 +1,27 @@
+name: Manual Rollback Release
+
+on:
+  workflow_dispatch: # Strictly manual trigger
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    name: Revert Active Release
+    steps:
+      - name: Setup SSH Connection
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+
+      - name: Trigger Remote Rollback
+        run: |
+          # Connect to VPS and run rollback script inside the active directory symlink
+          ssh -o StrictHostKeyChecking=no nasim@${{ secrets.VPS_HOST }} "
+            if [ -f /srv/neos/current/scripts/rollback.sh ]; then
+              chmod +x /srv/neos/current/scripts/rollback.sh
+              /srv/neos/current/scripts/rollback.sh
+            else
+              echo 'ERROR: Rollback runner script not found at active release path.'
+              exit 1
+            fi
+          "

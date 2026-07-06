@@ -1,26 +1,25 @@
 #!/bin/bash
 # ==============================================================================
-# NEOS PLATFORM BOOTSTRAP - MASTER ARCHITECT INSTALLER
+# NEOS PLATFORM BOOTSTRAP - MASTER RUNNER v3
 # ==============================================================================
-# Run this script as root to bootstrap a clean Ubuntu 24.04 VPS:
-#   sudo ./install.sh
+# Execute this script as root once to provision a new Hostinger VPS node.
+# Usage: sudo ./install.sh
 
 set -e
 set -o pipefail
 
-# Ensure script is executed from its parent folder
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 echo "=========================================================================="
-echo "         NEOS PLATFORM PRIVATE CLOUD FOUNDATION INITIALIZER v2            "
+echo "         NEOS PLATFORM PRIVATE CLOUD INITIALIZER v3 - STARTING             "
 echo "=========================================================================="
 
-# 1. Pre-flight Resource Validation
+# 1. Resource capacity checks (Fail Fast)
 chmod +x verify.sh
 ./verify.sh
 
-# 2. Check for .env file
+# 2. Check for .env file at repository root
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
 if [ ! -f "$REPO_DIR/.env" ]; then
     echo "Warning: .env configuration file not found at repository root."
@@ -34,8 +33,8 @@ if [ ! -f "$REPO_DIR/.env" ]; then
     fi
 fi
 
-# 3. Make all runner scripts executable
-chmod +x ubuntu.sh docker.sh directories.sh security.sh
+# 3. Enable execution permissions on all scripts
+chmod +x ubuntu.sh docker.sh security.sh directories.sh
 
 # 4. Provision Host Package Management
 ./ubuntu.sh
@@ -43,17 +42,21 @@ chmod +x ubuntu.sh docker.sh directories.sh security.sh
 # 5. Provision Container Engines (Docker)
 ./docker.sh
 
-# 6. Initialize Storage Volumes and Folders
-./directories.sh
-
-# 7. Configure Host Firewalls and SSL Bootstrapping
+# 6. Provision Security and create 'nasim' user
 ./security.sh
 
+# 7. Initialize Storage Volumes and Folders with 'nasim' ownership
+./directories.sh
+
 echo "=========================================================================="
-echo "  Bootstrap installer successfully completed!                             "
+echo "  Bootstrap setup successfully completed!                             "
+echo "                                                                          "
+echo "  Deployment Environment Configured:                                      "
+echo "  - deployment user 'nasim' created and added to the docker/sudo groups.  "
+echo "  - directories mapped under /srv/neos/ releases structure.               "
 echo "                                                                          "
 echo "  Next Steps:                                                             "
-echo "  1. Review and configure the credentials: nano $REPO_DIR/.env            "
-echo "  2. Deploy the core stack: make up                                       "
-echo "  3. Validate logs and health states: make ps                             "
+echo "  1. Add nasim's SSH public keys to /home/nasim/.ssh/authorized_keys      "
+echo "  2. Review and configure credentials in /srv/neos/shared/.env            "
+echo "  3. Deploy the core stack: make up                                       "
 echo "=========================================================================="

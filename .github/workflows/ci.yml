@@ -1,0 +1,58 @@
+name: CI Validation & Security Scan
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint-and-validate:
+    runs-on: ubuntu-latest
+    name: Lint & Validate Configurations
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Shellcheck Linter
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './bootstrap'
+        continue-on-error: true # Warning only for shell lints
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-v2
+
+      - name: Validate Compose File Syntax
+        run: |
+          # Test base configurations syntax
+          docker compose \
+            -f compose/compose.base.yml \
+            -f compose/compose.database.yml \
+            -f compose/compose.storage.yml \
+            -f compose/compose.monitoring.yml \
+            -f compose/compose.proxy.yml \
+            -f compose/compose.security.yml \
+            -f compose/compose.apps.yml \
+            config
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Vulnerability Scan
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Scan Secrets & Credentials
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+        continue-on-error: true # Alerting placeholder

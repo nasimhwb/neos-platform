@@ -1,27 +1,84 @@
 version: '3.8'
 
 networks:
-  frontend:
-    name: neos_frontend
+  neos-public:
+    name: neos-public
     driver: bridge
-  backend:
-    name: neos_backend
+  neos-private:
+    name: neos-private
+    driver: bridge
+  neos-storage:
+    name: neos-storage
+    driver: bridge
+  neos-monitoring:
+    name: neos-monitoring
+    driver: bridge
+  neos-database:
+    name: neos-database
     driver: bridge
 
 volumes:
+  # Map Docker named volumes to persistent shared host folders for transparent backups
   postgres_data:
     name: neos_postgres_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/postgres
   redis_data:
     name: neos_redis_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/redis
   minio_data:
     name: neos_minio_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/minio
   prometheus_data:
     name: neos_prometheus_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/prometheus
   grafana_data:
     name: neos_grafana_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/grafana
   loki_data:
     name: neos_loki_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/loki
   portainer_data:
     name: neos_portainer_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/portainer
   uptime_kuma_data:
     name: neos_uptime_kuma_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/uptime-kuma
+  alertmanager_data:
+    name: neos_alertmanager_data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /srv/neos/shared/data/alertmanager

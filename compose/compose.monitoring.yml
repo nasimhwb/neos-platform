@@ -1,10 +1,20 @@
 version: '3.8'
 
 services:
+  # ------------------------------------------------------------------------------
+  # Metrics Collector (Prometheus)
+  # ------------------------------------------------------------------------------
   prometheus:
     image: prom/prometheus:${PROMETHEUS_VERSION:-v2.52.0}
     container_name: neos_prometheus
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
     volumes:
       - ../configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -16,14 +26,38 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
       - '--web.enable-lifecycle'
     networks:
-      - backend
+      - neos-monitoring
     depends_on:
       - node-exporter
+      - cadvisor
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
 
+  # ------------------------------------------------------------------------------
+  # Host Diagnostics (Node Exporter)
+  # ------------------------------------------------------------------------------
   node-exporter:
     image: prom/node-exporter:v1.8.1
     container_name: neos_node_exporter
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -33,37 +67,164 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     networks:
-      - backend
+      - neos-monitoring
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
 
+  # ------------------------------------------------------------------------------
+  # Container Resource usage collector (cAdvisor)
+  # ------------------------------------------------------------------------------
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: neos_cadvisor
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - neos-monitoring
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  # ------------------------------------------------------------------------------
+  # Alerts Dispatcher (Alertmanager)
+  # ------------------------------------------------------------------------------
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: neos_alertmanager
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    volumes:
+      - ../configs/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - neos-monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9093/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Log Aggregator (Grafana Loki)
+  # ------------------------------------------------------------------------------
   loki:
     image: grafana/loki:${LOKI_VERSION:-3.0.0}
     container_name: neos_loki
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
     volumes:
       - ../configs/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - backend
+      - neos-monitoring
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
 
+  # ------------------------------------------------------------------------------
+  # Log Collector (Promtail)
+  # ------------------------------------------------------------------------------
   promtail:
     image: grafana/promtail:${PROMTAIL_VERSION:-3.0.0}
     container_name: neos_promtail
-    restart: always
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     volumes:
       - ../configs/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
       - /var/log:/var/log:ro
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
     command: -config.file=/etc/promtail/config.yml
     networks:
-      - backend
+      - neos-monitoring
     depends_on:
       - loki
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
 
+  # ------------------------------------------------------------------------------
+  # Observability Dashboards (Grafana)
+  # ------------------------------------------------------------------------------
   grafana:
     image: grafana/grafana:${GRAFANA_VERSION:-11.0.0}
     container_name: neos_grafana
-    restart: always
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
@@ -73,8 +234,20 @@ services:
       - grafana_data:/var/lib/grafana
       - ../monitoring/provisioning:/etc/grafana/provisioning:ro
     networks:
-      - frontend
-      - backend
+      - neos-monitoring
     depends_on:
       - prometheus
       - loki
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
