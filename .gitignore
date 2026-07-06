@@ -1,0 +1,33 @@
+# Environment files (sensitive credentials)
+.env
+.env.*
+!.env.example
+
+# Local persistence folders (if mapped inside workspace during development)
+data/
+db-data/
+redis-data/
+minio-data/
+prometheus-data/
+grafana-data/
+loki-data/
+
+# Backup dumps and temporary files
+*.sql
+*.tar.gz
+*.bak
+backups/tmp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Log files
+*.log
+logs/

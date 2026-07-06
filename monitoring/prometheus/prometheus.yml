@@ -1,0 +1,42 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+# Alertmanager configuration (optional placeholder)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           # - alertmanager:9093
+
+# Rule files (optional alerts definitions)
+# rule_files:
+#   - "alert_rules.yml"
+
+scrape_configs:
+  # 1. Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # 2. Host VPS Metrics (Node Exporter)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # 3. Database Exporter (Optional Placeholder)
+  # - job_name: 'postgres-exporter'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # 4. Redis Exporter (Optional Placeholder)
+  # - job_name: 'redis-exporter'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+
+  # 5. Application Services (Add your apps here when they expose metrics)
+  # - job_name: 'neos-erp'
+  #   metrics_path: '/actuator/prometheus' # or '/metrics'
+  #   static_configs:
+  #     - targets: ['neos-erp-app:8000']
