@@ -45,6 +45,12 @@ neos-platform/
 ├── backups/                # Backup scripts
 │   ├── backup.sh           # Nightly database, cache, object storage dump
 │   └── restore.sh          # Full state recovery script
+├── docs/                   # Architectural & operations documentation
+│   ├── architecture.md
+│   ├── disaster-recovery.md
+│   ├── runbook.md
+│   └── adr/                # Architecture Decision Records
+│       └── ADR-0001-platform-foundation.md
 └── scripts/                # Operations automation scripts
     ├── setup-vps.sh        # Host provisioning script (Docker, sysctl, UFW)
     └── deploy.sh           # Deployment trigger script
@@ -104,9 +110,10 @@ docker compose exec reverse-proxy nginx -s reload
 
 ---
 
-## Operations & Disaster Recovery
+## Documentation & Decisions
 
-For operations guidelines, runbook tasks, and detailed step-by-step restoration processes, refer to the documentation:
+For architecture decisions, operations guidelines, and recovery procedures, refer to the documentation:
+- [ADR-0001: Platform Foundation & Tech Stack Selection](docs/adr/ADR-0001-platform-foundation.md)
 - [System Architecture Details](docs/architecture.md)
 - [Operations Runbook](docs/runbook.md)
 - [Disaster Recovery Procedures](docs/disaster-recovery.md)
