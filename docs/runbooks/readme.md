@@ -7,22 +7,22 @@ This document provides step-by-step procedures for managing, debugging, and scal
 ### 1. Check Container Status and Health
 To view container health, uptime, and port mappings:
 ```bash
-docker compose ps
+make ps
 ```
 
 ### 2. View Log Streams
-All logs are shipped to Loki, but you can inspect raw logs from the host:
-- View Nginx access/error logs:
+All logs are shipped to Loki, but you can inspect raw logs using the Makefile:
+- View Nginx logs:
   ```bash
-  docker compose logs -f reverse-proxy
+  make logs service=reverse-proxy
   ```
-- View PostgreSQL query logs and errors:
+- View PostgreSQL query logs:
   ```bash
-  docker compose logs -f db
+  make logs service=db
   ```
 - View Redis cache logs:
   ```bash
-  docker compose logs -f cache
+  make logs service=cache
   ```
 
 ---
@@ -49,15 +49,15 @@ If you are deploying a new application (e.g. `neos_payroll`) and need a new data
 
 ### 2. Add an Nginx Reverse Proxy Subdomain
 When routing a new application subdomain:
-1. Create a configuration file in `nginx/conf.d/newapp.conf`.
-2. Model it after `nginx/conf.d/apps.conf`.
+1. Create a configuration file in `configs/nginx/conf.d/newapp.conf`.
+2. Model it after `configs/nginx/conf.d/apps.conf`.
 3. Re-run Certbot to request the SSL certificate for the new subdomain:
    ```bash
    sudo certbot certonly --webroot -w /srv/neos/www -d payroll.neos-platform.local
    ```
 4. Reload Nginx to activate changes:
    ```bash
-   docker compose exec reverse-proxy nginx -s reload
+   make reload-nginx
    ```
 
 ---
@@ -73,7 +73,7 @@ sudo certbot renew --dry-run
 ### Force Cert Reload
 If you've updated certificates and Nginx is still serving old ones, force Nginx to reload:
 ```bash
-docker compose exec reverse-proxy nginx -s reload
+make reload-nginx
 ```
 
 ---

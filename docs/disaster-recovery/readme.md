@@ -49,7 +49,7 @@ If the Redis dataset becomes corrupted and Redis fails to start or boots with co
 ### Recovery Procedure
 1. Stop the Redis container:
    ```bash
-   docker compose stop cache
+   make stop service=cache
    ```
 2. Restore the `dump.rdb` file from the backup archive into the volume.
    We can do this using a temporary helper container to copy it safely:
@@ -65,11 +65,11 @@ If the Redis dataset becomes corrupted and Redis fails to start or boots with co
    ```
 3. Start the Redis container:
    ```bash
-   docker compose start cache
+   make start service=cache
    ```
 4. Check Redis logs to ensure it loaded the snapshot:
    ```bash
-   docker compose logs cache
+   make logs service=cache
    ```
 
 ---
@@ -81,7 +81,7 @@ If bucket objects are deleted or storage files become corrupted.
 ### Recovery Procedure
 1. Stop MinIO:
    ```bash
-   docker compose stop object-store
+   make stop service=object-store
    ```
 2. Extract the MinIO backup archive:
    ```bash
@@ -100,7 +100,7 @@ If bucket objects are deleted or storage files become corrupted.
    ```
 4. Start MinIO:
    ```bash
-   docker compose start object-store
+   make start service=object-store
    ```
 
 ---
@@ -119,25 +119,25 @@ If the VPS host dies and needs to be rebuilt from scratch on a new Ubuntu 24.04 
    ```
 3. **Restore the `.env` file** containing secrets (from password manager or secure vault).
 4. **Download the latest backup archive** from offsite cloud storage (e.g. Backblaze B2/S3) and place it under `/srv/neos/backups/`.
-5. **Run the provisioning script** to configure Docker, Sysctl, firewall, and dummy SSL certs:
+5. Run the provisioning script to configure Docker, Sysctl, firewall, and dummy SSL certs:
    ```bash
-   chmod +x scripts/setup-vps.sh scripts/deploy.sh backups/*.sh
-   ./scripts/setup-vps.sh
+   chmod +x bootstrap/*.sh backups/*.sh
+   sudo ./bootstrap/install.sh
    ```
 6. **Run the full restoration script** (this will spin up containers, stop them, copy database dumps, write Redis files, restore object store folders, and restart services):
    ```bash
    ./backups/restore.sh /srv/neos/backups/neos_backup_YYYY-MM-DD_HHMMSS.tar.gz
    ```
-7. **Verify that all containers are healthy**:
+7. Verify that all containers are healthy:
    ```bash
-   docker compose ps
+   make ps
    ```
 8. **Request real Let's Encrypt certificates** to replace the dummy certs:
    ```bash
    # Extract domain from .env and run certbot command
    sudo certbot certonly --webroot -w /srv/neos/www -d neos-platform.local -d erp.neos-platform.local -d crm.neos-platform.local -d hrms.neos-platform.local -d billing.neos-platform.local -d inventory.neos-platform.local -d s3.neos-platform.local -d s3-console.neos-platform.local -d monitor.neos-platform.local
    ```
-9. **Reload Nginx reverse proxy** to pick up the real SSL certificates:
+9. Reload Nginx reverse proxy to pick up the real SSL certificates:
    ```bash
-   docker compose exec reverse-proxy nginx -s reload
+   make reload-nginx
    ```

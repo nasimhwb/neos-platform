@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------------------------
+  # Uptime Kuma (Self-hosted Uptime & Status Page monitoring)
+  # ------------------------------------------------------------------------------
+  uptime-kuma:
+    image: louislam/uptime-kuma:1.23.11-alpine
+    container_name: neos_uptime_kuma
+    restart: always
+    volumes:
+      - uptime_kuma_data:/app/data
+    networks:
+      - frontend
+      - backend
+    # Accessible via reverse proxy (e.g. status.neos-platform.local)
+    profiles:
+      - infrastructure
+
+  # ------------------------------------------------------------------------------
+  # Application Placeholders (SaaS Products)
+  # ------------------------------------------------------------------------------
+  
+  # 1. Neos ERP
+  erp:
+    image: nginx:1.26-alpine # Standard placeholder container
+    container_name: neos_erp_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://erp_user:${ERP_DB_PASSWORD}@db:5432/neos_erp
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/0
+      - S3_ENDPOINT=object-store:9000
+    networks:
+      - backend
+    profiles:
+      - apps
+
+  # 2. Neos CRM
+  crm:
+    image: nginx:1.26-alpine
+    container_name: neos_crm_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://crm_user:${CRM_DB_PASSWORD}@db:5432/neos_crm
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/1
+    networks:
+      - backend
+    profiles:
+      - apps
+
+  # 3. Neos HRMS
+  hrms:
+    image: nginx:1.26-alpine
+    container_name: neos_hrms_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://hrms_user:${HRMS_DB_PASSWORD}@db:5432/neos_hrms
+    networks:
+      - backend
+    profiles:
+      - apps
+
+  # 4. Neos Inventory
+  inventory:
+    image: nginx:1.26-alpine
+    container_name: neos_inventory_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://inventory_user:${INVENTORY_DB_PASSWORD}@db:5432/neos_inventory
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/2
+    networks:
+      - backend
+    profiles:
+      - apps
+
+  # 5. Neos Billing Dashboard
+  billing:
+    image: nginx:1.26-alpine
+    container_name: neos_billing_app
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://billing_user:${BILLING_DB_PASSWORD}@db:5432/neos_billing
+    networks:
+      - backend
+    profiles:
+      - apps
+
+  # 6. Neos AI Services
+  ai-services:
+    image: nginx:1.26-alpine
+    container_name: neos_ai_app
+    restart: always
+    environment:
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/3
+      - OLLAMA_HOST=http://ai-services-model:11434 # Future expansion
+    networks:
+      - backend
+    profiles:
+      - apps

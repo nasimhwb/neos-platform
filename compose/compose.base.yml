@@ -1,0 +1,27 @@
+version: '3.8'
+
+networks:
+  frontend:
+    name: neos_frontend
+    driver: bridge
+  backend:
+    name: neos_backend
+    driver: bridge
+
+volumes:
+  postgres_data:
+    name: neos_postgres_data
+  redis_data:
+    name: neos_redis_data
+  minio_data:
+    name: neos_minio_data
+  prometheus_data:
+    name: neos_prometheus_data
+  grafana_data:
+    name: neos_grafana_data
+  loki_data:
+    name: neos_loki_data
+  portainer_data:
+    name: neos_portainer_data
+  uptime_kuma_data:
+    name: neos_uptime_kuma_data

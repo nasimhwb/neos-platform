@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  reverse-proxy:
+    build:
+      context: ../services/nginx
+      dockerfile: Dockerfile
+    container_name: neos_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../configs/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /srv/neos/letsencrypt:/etc/letsencrypt
+      - /srv/neos/www:/var/www/html
+    networks:
+      - frontend
+      - backend
