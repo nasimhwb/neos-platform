@@ -15,6 +15,20 @@
 set -e
 set -o pipefail
 
+LOCKFILE="/tmp/neos_backup.lock"
+if [ -e "$LOCKFILE" ]; then
+    pid=$(cat "$LOCKFILE" 2>/dev/null || echo "")
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        echo "ERROR: Backup job is already running (PID: $pid). Aborting."
+        exit 1
+    fi
+fi
+echo $$ > "$LOCKFILE"
+cleanup_lock() {
+    rm -f "$LOCKFILE"
+}
+trap cleanup_lock EXIT
+
 # 1. Load configuration from root environment file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(dirname "$SCRIPT_DIR")"
@@ -77,12 +91,12 @@ if [ -n "${POSTGRES_MULTIPLE_DATABASES:-}" ]; then
             db_name="${DB_PARTS[0]}"
             
             echo "Dumping database: $db_name..."
-            docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$db_name" | gzip > "$SESSION_DIR/postgres_$db_name.sql.gz"
+            timeout 180s docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$db_name" | gzip > "$SESSION_DIR/postgres_$db_name.sql.gz"
         fi
     done
 else
     echo "No databases defined in POSTGRES_MULTIPLE_DATABASES, dumping only main..."
-    docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$POSTGRES_SUPERUSER" | gzip > "$SESSION_DIR/postgres_main.sql.gz"
+    timeout 180s docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$POSTGRES_SUPERUSER" | gzip > "$SESSION_DIR/postgres_main.sql.gz"
 fi
 
 # ------------------------------------------------------------------------------
@@ -90,7 +104,7 @@ fi
 # ------------------------------------------------------------------------------
 echo "--- Backing up Redis State ---"
 echo "Triggering Redis SAVE snapshot..."
-docker exec -t neos_redis redis-cli -a "$REDIS_PASSWORD" SAVE || echo "Warning: Redis SAVE command failed. Attempting to copy existing dump.rdb"
+timeout 60s docker exec -t neos_redis redis-cli -a "$REDIS_PASSWORD" SAVE || echo "Warning: Redis SAVE command failed. Attempting to copy existing dump.rdb"
 docker cp neos_redis:/data/dump.rdb "$SESSION_DIR/redis_dump.rdb"
 docker cp neos_redis:/data/appendonlydir "$SESSION_DIR/redis_appendonlydir" 2>/dev/null || true
 
@@ -158,9 +172,13 @@ fi
 
 # ------------------------------------------------------------------------------
 # 8. Enforce Retention Policy
-# ------------------------------------------------------------------------------
 echo "--- Cleaning up backups older than $RETENTION_DAYS days ---"
 # Prune old GPG, TAR, and SHA256 files
 find "$BACKUP_DIR" -name "neos_backup_*" -type f -mtime +"$RETENTION_DAYS" -exec rm -v {} \;
+
+# 9. Trigger Offsite Backup Synchronization
+echo "--- Triggering Offsite Backup Sync ---"
+chmod +x "$SCRIPT_DIR/offsite_sync.sh"
+"$SCRIPT_DIR/offsite_sync.sh" || echo "Warning: Offsite backup sync failed."
 
 echo "=== Backup Completed Successfully at $(date) ==="
