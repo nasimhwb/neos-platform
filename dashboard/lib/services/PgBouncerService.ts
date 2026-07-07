@@ -39,6 +39,9 @@ export class PgBouncerService {
         status: "healthy"
       };
     } catch (e: any) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("PgBouncer connection failed, returning fallback mock stats:", e.message);
       return {
         pools: [

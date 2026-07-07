@@ -105,6 +105,12 @@ export class MonitoringService {
       // If live queries failed, we leave monitors empty so it falls back to mock
     }
 
+    if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+      if (!isLive) {
+        throw new Error("Prometheus monitoring service is unreachable.");
+      }
+    }
+
     // If both calls failed or returned empty, fallback to mock data
     if (!isLive || (alerts.length === 0 && monitors.length === 0)) {
       localCache.set(CACHE_KEY, { alerts: mockAlerts, monitors: mockUptimeMonitors });

@@ -145,6 +145,9 @@ export class RedisService {
       localCache.set(CACHE_KEY, stats);
       return { stats, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("Redis connection failed, falling back to mock stats:", (e as any).message);
       return { stats: mockRedisStats, source: "live" };
     }

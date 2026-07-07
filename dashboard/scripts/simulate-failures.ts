@@ -47,7 +47,7 @@ async function runSimulation() {
   DatabaseService.getStats = async () => ({ stats: { status: "healthy", version: "Postgres 16", databases: [], users: [] } as any, source: "live" });
   MonitoringService.getMonitoringData = async () => ({
     alerts: [
-      { id: "123", name: "HighCpuUsage", severity: "critical", status: "firing", message: "CPU > 95%", startsAt: "" }
+      { id: "123", name: "HighCpuUsage", severity: "critical", status: "firing", message: "CPU > 95%", startsAt: "", labels: {} }
     ],
     monitors: [],
     source: "live"

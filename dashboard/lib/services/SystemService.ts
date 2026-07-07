@@ -220,6 +220,9 @@ export class SystemService {
       localCache.set(CACHE_KEY, metrics);
       return { metrics, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.error("Failed to query live system metrics, using mock fallback:", e);
       return { metrics: mockSystemMetrics, source: "live" };
     }

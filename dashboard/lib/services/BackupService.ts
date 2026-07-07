@@ -95,6 +95,9 @@ export class BackupService {
       localCache.set(CACHE_KEY, backups);
       return { backups, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("Failed to read backup folder, using mock fallback:", (e as any).message);
       return { backups: mockBackups, source: "live" };
     }

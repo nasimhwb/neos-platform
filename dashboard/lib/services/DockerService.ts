@@ -87,6 +87,9 @@ export class DockerService {
       localCache.set(cacheKey, status);
       return { status, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("Docker socket not accessible, falling back to mock status:", (e as any).message);
       return { status: mockDockerStatus, source: "live" };
     }
@@ -166,6 +169,9 @@ export class DockerService {
       localCache.set(cacheKey, containers);
       return { containers, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("Docker socket not accessible, falling back to mock containers:", (e as any).message);
       return { containers: mockContainers, source: "live" };
     }
@@ -191,6 +197,9 @@ export class DockerService {
       localCache.set(cacheKey, networks);
       return { networks, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       return { networks: mockNetworks, source: "live" };
     }
   }
@@ -214,6 +223,9 @@ export class DockerService {
       localCache.set(cacheKey, volumes);
       return { volumes, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       return { volumes: mockVolumes, source: "live" };
     }
   }

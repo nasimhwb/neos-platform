@@ -99,6 +99,9 @@ export class StorageService {
       localCache.set(CACHE_KEY, stats);
       return { stats, source: "live" };
     } catch (e) {
+      if (process.env.ENVIRONMENT === "production" || process.env.NODE_ENV === "production") {
+        throw e;
+      }
       console.warn("MinIO S3 connection failed, using mock storage fallback:", (e as any).message);
       return { stats: mockMinioStats, source: "live" };
     }
