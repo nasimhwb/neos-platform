@@ -131,3 +131,15 @@ validate-backups:
 	@echo "Running automated backup and recovery validation engine..."
 	chmod +x scripts/validate_backups.sh
 	./scripts/validate_backups.sh
+
+# 19. Run Automated Production Release Deployment
+deploy-release:
+	@echo "Triggering automated production infrastructure deployment..."
+	chmod +x scripts/deploy_infra.sh
+	./scripts/deploy_infra.sh
+
+# 20. Run Automated Release Rollback
+rollback-release:
+	@echo "Triggering automated production infrastructure rollback..."
+	chmod +x scripts/rollback_infra.sh
+	./scripts/rollback_infra.sh
