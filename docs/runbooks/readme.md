@@ -2,6 +2,11 @@
 
 This document provides step-by-step procedures for managing, debugging, and scaling the shared infrastructure.
 
+## Platform Runbooks Index
+- [Deployment and Rollback Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/deployment-rollback.md)
+- [Docker Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/docker-maintenance.md)
+- [Troubleshooting Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/troubleshooting.md)
+
 ## Routine Maintenance
 
 ### 1. Check Container Status and Health
