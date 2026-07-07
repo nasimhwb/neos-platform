@@ -1,0 +1,92 @@
+groups:
+  - name: neos-platform-alerts
+    rules:
+      # ------------------------------------------------------------------------
+      # 1. System Host alerts (Node Exporter)
+      # ------------------------------------------------------------------------
+      - alert: HostCpuHigh
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host CPU utilization is high on {{ $labels.instance }}"
+          description: "CPU load has been above 85% for more than 5 minutes."
+
+      - alert: HostMemoryLow
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host Memory is low on {{ $labels.instance }}"
+          description: "Available physical memory is below 10% for more than 5 minutes."
+
+      - alert: HostDiskSpaceLow
+        expr: (node_filesystem_free_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Host Disk Space is running out on root partition"
+          description: "Free disk space on root '/' is below 15%."
+
+      # ------------------------------------------------------------------------
+      # 2. Container Lifecycle alerts (cAdvisor)
+      # ------------------------------------------------------------------------
+      - alert: CoreContainerDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Prometheus target is offline: {{ $labels.job }}"
+          description: "The scrape target for {{ $labels.job }} has been down for more than 1 minute."
+
+      # ------------------------------------------------------------------------
+      # 3. Database platform alerts (Postgres Exporter)
+      # ------------------------------------------------------------------------
+      - alert: PostgresConnectionsHigh
+        expr: sum(pg_stat_activity_count) by (server) > 80
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "PostgreSQL connections count is high on {{ $labels.server }}"
+          description: "Active database connections has exceeded 80 (capping close to Max Connections)."
+
+      # ------------------------------------------------------------------------
+      # 4. Cache platform alerts (Redis Exporter)
+      # ------------------------------------------------------------------------
+      - alert: RedisMemoryUsageHigh
+        expr: redis_memory_used_bytes / (redis_memory_max_bytes + 1) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Redis Cache memory utilization is high"
+          description: "Redis memory usage is above 90% of maxmemory limit for more than 5 minutes."
+
+      # ------------------------------------------------------------------------
+      # 5. Object Storage alerts (MinIO Native)
+      # ------------------------------------------------------------------------
+      - alert: MinioNodeOffline
+        expr: minio_cluster_nodes_offline > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "MinIO cluster node is offline"
+          description: "One or more nodes in the MinIO storage cluster are offline."
+
+      # ------------------------------------------------------------------------
+      # 6. SSL Certificates expiration (Blackbox Exporter)
+      # ------------------------------------------------------------------------
+      - alert: SSLCertificateExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 86400 * 30
+        for: 12h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL Certificate for {{ $labels.instance }} is expiring soon"
+          description: "The Let's Encrypt certificate will expire in less than 30 days. Auto-renewal might have failed."

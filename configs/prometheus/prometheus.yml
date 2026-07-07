@@ -10,6 +10,10 @@ alerting:
         - targets:
             - alertmanager:9093
 
+# Load alerting rules files
+rule_files:
+  - "alert.rules.yml"
+
 # Scrape configurations
 scrape_configs:
   # 1. Prometheus self-monitoring
@@ -53,7 +57,27 @@ scrape_configs:
     static_configs:
       - targets: ['reverse-proxy:8082']
 
-  # 7. Application Services (Add your apps here when they expose metrics)
+  # 9. Blackbox Exporter (SSL & HTTP Endpoint Probes)
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://reverse-proxy:80  # HTTP redirect validation
+          - https://erp.neos-platform.local
+          - https://s3.neos-platform.local
+          - https://monitor.neos-platform.local
+          - https://status.neos-platform.local
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # 10. Application Services (Add your apps here when they expose metrics)
   # - job_name: 'neos-erp'
   #   metrics_path: '/actuator/prometheus' # or '/metrics'
   #   static_configs:
