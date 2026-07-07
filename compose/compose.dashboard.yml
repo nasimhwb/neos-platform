@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------------------------
+  # NEOS Platform Dashboard
+  # Next.js 15 control center for the entire platform
+  # ------------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: ../dashboard
+      dockerfile: Dockerfile
+    image: neos_dashboard:latest
+    container_name: neos_dashboard
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_PLATFORM_NAME: ${NEXT_PUBLIC_PLATFORM_NAME:-NEOS Platform}
+      NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neos-platform.local}
+      # Internal service endpoints (server-side only)
+      PROMETHEUS_URL: http://prometheus:9090
+      LOKI_URL: http://loki:3100
+      REDIS_URL: redis://:${REDIS_PASSWORD}@cache:6379
+      DATABASE_URL: postgres://dashboard_user:${DASHBOARD_DB_PASSWORD:-ChangeThisDashboardDbPassword!}@db:5432/postgres
+    networks:
+      - neos-private
+      - neos-monitoring
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:3000/api/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.dashboard-ui.rule=Host(`dashboard.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
+        - "traefik.http.routers.dashboard-ui.tls=true"
+        - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.dashboard-ui.loadbalancer.server.port=3000"

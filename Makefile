@@ -13,7 +13,8 @@ COMPOSE_CMD = docker compose \
 	-f compose/compose.monitoring.yml \
 	-f compose/compose.proxy.yml \
 	-f compose/compose.security.yml \
-	-f compose/compose.apps.yml
+	-f compose/compose.apps.yml \
+	-f compose/compose.dashboard.yml
 
 # 1. System Host Provisioning
 bootstrap:
@@ -31,7 +32,13 @@ up-apps:
 	@echo "Starting Neos Platform Infrastructure with Apps..."
 	$(COMPOSE_CMD) --profile apps --profile infrastructure up -d --build
 
-# 4. Tear Down Container Stacks
+# 4. Deploy Dashboard Only
+up-dashboard:
+	@echo "Starting NEOS Platform Dashboard..."
+	cd dashboard && npm run build
+	$(COMPOSE_CMD) up -d --build dashboard
+
+# 5. Tear Down Container Stacks
 down:
 	@echo "Stopping Neos Platform Infrastructure..."
 	$(COMPOSE_CMD) down --remove-orphans
