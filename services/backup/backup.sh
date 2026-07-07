@@ -1,13 +1,16 @@
 #!/bin/bash
 # ==============================================================================
-# NEOS PLATFORM - SHARED INFRASTRUCTURE BACKUP SCRIPT
+# NEOS PLATFORM - ENTERPRISE BACKUP ENGINE
 # ==============================================================================
-# This script performs backups of:
-#   1. Postgres databases (individually dumped and compressed)
-#   2. Redis cache (forces a sync save and copies the dump.rdb)
-#   3. MinIO object storage (archives the data volume containing app uploads)
-#   4. System configurations (archives configs/ folder)
-#   5. SSL Certificates (archives /srv/neos/shared/ssl)
+# Performs secure, encrypted backups of:
+#   1. PostgreSQL Databases (individual dumps)
+#   2. Redis State Snapshot (RDB and AOF journals)
+#   3. MinIO Object Storage (user application uploads)
+#   4. Shared System Configuration Files
+#   5. SSL Certificates
+#
+# Encrypts the final package using GnuPG and computes SHA256 integrity checksums.
+# Reports any failures automatically to Alertmanager.
 
 set -e
 set -o pipefail
@@ -29,6 +32,34 @@ BACKUP_DIR="${BACKUP_DIR:-/srv/neos/shared/backups}"
 RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-14}"
 TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
 SESSION_DIR="$BACKUP_DIR/tmp/backup_$TIMESTAMP"
+
+# ------------------------------------------------------------------------------
+# Failure Notification Hook (Alertmanager Integration)
+# ------------------------------------------------------------------------------
+send_failure_alert() {
+    local exit_code=$1
+    local line_num=$2
+    if [ "$exit_code" -ne 0 ]; then
+        echo ">>> ERROR: Backup job failed at line $line_num with exit code $exit_code."
+        echo "Sending critical alert to Alertmanager..."
+        
+        curl -s -X POST -H "Content-Type: application/json" \
+          -d "[{
+            \"labels\": {
+              \"alertname\": \"BackupSystemFailed\",
+              \"severity\": \"critical\",
+              \"instance\": \"host-vps\"
+            },
+            \"annotations\": {
+              \"summary\": \"NEOS Platform Backup Job Failed\",
+              \"description\": \"Backup execution script terminated abnormally on line $line_num. Status: $exit_code.\"
+            }
+          }]" \
+          http://alertmanager:9093/api/v2/alerts || echo "Warning: Failed to contact Alertmanager."
+    fi
+}
+# Trap all errors to alert handler
+trap 'send_failure_alert $? $LINENO' ERR
 
 echo "=== Starting Neos Platform Backup: $TIMESTAMP ==="
 mkdir -p "$SESSION_DIR"
@@ -103,23 +134,33 @@ tar -czf "$BACKUP_ARCHIVE" -C "$BACKUP_DIR/tmp" "backup_$TIMESTAMP"
 rm -rf "$SESSION_DIR"
 rm -rf "$BACKUP_DIR/tmp"
 
-echo "Backup archive created: $BACKUP_ARCHIVE"
+# ------------------------------------------------------------------------------
+# 7. Encryption & Integrity Checksums
+# ------------------------------------------------------------------------------
+if [ -n "${BACKUP_PASSPHRASE:-}" ]; then
+    echo "--- Encrypting Backup Package ---"
+    # Encrypt symmetrically using GPG
+    gpg --symmetric --batch --yes --passphrase "$BACKUP_PASSPHRASE" --output "$BACKUP_ARCHIVE.gpg" "$BACKUP_ARCHIVE"
+    
+    # Compute SHA256 checksum on the encrypted package
+    (cd "$BACKUP_DIR" && sha256sum "neos_backup_$TIMESTAMP.tar.gz.gpg" > "neos_backup_$TIMESTAMP.tar.gz.gpg.sha256")
+    
+    # Remove the unencrypted archive
+    rm -f "$BACKUP_ARCHIVE"
+    echo "Encrypted backup created: $BACKUP_ARCHIVE.gpg"
+    echo "Checksum created: $BACKUP_ARCHIVE.gpg.sha256"
+else
+    # Compute SHA256 checksum on the raw package
+    (cd "$BACKUP_DIR" && sha256sum "neos_backup_$TIMESTAMP.tar.gz" > "neos_backup_$TIMESTAMP.tar.gz.sha256")
+    echo "Warning: BACKUP_PASSPHRASE is not set. Backup is not encrypted."
+    echo "Checksum created: $BACKUP_ARCHIVE.sha256"
+fi
 
 # ------------------------------------------------------------------------------
-# 7. Enforce Retention Policy
+# 8. Enforce Retention Policy
 # ------------------------------------------------------------------------------
 echo "--- Cleaning up backups older than $RETENTION_DAYS days ---"
-find "$BACKUP_DIR" -name "neos_backup_*.tar.gz" -type f -mtime +"$RETENTION_DAYS" -exec rm -v {} \;
-
-# ------------------------------------------------------------------------------
-# 8. Offsite Cloud Backup (rclone Integration Placeholder)
-# ------------------------------------------------------------------------------
-# echo "--- Uploading to Cloud Storage (rclone) ---"
-# if command -v rclone &> /dev/null; then
-#     rclone copy "$BACKUP_ARCHIVE" "$RCLONE_REMOTE_NAME:$RCLONE_BUCKET_NAME/"
-#     echo "Cloud sync completed successfully."
-# else
-#     echo "Warning: rclone is not installed. Skipping offsite cloud upload."
-# fi
+# Prune old GPG, TAR, and SHA256 files
+find "$BACKUP_DIR" -name "neos_backup_*" -type f -mtime +"$RETENTION_DAYS" -exec rm -v {} \;
 
 echo "=== Backup Completed Successfully at $(date) ==="

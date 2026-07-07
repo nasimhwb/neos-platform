@@ -4,6 +4,7 @@ This document provides step-by-step procedures for managing, debugging, and scal
 
 ## Platform Runbooks Index
 - [Deployment and Rollback Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/deployment-rollback.md)
+- [Disaster Recovery & Rollback Operations Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/disaster-recovery.md)
 - [Docker Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/docker-maintenance.md)
 - [Monitoring & Alerting Operations Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/monitoring-maintenance.md)
 - [PostgreSQL Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/postgres-maintenance.md)
