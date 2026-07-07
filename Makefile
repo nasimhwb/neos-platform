@@ -113,3 +113,21 @@ update:
 clean:
 	@echo "Cleaning up dangling volumes and container cache..."
 	docker system prune -af --volumes
+
+# 16. Run Automated Smoke Tests
+smoke-tests:
+	@echo "Running automated smoke checks..."
+	chmod +x scripts/smoke_tests.sh
+	./scripts/smoke_tests.sh
+
+# 17. Run Automated Recovery / Restore Test
+test-restore:
+	@echo "Running automated backup recovery check..."
+	chmod +x backups/test-restore.sh
+	./backups/test-restore.sh
+
+# 18. Run Automated Backup & Recovery Validation
+validate-backups:
+	@echo "Running automated backup and recovery validation engine..."
+	chmod +x scripts/validate_backups.sh
+	./scripts/validate_backups.sh
