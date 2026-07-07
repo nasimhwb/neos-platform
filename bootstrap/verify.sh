@@ -164,6 +164,33 @@ if [ "$MODE" == "--post" ]; then
         fail_check "Docker Compose plugin is not installed or not working."
     fi
     echo -e "${GREEN}[PASS] Docker Compose plugin is working ($(docker compose version | awk '{print $4}')).${NC}"
+
+    echo -n "11. Verifying Core Platform Service Containers... "
+    check_core_container() {
+        local name=$1
+        if ! docker ps -a --format '{{.Names}}' | grep -Eq "^${name}$"; then
+            fail_check "Core service container '${name}' is missing/not created."
+        fi
+        if ! docker ps --filter "name=${name}" --filter "status=running" --format '{{.Names}}' | grep -q "${name}"; then
+            fail_check "Core service container '${name}' is not running."
+        fi
+        local health
+        health=$(docker inspect -f '{{if .State.Health}}{{.State.Health.Status}}{{else}}none{{end}}' "$name")
+        if [ "$health" = "unhealthy" ]; then
+            fail_check "Core service container '${name}' is UNHEALTHY."
+        fi
+    }
+    check_core_container "neos_postgres"
+    check_core_container "neos_pgbouncer"
+    check_core_container "neos_redis"
+    check_core_container "neos_minio"
+    echo -e "${GREEN}[PASS] All core platform service containers are running and healthy.${NC}"
+
+    echo -n "12. Verifying PgBouncer Listener Port 6432... "
+    if ! (echo >/dev/tcp/127.0.0.1/6432) &>/dev/null; then
+        fail_check "PgBouncer port 6432 is not responding."
+    fi
+    echo -e "${GREEN}[PASS] PgBouncer is listening on port 6432.${NC}"
 fi
 
 echo -e "${BLUE}==========================================================================${NC}"

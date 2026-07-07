@@ -23,11 +23,24 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_PLATFORM_NAME: ${NEXT_PUBLIC_PLATFORM_NAME:-NEOS Platform}
       NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neos-platform.local}
-      # Internal service endpoints (server-side only)
-      PROMETHEUS_URL: http://prometheus:9090
-      LOKI_URL: http://loki:3100
-      REDIS_URL: redis://:${REDIS_PASSWORD}@cache:6379
-      DATABASE_URL: postgres://dashboard_user:${DASHBOARD_DB_PASSWORD:-ChangeThisDashboardDbPassword!}@db:5432/postgres
+      # Core platform connection configs
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER:-postgres}
+      POSTGRES_SUPERUSER_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
+      REDIS_HOST: cache
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      MINIO_HOST: object-store
+      MINIO_PORT: 9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      PROMETHEUS_HOST: prometheus
+      PROMETHEUS_PORT: 9090
+      ALERTMANAGER_HOST: alertmanager
+      ALERTMANAGER_PORT: 9093
+      LOKI_HOST: loki
+      LOKI_PORT: 3100
     networks:
       - neos-private
       - neos-monitoring

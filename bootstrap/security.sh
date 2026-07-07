@@ -88,4 +88,15 @@ else
     echo "Existing SSL certificate found. Skipping dummy creation."
 fi
 
+# 5. Configure Daily Logical Backups Cron Job
+echo "Configuring daily backup cron job..."
+CRON_FILE="/etc/cron.d/neos-platform-backup"
+# Resolve repository root
+BOOTSTRAP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(dirname "$BOOTSTRAP_DIR")"
+# Write cron job
+echo "0 2 * * * root /bin/bash $REPO_DIR/backups/backup.sh >> /srv/neos/shared/logs/system/backup.log 2>&1" > "$CRON_FILE"
+chmod 0644 "$CRON_FILE"
+echo "Daily backup cron job registered at $CRON_FILE."
+
 echo "===> System Security Hardening Complete!"

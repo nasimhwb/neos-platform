@@ -5,11 +5,15 @@
 
 .PHONY: bootstrap up up-apps down restart ps logs reload-nginx doctor backup restore verify-backup config-check update clean
 
-# Compile compose files (Phase 1 core: Docker Engine + Traefik Proxy + Portainer CE)
+# Compile compose files (Core Platform Services: Databases, Cache, Storage, Monitoring, Proxy, Security, and Dashboard)
 COMPOSE_CMD = docker compose \
 	-f compose/compose.base.yml \
+	-f compose/compose.database.yml \
+	-f compose/compose.storage.yml \
+	-f compose/compose.monitoring.yml \
 	-f compose/compose.proxy.yml \
-	-f compose/compose.security.yml
+	-f compose/compose.security.yml \
+	-f compose/compose.dashboard.yml
 
 # 1. System Host Provisioning
 bootstrap:

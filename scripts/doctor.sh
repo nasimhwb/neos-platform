@@ -78,10 +78,16 @@ echo -e "\n${BLUE}--- [3/6] Auditing Infrastructure Containers Status ---${NC}"
 
 check_container() {
     local name=$1
+    local type=${2:-core}
     echo -n "Container '$name': "
     if ! docker ps -a --format '{{.Names}}' | grep -Eq "^${name}$"; then
-        echo -e "${YELLOW}NOT DEPLOYED (Skipped)${NC}"
-        return 0
+        if [ "$type" = "core" ]; then
+            echo -e "${RED}FAIL (Not created/missing)${NC}"
+            return 1
+        else
+            echo -e "${YELLOW}NOT DEPLOYED (Skipped)${NC}"
+            return 0
+        fi
     fi
     
     local status
@@ -106,13 +112,15 @@ check_container() {
     fi
 }
 
-check_container "neos_traefik"
-check_container "neos_portainer"
-check_container "neos_postgres"
-check_container "neos_redis"
-check_container "neos_minio"
-check_container "neos_prometheus"
-check_container "neos_grafana"
+# Core platform containers (must be present & running)
+check_container "neos_traefik" "core"
+check_container "neos_portainer" "core"
+check_container "neos_postgres" "core"
+check_container "neos_pgbouncer" "core"
+check_container "neos_redis" "core"
+check_container "neos_minio" "core"
+check_container "neos_prometheus" "core"
+check_container "neos_grafana" "core"
 
 # 4. Service Endpoint Connectivity Checks
 echo -e "\n${BLUE}--- [4/6] Auditing Service Endpoints API Connectivity ---${NC}"
@@ -147,8 +155,16 @@ if ! is_running "neos_postgres"; then
     echo -e "${YELLOW}SKIPPED (Postgres container not running)${NC}"
 elif docker exec neos_postgres pg_isready -U postgres &>/dev/null; then
     echo -e "${GREEN}PASS (Database answers queries)${NC}"
+fi
+
+# PgBouncer connection pooler check
+echo -n "Checking PgBouncer connection pooler on port 6432: "
+if ! is_running "neos_pgbouncer"; then
+    echo -e "${YELLOW}SKIPPED (PgBouncer container not running)${NC}"
+elif (echo >/dev/tcp/127.0.0.1/6432) &>/dev/null; then
+    echo -e "${GREEN}PASS (Listener active)${NC}"
 else
-    echo -e "${RED}FAIL (PostgreSQL is unreachable)${NC}"
+    echo -e "${RED}FAIL (PgBouncer listener port 6432 not responding)${NC}"
 fi
 
 # Redis connectivity test
