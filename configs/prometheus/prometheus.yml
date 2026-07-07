@@ -48,6 +48,11 @@ scrape_configs:
     static_configs:
       - targets: ['object-store:9000']
 
+  # 8. Ingress Proxy (Traefik Metrics)
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['reverse-proxy:8082']
+
   # 7. Application Services (Add your apps here when they expose metrics)
   # - job_name: 'neos-erp'
   #   metrics_path: '/actuator/prometheus' # or '/metrics'

@@ -8,7 +8,10 @@ This document provides step-by-step procedures for managing, debugging, and scal
 - [PostgreSQL Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/postgres-maintenance.md)
 - [MinIO Object Storage Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/minio-maintenance.md)
 - [Redis Cache Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/redis-maintenance.md)
+- [Traefik Ingress Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/traefik-maintenance.md)
 - [Troubleshooting Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/troubleshooting.md)
+
+---
 
 ## Routine Maintenance
 
@@ -20,7 +23,7 @@ make ps
 
 ### 2. View Log Streams
 All logs are shipped to Loki, but you can inspect raw logs using the Makefile:
-- View Nginx logs:
+- View Ingress Proxy logs:
   ```bash
   make logs service=reverse-proxy
   ```
@@ -55,38 +58,24 @@ If you are deploying a new application (e.g. `neos_payroll`) and need a new data
    docker exec -it neos_postgres psql -U postgres -d neos_payroll -c "GRANT ALL ON SCHEMA public TO payroll_user;"
    ```
 
-### 2. Add an Nginx Reverse Proxy Subdomain
-When routing a new application subdomain:
-1. Create a configuration file in `configs/nginx/conf.d/newapp.conf`.
-2. Model it after `configs/nginx/conf.d/apps.conf`.
-3. Re-run Certbot to request the SSL certificate for the new subdomain:
-   ```bash
-   sudo certbot certonly --webroot -w /srv/neos/www -d payroll.neos-platform.local
+### 2. Adding a new Subdomain for an App (Traefik v3)
+Because the platform uses Traefik with dynamic Docker service discovery, you do NOT need to write any web server configurations. 
+To route traffic to a new container:
+1. Attach the following labels to the service in your Docker Compose file:
+   ```yaml
+   labels:
+     - "traefik.enable=true"
+     - "traefik.http.routers.newapp.rule=Host(`newapp.${BASE_DOMAIN:-neos-platform.local}`)"
+     - "traefik.http.routers.newapp.entrypoints=websecure"
+     - "traefik.http.routers.newapp.tls=true"
+     - "traefik.http.routers.newapp.middlewares=security-headers@file,compression@file,rate-limit@file"
+     - "traefik.http.services.newapp.loadbalancer.server.port=80" # Target container port
    ```
-4. Reload Nginx to activate changes:
-   ```bash
-   make reload-nginx
-   ```
+2. Redeploy the stack. Traefik will automatically detect the new labels, request an SSL certificate from Let's Encrypt, and start routing HTTPS traffic.
 
 ---
 
-## Troubleshooting Certificates and SSL
-
-### Let's Encrypt SSL Expiry Check
-SSL certificates automatically renew if the cronjob created by `certbot` is active. To test if renewal works:
-```bash
-sudo certbot renew --dry-run
-```
-
-### Force Cert Reload
-If you've updated certificates and Nginx is still serving old ones, force Nginx to reload:
-```bash
-make reload-nginx
-```
-
----
-
-## System resource checks
+## System Resource Checks
 
 ### Check Disk Space
 To verify host and container volume sizes:
@@ -95,12 +84,8 @@ df -h
 docker system df
 ```
 
-### Clean unused Docker resource
+### Clean Unused Docker Resources
 To release disk space by deleting stopped containers, unused networks, and dangling build caches:
 ```bash
-docker system prune -f
-```
-To prune volumes as well (WARNING: this deletes unused data volumes; make sure no production volume is temporarily stopped):
-```bash
-docker volume prune
+make clean
 ```

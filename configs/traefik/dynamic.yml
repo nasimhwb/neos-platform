@@ -1,0 +1,59 @@
+# ==============================================================================
+# TRAEFIK V3 DYNAMIC CONFIGURATION & MIDDLEWARES
+# ==============================================================================
+
+http:
+  # ----------------------------------------------------------------------------
+  # Middlewares definitions
+  # ----------------------------------------------------------------------------
+  middlewares:
+    # 1. Global Production Security Headers
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        browserXssFilter: true
+        forceSTSHeader: true
+        stsSeconds: 31536000 # 1 year HSTS
+        stsIncludeSubdomains: true
+        stsPreload: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        # Content-Security-Policy custom fallback
+        contentSecurityPolicy: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; img-src 'self' data: https:; child-src 'self' blob:; connect-src 'self' wss: https:;"
+
+    # 2. Gzip Compression
+    compression:
+      compress: {}
+
+    # 3. Rate Limiting Middleware
+    rate-limit:
+      rateLimit:
+        average: 100
+        burst: 200
+
+    # 4. Traefik Dashboard Protection (Basic Auth)
+    # Credentials: admin / ChangeThisToASuperSecureDashboardPassword123!
+    dashboard-auth:
+      basicAuth:
+        users:
+          - "admin:$2y$05$y8.yH77e0340Gf85/n2NSeY4w514h/h9j5cOu349d91e3e7f59d57a"
+
+  # ----------------------------------------------------------------------------
+  # TLS Configurations
+  # ----------------------------------------------------------------------------
+  models:
+    default:
+      minVersion: VersionTLS12
+      cipherSuites:
+        # Strict modern TLS 1.2 & 1.3 ciphers
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP256
+        - CurveP384
+        - X25519
+      preferServerCipherSuites: true

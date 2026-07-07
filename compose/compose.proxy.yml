@@ -2,15 +2,9 @@ version: '3.8'
 
 services:
   reverse-proxy:
-    build:
-      context: ../services/nginx
-      dockerfile: Dockerfile
-    container_name: neos_nginx
+    image: traefik:${TRAEFIK_VERSION:-v3.0}
+    container_name: neos_traefik
     restart: unless-stopped
-    read_only: true
-    tmpfs:
-      - /var/cache/nginx
-      - /var/run
     security_opt:
       - no-new-privileges:true
     logging:
@@ -21,21 +15,24 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp" # UDP binding is required for HTTP/3 (QUIC)
     volumes:
-      - ../configs/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../configs/nginx/conf.d:/etc/nginx/conf.d:ro
-      - /srv/neos/shared/ssl:/etc/letsencrypt
-      - /srv/neos/shared/www:/var/www/html
+      # Read-only mount of Docker socket to read container labels dynamically
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ../configs/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ../configs/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - /srv/neos/shared/ssl:/letsencrypt
     networks:
       - neos-public
       - neos-private
       - neos-storage
       - neos-monitoring
     healthcheck:
-      test: ["CMD-SHELL", "curl -I http://localhost:80/ || exit 1"]
+      # Built-in Traefik CLI healthcheck uses the internal ping configurations
+      test: ["CMD", "traefik", "healthcheck"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
     deploy:
       resources:
         limits:
@@ -44,3 +41,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 64M
+      labels:
+        # Secure the Traefik administrative dashboard
+        - "traefik.enable=true"
+        - "traefik.http.routers.dashboard.rule=Host(`traefik.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.dashboard.entrypoints=websecure"
+        - "traefik.http.routers.dashboard.tls=true"
+        - "traefik.http.routers.dashboard.service=api@internal"
+        # Attach rate-limiting, gzip compression, security headers, and basic-auth
+        - "traefik.http.routers.dashboard.middlewares=security-headers@file,compression@file,rate-limit@file,dashboard-auth@file"
+        - "traefik.http.services.dashboard.loadbalancer.server.port=8082"

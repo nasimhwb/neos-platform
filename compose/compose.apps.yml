@@ -34,6 +34,13 @@ services:
         reservations:
           cpus: '0.05'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.kuma.rule=Host(`status.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.kuma.entrypoints=websecure"
+        - "traefik.http.routers.kuma.tls=true"
+        - "traefik.http.routers.kuma.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.kuma.loadbalancer.server.port=3001"
     profiles:
       - infrastructure
 
@@ -74,6 +81,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.erp.rule=Host(`erp.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.erp.entrypoints=websecure"
+        - "traefik.http.routers.erp.tls=true"
+        - "traefik.http.routers.erp.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.erp.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -108,6 +122,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.crm.rule=Host(`crm.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.crm.entrypoints=websecure"
+        - "traefik.http.routers.crm.tls=true"
+        - "traefik.http.routers.crm.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.crm.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -141,6 +162,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.hrms.rule=Host(`hrms.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.hrms.entrypoints=websecure"
+        - "traefik.http.routers.hrms.tls=true"
+        - "traefik.http.routers.hrms.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.hrms.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -176,6 +204,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.inventory.rule=Host(`inventory.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.inventory.entrypoints=websecure"
+        - "traefik.http.routers.inventory.tls=true"
+        - "traefik.http.routers.inventory.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.inventory.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -209,6 +244,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.billing.rule=Host(`billing.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.billing.entrypoints=websecure"
+        - "traefik.http.routers.billing.tls=true"
+        - "traefik.http.routers.billing.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.billing.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -242,6 +284,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.visitor.rule=Host(`visitor.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.visitor.entrypoints=websecure"
+        - "traefik.http.routers.visitor.tls=true"
+        - "traefik.http.routers.visitor.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.visitor.loadbalancer.server.port=80"
     profiles:
       - apps
 
@@ -277,5 +326,12 @@ services:
         reservations:
           cpus: '0.2'
           memory: 256M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.ai.rule=Host(`ai.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.ai.entrypoints=websecure"
+        - "traefik.http.routers.ai.tls=true"
+        - "traefik.http.routers.ai.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.ai.loadbalancer.server.port=80"
     profiles:
       - apps
