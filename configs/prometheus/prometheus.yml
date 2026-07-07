@@ -41,6 +41,12 @@ scrape_configs:
   - job_name: 'redis-exporter'
     static_configs:
       - targets: ['redis-exporter:9121']
+      
+  # 7. Object Storage (MinIO Cluster Metrics)
+  - job_name: 'minio'
+    metrics_path: '/minio/v2/metrics/cluster'
+    static_configs:
+      - targets: ['object-store:9000']
 
   # 7. Application Services (Add your apps here when they expose metrics)
   # - job_name: 'neos-erp'

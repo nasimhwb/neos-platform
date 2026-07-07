@@ -6,6 +6,7 @@ This document provides step-by-step procedures for managing, debugging, and scal
 - [Deployment and Rollback Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/deployment-rollback.md)
 - [Docker Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/docker-maintenance.md)
 - [PostgreSQL Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/postgres-maintenance.md)
+- [MinIO Object Storage Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/minio-maintenance.md)
 - [Redis Cache Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/redis-maintenance.md)
 - [Troubleshooting Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/troubleshooting.md)
 
