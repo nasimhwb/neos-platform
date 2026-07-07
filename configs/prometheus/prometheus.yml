@@ -78,7 +78,7 @@ scrape_configs:
         replacement: blackbox-exporter:9115
 
   # 10. Application Services (Add your apps here when they expose metrics)
-  # - job_name: 'neos-erp'
-  #   metrics_path: '/actuator/prometheus' # or '/metrics'
+  # - job_name: 'neos-app'
+  #   metrics_path: '/metrics'
   #   static_configs:
-  #     - targets: ['neos-erp-app:8000']
+  #     - targets: ['neos-app:80']

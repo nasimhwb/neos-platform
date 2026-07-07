@@ -57,3 +57,26 @@ http:
         - CurveP384
         - X25519
       preferServerCipherSuites: true
+
+  # ----------------------------------------------------------------------------
+  # Production Ingress Routing
+  # ----------------------------------------------------------------------------
+  routers:
+    neos-app-production:
+      rule: "HostRegexp(`app\\..+`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      service: neos-app-production-service
+      middlewares:
+        - security-headers@file
+        - compression@file
+        - rate-limit@file
+
+  services:
+    neos-app-production-service:
+      loadBalancer:
+        servers:
+          # Swapped dynamically by deployment script (blue vs green)
+          - url: "http://neos-app-blue:80"
+        passHostHeader: true

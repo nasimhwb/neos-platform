@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# NEOS PLATFORM - ATOMIC RELEASE-BASED DEPLOYMENT RUNNER
+# NEOS PLATFORM - BLUE-GREEN ZERO-DOWNTIME DEPLOYMENT RUNNER
 # ==============================================================================
 # Executed by the GHA deploy job as the 'nasim' user on the VPS.
 set -e
@@ -13,10 +13,10 @@ CURRENT_LINK="$BASE_DIR/current"
 TMP_SRC="/srv/neos/tmp/deploy-src"
 
 echo "=========================================================================="
-echo "=== Starting Release Deployment..."
+echo "=== Starting Zero-Downtime Blue-Green Deployment..."
 echo "=========================================================================="
 
-# 1. Generate sequence-based release ID (e.g. 2026-07-06-001)
+# 1. Generate sequence-based release ID
 DATE_PREFIX=$(date +"%Y-%m-%d")
 EXISTING_COUNT=$(find "$RELEASES_DIR" -maxdepth 1 -name "${DATE_PREFIX}-*" -type d 2>/dev/null | wc -l || echo 0)
 NEXT_NUM=$(printf "%03d" $((EXISTING_COUNT + 1)))
@@ -29,7 +29,6 @@ echo "Target Path: $NEW_RELEASE_PATH"
 # 2. Check deployment source directory
 if [ ! -d "$TMP_SRC" ]; then
     echo "ERROR: Deployment source directory $TMP_SRC does not exist."
-    echo "Ensure files were successfully uploaded before running this script."
     exit 1
 fi
 
@@ -40,7 +39,6 @@ cp -R "$TMP_SRC"/. "$NEW_RELEASE_PATH"/
 
 # 4. Link shared assets
 echo "Linking shared assets to current release..."
-# Symlink .env from shared/ to release root
 if [ -f "$SHARED_DIR/.env" ]; then
     ln -sf "$SHARED_DIR/.env" "$NEW_RELEASE_PATH/.env"
 else
@@ -50,37 +48,109 @@ fi
 # 5. Run Compose Config Validation
 echo "Validating Docker Compose configurations in release directory..."
 cd "$NEW_RELEASE_PATH"
-# Test the compose syntax
 make config-check
 
-# 6. Spin up new release containers
-echo "Starting container stacks..."
-# make up compiles all compose files relative to the new release path
-make up-apps
+# ------------------------------------------------------------------------------
+# Blue-Green Deployment Logic
+# ------------------------------------------------------------------------------
+# Read current Traefik config to identify active target
+TRAEFIK_DYNAMIC_FILE="$NEW_RELEASE_PATH/configs/traefik/dynamic.yml"
 
-# 7. Atomic symlink swap
-echo "Performing atomic symlink swap..."
-# Force creation of temporary link first, then rename it atomically to replace the current link
-ln -sfn "$NEW_RELEASE_PATH" "$BASE_DIR/current_tmp"
-mv -Tf "$BASE_DIR/current_tmp" "$CURRENT_LINK"
+if [ ! -f "$TRAEFIK_DYNAMIC_FILE" ]; then
+    echo "ERROR: Traefik dynamic configuration file not found at $TRAEFIK_DYNAMIC_FILE."
+    exit 1
+fi
 
-echo "Active release switched: $CURRENT_LINK -> $(readlink $CURRENT_LINK)"
+echo "Checking currently active routing target..."
+if grep -q "neos-app-blue" "$TRAEFIK_DYNAMIC_FILE"; then
+    ACTIVE_COLOR="blue"
+    INACTIVE_COLOR="green"
+elif grep -q "neos-app-green" "$TRAEFIK_DYNAMIC_FILE"; then
+    ACTIVE_COLOR="green"
+    INACTIVE_COLOR="blue"
+else
+    # Fallback default
+    ACTIVE_COLOR="green"
+    INACTIVE_COLOR="blue"
+fi
 
-# 8. Clean up staging folder
-echo "Cleaning staging directory..."
-rm -rf "$TMP_SRC"/*
+echo "  Active Color   : $ACTIVE_COLOR"
+echo "  Deploying To   : $INACTIVE_COLOR (Inactive target)"
 
-# 9. Prune old releases (retain latest 5)
-echo "Pruning older releases (retaining latest 5)..."
-cd "$RELEASES_DIR"
-# List directories in time-order, keep top 5, delete the rest
-ls -1t | tail -n +6 | while read -r old_release; do
-    if [ -n "$old_release" ]; then
-        echo "Removing obsolete release: $old_release"
-        rm -rf "$old_release"
+# 6. Database Migrations (Supabase Compatible Schema check)
+echo "--- Running Database Migrations (Supabase schema-ready) ---"
+# Placeholder database migrations trigger:
+# docker compose exec -T db psql -U postgres -d neos_app -f migrations.sql || true
+
+# 7. Spin up the inactive container
+echo "Starting container: neos-app-$INACTIVE_COLOR..."
+docker compose --profile apps up -d --build "neos-app-$INACTIVE_COLOR"
+
+# 8. Post-Startup Healthcheck Probe
+echo "Running health checks on the new $INACTIVE_COLOR container..."
+HEALTHY=0
+for i in {1..12}; do
+    # Run a temporary curl checker inside the private app network
+    if docker run --rm --network neos-private alpine curl -s -f "http://neos-app-$INACTIVE_COLOR:80/" &>/dev/null; then
+        echo "  [PASS] Container http://neos-app-$INACTIVE_COLOR is healthy!"
+        HEALTHY=1
+        break
     fi
+    echo "  Container not ready yet (attempt $i/12), waiting 5s..."
+    sleep 5
 done
 
-echo "=========================================================================="
-echo "=== [SUCCESS] Release $RELEASE_ID Deployed and Active! ==="
-echo "=========================================================================="
+# 9. Evaluate health status
+if [ "$HEALTHY" -eq 1 ]; then
+    echo "--- Swap Traffic (Zero-Downtime Swap) ---"
+    # Modify Traefik dynamic file to swap targets
+    # Update target routing link inside dynamic.yml
+    sed -i "s/neos-app-$ACTIVE_COLOR/neos-app-$INACTIVE_COLOR/g" "$TRAEFIK_DYNAMIC_FILE"
+    
+    # Sync dynamic file to shared volume config so Traefik picks it up instantly
+    if [ -f "/srv/neos/current/configs/traefik/dynamic.yml" ]; then
+        # Swap on shared active dynamic config as well
+        sed -i "s/neos-app-$ACTIVE_COLOR/neos-app-$INACTIVE_COLOR/g" "/srv/neos/current/configs/traefik/dynamic.yml"
+    fi
+    
+    # Atomic symlink swap
+    echo "Performing atomic symlink swap..."
+    ln -sfn "$NEW_RELEASE_PATH" "$BASE_DIR/current_tmp"
+    mv -Tf "$BASE_DIR/current_tmp" "$CURRENT_LINK"
+    echo "Active release switched: $CURRENT_LINK -> $(readlink $CURRENT_LINK)"
+
+    # Stop the old container to reclaim VPS memory resources
+    echo "Stopping old active container: neos-app-$ACTIVE_COLOR..."
+    docker compose stop "neos-app-$ACTIVE_COLOR" || true
+
+    # Clean up staging folder
+    echo "Cleaning staging directory..."
+    rm -rf "$TMP_SRC"/*
+
+    # Prune old releases (retain latest 5)
+    echo "Pruning older releases (retaining latest 5)..."
+    cd "$RELEASES_DIR"
+    ls -1t | tail -n +6 | while read -r old_release; do
+        if [ -n "$old_release" ]; then
+            echo "Removing obsolete release: $old_release"
+            rm -rf "$old_release"
+        fi
+    done
+    
+    echo "=========================================================================="
+    echo "=== [SUCCESS] Release $RELEASE_ID Successfully Swapped and Active! ==="
+    echo "=========================================================================="
+else
+    echo "=========================================================================="
+    echo ">>> [FAILURE] Healthcheck failed. Triggering AUTOMATIC ROLLBACK..."
+    echo "=========================================================================="
+    # Stop and remove the unhealthy container
+    docker compose stop "neos-app-$INACTIVE_COLOR" || true
+    docker compose rm -f "neos-app-$INACTIVE_COLOR" || true
+    
+    # Revert any code staging modifications
+    rm -rf "$NEW_RELEASE_PATH"
+    
+    echo "Automatic rollback finished. Active production traffic remained on $ACTIVE_COLOR."
+    exit 1
+fi

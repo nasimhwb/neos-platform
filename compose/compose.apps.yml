@@ -6,7 +6,6 @@ services:
   # ------------------------------------------------------------------------------
   uptime-kuma:
     image: louislam/uptime-kuma:1.23.11-alpine
-    container_name: neos_uptime_kuma
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -51,7 +50,6 @@ services:
   # 1. Neos ERP
   erp:
     image: nginx:1.26-alpine
-    container_name: neos_erp_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -94,7 +92,6 @@ services:
   # 2. Neos CRM
   crm:
     image: nginx:1.26-alpine
-    container_name: neos_crm_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -135,7 +132,6 @@ services:
   # 3. Neos HRMS
   hrms:
     image: nginx:1.26-alpine
-    container_name: neos_hrms_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -175,7 +171,6 @@ services:
   # 4. Neos Inventory
   inventory:
     image: nginx:1.26-alpine
-    container_name: neos_inventory_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -217,7 +212,6 @@ services:
   # 5. Neos Billing Dashboard
   billing:
     image: nginx:1.26-alpine
-    container_name: neos_billing_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -257,7 +251,6 @@ services:
   # 6. Neos Visitor Management
   visitor-management:
     image: nginx:1.26-alpine
-    container_name: neos_visitor_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -297,7 +290,6 @@ services:
   # 7. Neos AI Services
   ai-services:
     image: nginx:1.26-alpine
-    container_name: neos_ai_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -333,5 +325,93 @@ services:
         - "traefik.http.routers.ai.tls=true"
         - "traefik.http.routers.ai.middlewares=security-headers@file,compression@file,rate-limit@file"
         - "traefik.http.services.ai.loadbalancer.server.port=80"
+    profiles:
+      - apps
+
+  # 8. Neos-App (Blue Instance)
+  neos-app-blue:
+    image: ${NEOS_APP_BLUE_IMAGE:-nginx:1.26-alpine}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - DATABASE_URL=postgres://neos_app_user:${NEOS_APP_DB_PASSWORD}@db:5432/neos_app
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/4
+      - S3_ENDPOINT=object-store:9000
+      - S3_BUCKET=supabase-storage
+    networks:
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+      labels:
+        # Dynamic cookie routing for Canary/testing of the Blue build
+        - "traefik.enable=true"
+        - "traefik.http.routers.neos-app-blue-canary.rule=Host(`app.${BASE_DOMAIN:-neos-platform.local}`) && HeadersRegexp(`Cookie`, `.*deploy_color=blue.*`)"
+        - "traefik.http.routers.neos-app-blue-canary.entrypoints=websecure"
+        - "traefik.http.routers.neos-app-blue-canary.tls=true"
+        - "traefik.http.routers.neos-app-blue-canary.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.neos-app-blue-canary-svc.loadbalancer.server.port=80"
+    profiles:
+      - apps
+
+  # 9. Neos-App (Green Instance)
+  neos-app-green:
+    image: ${NEOS_APP_GREEN_IMAGE:-nginx:1.26-alpine}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - DATABASE_URL=postgres://neos_app_user:${NEOS_APP_DB_PASSWORD}@db:5432/neos_app
+      - REDIS_URL=redis://:ChangeThisToASuperSecureRedisPassword456!@cache:6379/4
+      - S3_ENDPOINT=object-store:9000
+      - S3_BUCKET=supabase-storage
+    networks:
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+      labels:
+        # Dynamic cookie routing for Canary/testing of the Green build
+        - "traefik.enable=true"
+        - "traefik.http.routers.neos-app-green-canary.rule=Host(`app.${BASE_DOMAIN:-neos-platform.local}`) && HeadersRegexp(`Cookie`, `.*deploy_color=green.*`)"
+        - "traefik.http.routers.neos-app-green-canary.entrypoints=websecure"
+        - "traefik.http.routers.neos-app-green-canary.tls=true"
+        - "traefik.http.routers.neos-app-green-canary.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.neos-app-green-canary-svc.loadbalancer.server.port=80"
     profiles:
       - apps

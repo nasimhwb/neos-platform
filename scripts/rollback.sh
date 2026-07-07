@@ -2,7 +2,8 @@
 # ==============================================================================
 # NEOS PLATFORM - AUTOMATED DEPLOYMENT ROLLBACK RUNNER
 # ==============================================================================
-# Reverts the active symlink to the previous healthy release and redeploys it.
+# Reverts the active symlink to the previous healthy release, starts its
+# respective container color, and dynamically updates Traefik routing.
 # Usage: ./rollback.sh
 
 set -e
@@ -52,13 +53,29 @@ mv -Tf "$BASE_DIR/current_tmp" "$CURRENT_LINK"
 
 echo "Active symlink reverted: $CURRENT_LINK -> $(readlink $CURRENT_LINK)"
 
-# 4. Redeploy compose stacks from the reverted folder
+# 4. Redeploy compose stacks from the reverted folder and swap active color
 echo "Restarting containers from previous release configs..."
 cd "$PREV_RELEASE_PATH"
-# Run make up on the previous release files
-make up-apps
 
-# 5. Optional: delete the failed release to clean up
+TRAEFIK_DYNAMIC_FILE="$PREV_RELEASE_PATH/configs/traefik/dynamic.yml"
+if [ -f "$TRAEFIK_DYNAMIC_FILE" ]; then
+    if grep -q "neos-app-blue" "$TRAEFIK_DYNAMIC_FILE"; then
+        REVERTED_COLOR="blue"
+        OFF_COLOR="green"
+    else
+        REVERTED_COLOR="green"
+        OFF_COLOR="blue"
+    fi
+    echo "Reverting Traefik routing target to $REVERTED_COLOR..."
+    # Ensure reverted color container is running
+    docker compose --profile apps up -d --build "neos-app-$REVERTED_COLOR"
+    # Stop the other color container to free resources
+    docker compose stop "neos-app-$OFF_COLOR" || true
+else
+    # Fallback to standard apps startup
+    make up-apps
+fi
+
 echo "Failed release is left at $ACTIVE_RELEASE for diagnostics."
 echo "If you wish to remove it, run: rm -rf $ACTIVE_RELEASE"
 
