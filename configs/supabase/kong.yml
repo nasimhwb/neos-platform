@@ -1,0 +1,38 @@
+_format_version: "1.1"
+
+services:
+  # 1. Supabase Auth Routing
+  - name: auth
+    url: http://supabase-auth:9999
+    routes:
+      - name: auth-route
+        paths:
+          - /auth/v1
+        strip_path: true
+
+  # 2. Supabase PostgREST Schema REST routing
+  - name: rest
+    url: http://supabase-rest:3000
+    routes:
+      - name: rest-route
+        paths:
+          - /rest/v1
+        strip_path: true
+
+  # 3. Supabase Elixir Realtime WebSocket routing
+  - name: realtime
+    url: http://supabase-realtime:4000
+    routes:
+      - name: realtime-route
+        paths:
+          - /realtime/v1
+        strip_path: true
+
+  # 4. Supabase storage proxy routing
+  - name: storage
+    url: http://supabase-storage:5000
+    routes:
+      - name: storage-route
+        paths:
+          - /storage/v1
+        strip_path: true

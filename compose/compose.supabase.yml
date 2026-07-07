@@ -1,0 +1,221 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------------------------
+  # Supabase Ingress Gateway (Kong)
+  # ------------------------------------------------------------------------------
+  supabase-gateway:
+    image: kong:2.8.1-alpine
+    container_name: neos_supabase_gateway
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000, 0.0.0.0:8443 ssl http2
+      KONG_LOG_LEVEL: error
+    volumes:
+      - ../configs/supabase/kong.yml:/usr/local/kong/declarative/kong.yml:ro
+    networks:
+      - neos-public
+      - neos-private
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.supabase.rule=Host(`supabase.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.supabase.entrypoints=websecure"
+        - "traefik.http.routers.supabase.tls=true"
+        - "traefik.http.routers.supabase.middlewares=security-headers@file,compression@file,rate-limit@file"
+        - "traefik.http.services.supabase.loadbalancer.server.port=8000"
+
+  # ------------------------------------------------------------------------------
+  # Supabase Auth Engine (GoTrue)
+  # ------------------------------------------------------------------------------
+  supabase-auth:
+    image: supabase/gotrue:v2.143.0
+    container_name: neos_supabase_auth
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      # Database connection back to core PG database
+      GOTRUE_DATABASE_URL: postgres://supabase_admin:${POSTGRES_SUPABASE_ADMIN_PASSWORD:-change_this_admin_password_123}@db:5432/postgres
+      GOTRUE_JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_SITE_URL: https://app.${BASE_DOMAIN:-neos-platform.local}
+      GOTRUE_URI_ALLOW_LIST: https://app.${BASE_DOMAIN:-neos-platform.local}/*
+      GOTRUE_DISABLE_SIGNUP: "false"
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "false" # Disable real SMTP for testing (uses mock logs)
+      GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT:-}
+      GOTRUE_SMTP_USER: ${SMTP_USER:-}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS:-}
+      GOTRUE_SMTP_SENDER_NAME: NeosPlatformAuth
+    networks:
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:9999/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Supabase REST Generation Engine (PostgREST)
+  # ------------------------------------------------------------------------------
+  supabase-rest:
+    image: postgrest/postgrest:v12.2.0
+    container_name: neos_supabase_rest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      # Authenticator connects to PG and delegates scopes based on JWT payloads
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_AUTHENTICATOR_PASSWORD:-change_this_supabase_auth_password_in_prod}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
+      PGRST_DB_USE_LEGACY_GUC_HEADERS: "false"
+    networks:
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Supabase Realtime Event Streamer (Realtime)
+  # ------------------------------------------------------------------------------
+  supabase-realtime:
+    image: supabase/realtime:v2.27.0
+    container_name: neos_supabase_realtime
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_SUPABASE_ADMIN_PASSWORD:-change_this_admin_password_123}
+      DB_NAME: postgres
+      DB_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
+      REPLICATION_MODE: WAL
+      REPLICATION_SLOT_NAME: supabase_realtime_rcv
+      PUBLISHER_CONN_TIMEOUT: 5000
+    networks:
+      - neos-private
+      - neos-database
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:4000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 256M
+        reservations:
+          cpus: '0.05'
+          memory: 128M
+
+  # ------------------------------------------------------------------------------
+  # Supabase Storage S3-compatible API Adapter
+  # ------------------------------------------------------------------------------
+  supabase-storage:
+    image: supabase/storage-api:v0.40.4
+    container_name: neos_supabase_storage
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      PORT: 5000
+      DATABASE_URL: postgres://supabase_admin:${POSTGRES_SUPABASE_ADMIN_PASSWORD:-change_this_admin_password_123}@db:5432/postgres
+      ANON_KEY: ${SUPABASE_ANON_KEY:-local_jwt_anon_key}
+      SERVICE_KEY: ${SUPABASE_SERVICE_KEY:-local_jwt_service_key}
+      PGRST_JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
+      # Proxy to local S3 compatibility layer (MinIO)
+      FILE_STORAGE_BACKEND: s3
+      GLOBAL_S3_BUCKET: supabase-storage
+      AWS_ACCESS_KEY_ID: supabase_user
+      AWS_SECRET_ACCESS_KEY: ${SUPABASE_S3_PASSWORD:-ChangeThisToASuperSecureS3Password123!}
+      AWS_REGION: us-east-1
+      AWS_ENDPOINT: http://object-store:9000
+      AWS_S3_FORCE_PATH_STYLE: "true"
+    networks:
+      - neos-private
+      - neos-database
+      - neos-storage
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:5000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M

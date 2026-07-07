@@ -11,6 +11,7 @@ This document provides step-by-step procedures for managing, debugging, and scal
 - [PostgreSQL Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/postgres-maintenance.md)
 - [MinIO Object Storage Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/minio-maintenance.md)
 - [Redis Cache Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/redis-maintenance.md)
+- [Supabase Compatibility Layer Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/supabase-compatibility.md)
 - [Traefik Ingress Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/traefik-maintenance.md)
 - [Troubleshooting Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/troubleshooting.md)
 
