@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { SchedulerService } from "@/lib/services/SchedulerService";
 import { DockerService } from "@/lib/services/DockerService";
 import { AuditService } from "@/lib/services/AuditService";
 
@@ -6,15 +7,13 @@ export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { status, source: statusSource } = await DockerService.getDockerStatus();
-    const { containers } = await DockerService.getContainers();
-    const { networks } = await DockerService.getNetworks();
-    const { volumes } = await DockerService.getVolumes();
+    const snapshot = await SchedulerService.getLatestSnapshot();
+    const { status, containers, networks, volumes } = snapshot.docker || { status: null, containers: [], networks: [], volumes: [] };
 
     return NextResponse.json({
       data: { status, containers, networks, volumes },
-      timestamp: new Date().toISOString(),
-      source: statusSource,
+      timestamp: snapshot.timestamp,
+      source: "cached",
       role,
     });
   } catch (error: any) {

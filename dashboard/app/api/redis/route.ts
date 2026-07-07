@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RedisService } from "@/lib/services/RedisService";
+import { SchedulerService } from "@/lib/services/SchedulerService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { stats, source } = await RedisService.getStats();
+    const snapshot = await SchedulerService.getLatestSnapshot();
+    const stats = snapshot.redis;
+
     return NextResponse.json({
       data: stats,
-      timestamp: new Date().toISOString(),
-      source,
+      timestamp: snapshot.timestamp,
+      source: "cached",
       role,
     });
   } catch (error: any) {

@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { BackupService } from "@/lib/services/BackupService";
+import { SchedulerService } from "@/lib/services/SchedulerService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { backups, source } = await BackupService.getBackups();
+    const snapshot = await SchedulerService.getLatestSnapshot();
+    const backups = snapshot.backups;
+
     return NextResponse.json({
       data: backups,
-      timestamp: new Date().toISOString(),
-      source,
+      timestamp: snapshot.timestamp,
+      source: "cached",
       role,
     });
   } catch (error: any) {

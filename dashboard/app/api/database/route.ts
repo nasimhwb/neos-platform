@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { DatabaseService } from "@/lib/services/DatabaseService";
+import { SchedulerService } from "@/lib/services/SchedulerService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { stats, source } = await DatabaseService.getStats();
+    const snapshot = await SchedulerService.getLatestSnapshot();
+    const stats = snapshot.database;
+    const pgbouncer = snapshot.pgbouncer;
+
     return NextResponse.json({
-      data: stats,
-      timestamp: new Date().toISOString(),
-      source,
+      data: { ...stats, pgbouncer },
+      timestamp: snapshot.timestamp,
+      source: "cached",
       role,
     });
   } catch (error: any) {

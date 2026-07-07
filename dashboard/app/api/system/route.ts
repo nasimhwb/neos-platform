@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { SystemService } from "@/lib/services/SystemService";
+import { SchedulerService } from "@/lib/services/SchedulerService";
 import { DeploymentService } from "@/lib/services/DeploymentService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
   
   try {
-    const { metrics, source: sysSource } = await SystemService.getMetrics();
+    const snapshot = await SchedulerService.getLatestSnapshot();
     const { platform } = await DeploymentService.getDeploymentData();
     
     return NextResponse.json({
-      data: { metrics, platform },
-      timestamp: new Date().toISOString(),
-      source: sysSource,
+      data: { metrics: snapshot.system, platform },
+      timestamp: snapshot.timestamp,
+      source: "cached",
       role,
     });
   } catch (error: any) {
