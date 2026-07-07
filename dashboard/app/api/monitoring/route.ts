@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RedisService } from "@/lib/services/RedisService";
+import { MonitoringService } from "@/lib/services/MonitoringService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { stats, source } = await RedisService.getStats();
+    const { alerts, monitors, source } = await MonitoringService.getMonitoringData();
     return NextResponse.json({
-      data: stats,
+      data: { alerts, monitors },
       timestamp: new Date().toISOString(),
       source,
       role,

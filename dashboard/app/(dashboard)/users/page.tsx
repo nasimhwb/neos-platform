@@ -1,8 +1,11 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockUsers } from "@/lib/mock-data";
 import { formatRelativeTime } from "@/lib/utils";
-import { Users, UserPlus, ShieldCheck } from "lucide-react";
+import { Users as UsersIcon, UserPlus, ShieldCheck } from "lucide-react";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-500/10 text-red-400 border-red-500/20",
@@ -11,7 +14,7 @@ const roleColors: Record<string, string> = {
 };
 
 export default function UsersPage() {
-  const users = mockUsers;
+  const { data: users } = useApiData("/api/users", mockUsers);
 
   return (
     <div className="flex flex-col h-full">
@@ -32,7 +35,7 @@ export default function UsersPage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-              <Users className="w-4 h-4" /> All Users
+              <UsersIcon className="w-4 h-4" /> All Users
             </h2>
             <button className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors border border-border px-3 py-1.5 rounded-lg hover:bg-muted/30">
               <UserPlus className="w-3.5 h-3.5" /> Invite User
@@ -64,7 +67,7 @@ export default function UsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${roleColors[user.role]}`}>
+                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border ${roleColors[user.role] || "text-slate-400 border-slate-700 bg-slate-800/10"}`}>
                         <ShieldCheck className="w-3 h-3" /> {user.role}
                       </span>
                     </td>

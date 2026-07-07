@@ -1,12 +1,15 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { MetricCard } from "@/components/shared/MetricCard";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockMinioStats } from "@/lib/mock-data";
 import { formatBytes, formatRelativeTime } from "@/lib/utils";
 import { HardDrive, Package, Users, ShieldCheck } from "lucide-react";
 
 export default function StoragePage() {
-  const stats = mockMinioStats;
+  const { data: stats } = useApiData("/api/storage", mockMinioStats);
 
   return (
     <div className="flex flex-col h-full">

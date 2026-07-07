@@ -1,18 +1,46 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockApplications } from "@/lib/mock-data";
 import { formatRelativeTime } from "@/lib/utils";
 import { ExternalLink, RotateCcw, FileText, Globe, Database, Zap } from "lucide-react";
+import { useState } from "react";
 
 export default function ApplicationsPage() {
-  const apps = mockApplications;
+  const { data: apps, refresh } = useApiData("/api/applications", mockApplications);
+  const [restartingId, setRestartingId] = useState<string | null>(null);
+
   const running = apps.filter(a => a.status === "healthy").length;
   const degraded = apps.filter(a => a.status === "degraded").length;
-  const unknown = apps.filter(a => a.status === "unknown").length;
+  const unhealthy = apps.filter(a => a.status === "unhealthy").length;
+
+  const handleRestart = async (containerName: string) => {
+    setRestartingId(containerName);
+    try {
+      const res = await fetch("/api/docker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: containerName, action: "restart" }),
+      });
+      if (res.ok) {
+        alert(`Restart command sent to container ${containerName}`);
+        refresh();
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.message || "Failed to restart container"}`);
+      }
+    } catch (e: any) {
+      alert(`Network error: ${e.message}`);
+    } finally {
+      setRestartingId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Applications" subtitle={`${running} healthy · ${degraded} degraded · ${unknown} unknown`} />
+      <Header title="Applications" subtitle={`${running} healthy · ${degraded} degraded · ${unhealthy} unhealthy`} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         {/* Summary row */}
@@ -26,8 +54,8 @@ export default function ApplicationsPage() {
             <p className="text-xs text-muted-foreground mt-1">Degraded</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-slate-400">{unknown}</p>
-            <p className="text-xs text-muted-foreground mt-1">Unknown</p>
+            <p className="text-2xl font-bold text-red-400">{unhealthy}</p>
+            <p className="text-xs text-muted-foreground mt-1">Unhealthy</p>
           </div>
         </div>
 
@@ -52,22 +80,22 @@ export default function ApplicationsPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-y-2 text-xs mb-4">
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground col-span-2">
                   <Globe className="w-3.5 h-3.5" />
                   <a href={`https://${app.domain}`} target="_blank" rel="noopener noreferrer"
                     className="hover:text-foreground transition-colors truncate">{app.domain}</a>
                 </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-muted-foreground col-span-2">
                   <span className="font-mono">{app.container}</span>
                 </div>
                 {app.dbName && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-2 text-muted-foreground col-span-1">
                     <Database className="w-3.5 h-3.5" />
                     <span className="font-mono">{app.dbName}</span>
                   </div>
                 )}
                 {app.redisDb !== undefined && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex items-center gap-2 text-muted-foreground col-span-1">
                     <Zap className="w-3.5 h-3.5" />
                     <span className="font-mono">redis:{app.redisDb}</span>
                   </div>
@@ -79,14 +107,24 @@ export default function ApplicationsPage() {
                   Deployed {formatRelativeTime(app.lastDeployment)}
                 </span>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground" title="Restart">
-                    <RotateCcw className="w-3.5 h-3.5" />
+                  <button 
+                    onClick={() => handleRestart(app.container)}
+                    disabled={restartingId === app.container}
+                    className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-50"
+                    title="Restart"
+                  >
+                    <RotateCcw className={`w-3.5 h-3.5 ${restartingId === app.container ? "animate-spin" : ""}`} />
                   </button>
-                  <button className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground" title="View Logs">
+                  <a href={`/logs?source=${app.container}`}
+                    className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground" 
+                    title="View Logs"
+                  >
                     <FileText className="w-3.5 h-3.5" />
-                  </button>
+                  </a>
                   <a href={`https://${app.domain}`} target="_blank" rel="noopener noreferrer"
-                    className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground" title="Open App">
+                    className="p-1.5 rounded-md hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground" 
+                    title="Open App"
+                  >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>

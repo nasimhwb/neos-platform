@@ -1,4 +1,7 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockFirewallRules, mockSecurityEvents } from "@/lib/mock-data";
 import { cn, formatRelativeTime } from "@/lib/utils";
 import { Shield, AlertTriangle, Info, Lock } from "lucide-react";
@@ -10,13 +13,21 @@ const severityIcon: Record<string, React.ReactNode> = {
 };
 
 export default function SecurityPage() {
-  const rules = mockFirewallRules;
-  const events = mockSecurityEvents;
-  const blocked = events.filter(e => e.type === "blocked").length;
+  const { data: secData } = useApiData("/api/security", {
+    firewallRules: mockFirewallRules,
+    securityEvents: mockSecurityEvents,
+    sshStatus: "inactive",
+    openPorts: [],
+    blockedIps: [],
+  });
+
+  const rules = secData.firewallRules;
+  const events = secData.securityEvents;
+  const blocked = secData.blockedIps.length;
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Security" subtitle="Firewall · Fail2Ban · SSH · Open Ports" />
+      <Header title="Security" subtitle={`Firewall · Fail2Ban · SSH (${secData.sshStatus}) · Open Ports (${secData.openPorts.join(", ")})`} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Summary */}
@@ -31,7 +42,7 @@ export default function SecurityPage() {
           </div>
           <div className="bg-card border border-border rounded-xl p-4 text-center">
             <p className="text-2xl font-bold text-amber-400">{blocked}</p>
-            <p className="text-xs text-muted-foreground mt-1">Blocked (24h)</p>
+            <p className="text-xs text-muted-foreground mt-1">Blocked IPs</p>
           </div>
         </div>
 

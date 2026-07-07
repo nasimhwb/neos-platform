@@ -1,14 +1,49 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockDockerStatus, mockContainers, mockNetworks, mockVolumes } from "@/lib/mock-data";
-import { formatBytes, formatRelativeTime } from "@/lib/utils";
-import { Container, Network, HardDrive, Activity } from "lucide-react";
+import { formatBytes } from "@/lib/utils";
+import { Container, Network, HardDrive, Activity, RotateCw } from "lucide-react";
+import { useState } from "react";
 
 export default function InfrastructurePage() {
-  const docker = mockDockerStatus;
-  const containers = mockContainers;
-  const networks = mockNetworks;
-  const volumes = mockVolumes;
+  const { data: dockerData, refresh } = useApiData("/api/docker", {
+    status: mockDockerStatus,
+    containers: mockContainers,
+    networks: mockNetworks,
+    volumes: mockVolumes,
+  });
+
+  const [restartingId, setRestartingId] = useState<string | null>(null);
+
+  const docker = dockerData.status;
+  const containers = dockerData.containers;
+  const networks = dockerData.networks;
+  const volumes = dockerData.volumes;
+
+  const handleRestart = async (containerId: string) => {
+    setRestartingId(containerId);
+    try {
+      const res = await fetch("/api/docker", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: containerId, action: "restart" }),
+      });
+      if (res.ok) {
+        alert(`Restart command sent to container ${containerId}`);
+        refresh();
+      } else {
+        const err = await res.json();
+        alert(`Error: ${err.message || "Failed to restart container"}`);
+      }
+    } catch (e: any) {
+      alert(`Network error: ${e.message}`);
+    } finally {
+      setRestartingId(null);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -49,6 +84,7 @@ export default function InfrastructurePage() {
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">CPU</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Memory</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden lg:table-cell">Ports</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -61,6 +97,16 @@ export default function InfrastructurePage() {
                     <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">{formatBytes(c.memoryUsage)}</td>
                     <td className="px-4 py-3 text-xs font-mono text-muted-foreground hidden lg:table-cell">
                       {c.ports.length > 0 ? c.ports.join(", ") : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => handleRestart(c.id)}
+                        disabled={restartingId === c.id}
+                        className="text-xs bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 hover:text-white px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ml-auto disabled:opacity-50"
+                      >
+                        <RotateCw className={`w-3.5 h-3.5 ${restartingId === c.id ? "animate-spin" : ""}`} />
+                        {restartingId === c.id ? "Restarting..." : "Restart"}
+                      </button>
                     </td>
                   </tr>
                 ))}

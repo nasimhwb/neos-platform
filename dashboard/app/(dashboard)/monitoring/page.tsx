@@ -1,5 +1,8 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockAlerts, mockUptimeMonitors } from "@/lib/mock-data";
 import { formatRelativeTime } from "@/lib/utils";
 import { AlertTriangle, CheckCircle2, ExternalLink, Activity } from "lucide-react";
@@ -11,8 +14,13 @@ const severityColors: Record<string, string> = {
 };
 
 export default function MonitoringPage() {
-  const alerts = mockAlerts;
-  const monitors = mockUptimeMonitors;
+  const { data: monitoringData } = useApiData("/api/monitoring", {
+    alerts: mockAlerts,
+    monitors: mockUptimeMonitors,
+  });
+
+  const alerts = monitoringData.alerts;
+  const monitors = monitoringData.monitors;
   const firingAlerts = alerts.filter(a => a.status === "firing");
 
   return (
@@ -52,7 +60,7 @@ export default function MonitoringPage() {
             {alerts.length === 0
               ? <div className="bg-card border border-border rounded-xl p-6 text-center text-muted-foreground text-sm">No alerts</div>
               : alerts.map(alert => (
-                <div key={alert.id} className={`border rounded-xl px-4 py-3 flex items-start gap-3 ${severityColors[alert.severity]}`}>
+                <div key={alert.id} className={`border rounded-xl px-4 py-3 flex items-start gap-3 ${severityColors[alert.severity] || "text-slate-400 bg-slate-400/10 border-slate-400/20"}`}>
                   {alert.status === "firing"
                     ? <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                     : <CheckCircle2 className="w-4 h-4 flex-shrink-0 mt-0.5" />}

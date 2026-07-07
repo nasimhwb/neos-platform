@@ -1,15 +1,27 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { MetricCard } from "@/components/shared/MetricCard";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockBackups } from "@/lib/mock-data";
 import { formatBytes, formatDuration, formatRelativeTime } from "@/lib/utils";
 import { Archive, Clock, CheckCircle2, XCircle, ShieldCheck } from "lucide-react";
 
 export default function BackupsPage() {
-  const backups = mockBackups;
-  const lastBackup = backups[0];
+  const { data: backups } = useApiData("/api/backups", mockBackups);
+  
+  const lastBackup = backups[0] || { timestamp: new Date().toISOString(), status: "success", sizeBytes: 0, expiresAt: new Date().toISOString() };
   const successCount = backups.filter(b => b.status === "success").length;
   const totalSize = backups.filter(b => b.status === "success").reduce((sum, b) => sum + b.sizeBytes, 0);
+
+  // Calculate next backup countdown
+  const nextBackupTime = new Date();
+  nextBackupTime.setUTCHours(2, 0, 0, 0); // 02:00 UTC
+  if (nextBackupTime.getTime() <= Date.now()) {
+    nextBackupTime.setUTCDate(nextBackupTime.getUTCDate() + 1);
+  }
+  const hoursRemaining = Math.max(1, Math.round((nextBackupTime.getTime() - Date.now()) / (1000 * 60 * 60)));
 
   return (
     <div className="flex flex-col h-full">
@@ -19,9 +31,9 @@ export default function BackupsPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricCard title="Last Backup" value={formatRelativeTime(lastBackup.timestamp)} subtitle={lastBackup.status} icon={Archive} />
-          <MetricCard title="Success Rate" value={`${Math.round((successCount / backups.length) * 100)}%`} subtitle={`${successCount}/${backups.length} backups`} icon={CheckCircle2} />
+          <MetricCard title="Success Rate" value={backups.length > 0 ? `${Math.round((successCount / backups.length) * 100)}%` : "100%"} subtitle={`${successCount}/${backups.length} backups`} icon={CheckCircle2} />
           <MetricCard title="Total Stored" value={formatBytes(totalSize)} subtitle={`${backups.length} backup files`} icon={Archive} />
-          <MetricCard title="Retention" value="14 days" subtitle="Auto-purge enabled" icon={Clock} />
+          <MetricCard title="Retention" value={`${lastBackup.retentionDays || 14} days`} subtitle="Auto-purge enabled" icon={Clock} />
         </div>
 
         {/* Next backup countdown */}
@@ -31,7 +43,7 @@ export default function BackupsPage() {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground">Next Scheduled Backup</p>
-            <p className="text-xs text-muted-foreground">Daily at 02:00 UTC — approximately in 8 hours</p>
+            <p className="text-xs text-muted-foreground">Daily at 02:00 UTC — approximately in {hoursRemaining} hour{hoursRemaining > 1 ? "s" : ""}</p>
           </div>
           <div className="ml-auto">
             <StatusBadge status="healthy" />

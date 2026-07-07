@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { RedisService } from "@/lib/services/RedisService";
+import { BackupService } from "@/lib/services/BackupService";
 
 export async function GET(request: NextRequest) {
   const role = request.headers.get("x-user-role") || "Read Only";
 
   try {
-    const { stats, source } = await RedisService.getStats();
+    const { backups, source } = await BackupService.getBackups();
     return NextResponse.json({
-      data: stats,
+      data: backups,
       timestamp: new Date().toISOString(),
       source,
       role,

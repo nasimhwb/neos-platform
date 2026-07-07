@@ -1,17 +1,20 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { MetricCard } from "@/components/shared/MetricCard";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockPostgresStats } from "@/lib/mock-data";
 import { formatBytes, formatUptime } from "@/lib/utils";
 import { Database, Users, Activity, Clock } from "lucide-react";
 
 export default function PostgresPage() {
-  const stats = mockPostgresStats;
+  const { data: stats } = useApiData("/api/database", mockPostgresStats);
   const totalSize = stats.databases.reduce((sum, db) => sum + db.sizeBytes, 0);
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="PostgreSQL 16" subtitle={`${stats.version.split(" ")[0]} ${stats.version.split(" ")[1]}`} />
+      <Header title="PostgreSQL 16" subtitle={`${stats.version.split(" ")[0]} ${stats.version.split(" ")[1] || ""}`} />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         {/* Status Cards */}

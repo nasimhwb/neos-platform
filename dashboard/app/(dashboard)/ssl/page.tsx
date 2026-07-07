@@ -1,11 +1,23 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockSSLCerts } from "@/lib/mock-data";
 import { Shield, RefreshCw, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function SSLPage() {
-  const certs = mockSSLCerts;
+  const { data: secData } = useApiData("/api/security", {
+    firewallRules: [],
+    securityEvents: [],
+    sshStatus: "inactive",
+    openPorts: [],
+    blockedIps: [],
+    certs: mockSSLCerts,
+  });
+
+  const certs = secData.certs;
   const expiringSoon = certs.filter(c => c.daysRemaining < 30).length;
 
   return (

@@ -1,12 +1,15 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { MetricCard } from "@/components/shared/MetricCard";
+import { useApiData } from "@/lib/hooks/useApiData";
 import { mockRedisStats } from "@/lib/mock-data";
 import { formatBytes, formatUptime, formatRelativeTime } from "@/lib/utils";
-import { Zap, Key, Users, Clock, Database, Activity } from "lucide-react";
+import { Zap, Key, Users, Database, Activity } from "lucide-react";
 
 export default function RedisPage() {
-  const stats = mockRedisStats;
+  const { data: stats } = useApiData("/api/redis", mockRedisStats);
 
   return (
     <div className="flex flex-col h-full">

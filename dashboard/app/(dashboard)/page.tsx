@@ -1,7 +1,10 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { MetricCard } from "@/components/shared/MetricCard";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { mockSystemMetrics, mockPlatformInfo, mockDockerStatus, mockAlerts } from "@/lib/mock-data";
+import { useApiData } from "@/lib/hooks/useApiData";
+import { mockSystemMetrics, mockPlatformInfo, mockDockerStatus } from "@/lib/mock-data";
 import { formatBytes, formatUptime, formatRelativeTime } from "@/lib/utils";
 import {
   Cpu, MemoryStick, HardDrive, Activity, Container, GitBranch,
@@ -9,28 +12,48 @@ import {
 } from "lucide-react";
 
 export default function OverviewPage() {
-  const metrics = mockSystemMetrics;
-  const platform = mockPlatformInfo;
-  const docker = mockDockerStatus;
-  const firingAlerts = mockAlerts.filter(a => a.status === "firing");
+  // Fetch live system metrics (host + platform info)
+  const { data: sysData, loading: sysLoading } = useApiData("/api/system", {
+    metrics: mockSystemMetrics,
+    platform: mockPlatformInfo,
+  });
+
+  // Fetch live docker stats
+  const { data: dockerData, loading: dockerLoading } = useApiData("/api/docker", {
+    status: mockDockerStatus,
+    containers: [],
+    networks: [],
+    volumes: [],
+  });
+
+  // Fetch live health checklist
+  const { data: healthData, loading: healthLoading } = useApiData("/api/health", {
+    overall: "healthy",
+    services: [
+      { name: "PostgreSQL", status: "healthy" },
+      { name: "Redis", status: "healthy" },
+      { name: "MinIO", status: "healthy" },
+      { name: "Docker", status: "healthy" },
+      { name: "Monitoring", status: "healthy" },
+    ],
+    system: { cpuUsage: 0, memoryUsage: 0, diskUsage: 0 },
+  });
+
+  const metrics = sysData.metrics;
+  const platform = sysData.platform;
+  const docker = dockerData.status;
+  const servicesList = healthData.services;
+
+  const isDataLoading = sysLoading && dockerLoading && healthLoading;
 
   return (
     <div className="flex flex-col h-full">
-      <Header title="Platform Overview" subtitle="Real-time system health and status" />
+      <Header 
+        title="Platform Overview" 
+        subtitle="Real-time system health and status" 
+      />
 
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
-        {/* Firing Alerts Banner */}
-        {firingAlerts.length > 0 && (
-          <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-            <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <p className="text-sm text-amber-300">
-              <span className="font-semibold">{firingAlerts.length} alert{firingAlerts.length > 1 ? "s" : ""} firing</span>
-              {" — "}
-              {firingAlerts.map(a => a.name).join(", ")}
-            </p>
-          </div>
-        )}
-
         {/* System Resources */}
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">System Resources</h2>
@@ -182,19 +205,26 @@ export default function OverviewPage() {
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Services Health</p>
               <div className="space-y-2">
-                {[
-                  { name: "PostgreSQL", status: "healthy" },
-                  { name: "Redis", status: "healthy" },
-                  { name: "MinIO", status: "healthy" },
-                  { name: "Traefik", status: "healthy" },
-                  { name: "Prometheus", status: "healthy" },
-                  { name: "Grafana", status: "healthy" },
-                ].map(svc => (
+                {servicesList.map(svc => (
                   <div key={svc.name} className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">{svc.name}</span>
                     <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-xs text-emerald-400">Online</span>
+                      {svc.status === "healthy" ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-xs text-emerald-400">Online</span>
+                        </>
+                      ) : svc.status === "degraded" ? (
+                        <>
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="text-xs text-amber-400">Degraded</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                          <span className="text-xs text-red-400">Offline</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}
