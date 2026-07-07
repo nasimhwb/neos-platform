@@ -61,6 +61,7 @@ echo "--- Backing up Redis State ---"
 echo "Triggering Redis SAVE snapshot..."
 docker exec -t neos_redis redis-cli -a "$REDIS_PASSWORD" SAVE || echo "Warning: Redis SAVE command failed. Attempting to copy existing dump.rdb"
 docker cp neos_redis:/data/dump.rdb "$SESSION_DIR/redis_dump.rdb"
+docker cp neos_redis:/data/appendonlydir "$SESSION_DIR/redis_appendonlydir" 2>/dev/null || true
 
 # ------------------------------------------------------------------------------
 # 3. MinIO Object Storage (App Uploads)

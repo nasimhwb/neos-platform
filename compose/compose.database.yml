@@ -121,3 +121,79 @@ services:
         reservations:
           cpus: '0.05'
           memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Cache Engine (Redis 8)
+  # ------------------------------------------------------------------------------
+  cache:
+    image: redis:${REDIS_VERSION:-8.0-M02-alpine}
+    container_name: neos_redis
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+    volumes:
+      - redis_data:/data
+      - ../configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: >
+      redis-server /usr/local/etc/redis/redis.conf
+      --requirepass "${REDIS_PASSWORD}"
+      --maxmemory "${REDIS_MAXMEMORY:-512mb}"
+      --maxmemory-policy "${REDIS_MAXMEMORY_POLICY:-allkeys-lru}"
+    networks:
+      - neos-database
+      - neos-monitoring
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Cache Metrics Collector (Redis Exporter)
+  # ------------------------------------------------------------------------------
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.59.0
+    container_name: neos_redis_exporter
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      - REDIS_ADDR=redis://cache:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    networks:
+      - neos-database
+      - neos-monitoring
+    depends_on:
+      cache:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:9121/metrics || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
+          memory: 64M

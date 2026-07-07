@@ -68,12 +68,19 @@ else
     echo "   [PASS] PostgreSQL database dumps: $PG_DUMPS file(s) found."
 fi
 
-# Verify Redis Snapshot
+# Verify Redis Snapshot (RDB)
 if [ ! -f "$SESSION_DIR/redis_dump.rdb" ]; then
     echo "   [FAIL] Redis cache 'redis_dump.rdb' is missing!"
     FAILED=1
 else
     echo "   [PASS] Redis state 'redis_dump.rdb' found."
+fi
+
+# Verify Redis Journaling (AOF)
+if [ ! -d "$SESSION_DIR/redis_appendonlydir" ]; then
+    echo "   [WARN] Redis journaling 'redis_appendonlydir' is missing (AOF was disabled or empty)."
+else
+    echo "   [PASS] Redis journaling 'redis_appendonlydir' found."
 fi
 
 # Verify MinIO Storage Tarball

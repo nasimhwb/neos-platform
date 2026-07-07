@@ -118,12 +118,11 @@ if [ -f "$REDIS_DUMP" ]; then
     echo "Stopping Redis service..."
     docker compose stop cache
     
-    echo "Replacing Redis RDB data..."
-    # Run Alpine container to wipe and copy dump.rdb in the volume
+    # Run Alpine container to wipe and copy dump.rdb and appendonlydir in the volume
     docker run --rm \
       -v neos_redis_data:/redis_data \
       -v "$SESSION_DIR":/backup_src \
-      alpine sh -c "rm -f /redis_data/dump.rdb && cp /backup_src/redis_dump.rdb /redis_data/dump.rdb"
+      alpine sh -c "rm -rf /redis_data/dump.rdb /redis_data/appendonlydir && cp /backup_src/redis_dump.rdb /redis_data/dump.rdb && (cp -R /backup_src/redis_appendonlydir /redis_data/appendonlydir 2>/dev/null || true)"
       
     echo "Starting Redis service..."
     docker compose start cache
