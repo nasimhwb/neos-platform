@@ -13,8 +13,8 @@ services:
         max-size: "10m"
         max-file: "3"
     volumes:
-      # Mount host Docker socket as read-only for security hardening
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Mount host Docker socket for container orchestration
+      - /var/run/docker.sock:/var/run/docker.sock
       - portainer_data:/data
     networks:
       - neos-private

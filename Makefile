@@ -5,22 +5,23 @@
 
 .PHONY: bootstrap up up-apps down restart ps logs reload-nginx doctor backup restore verify-backup config-check update clean
 
-# Compile all modular compose files
+# Compile compose files (Phase 1 core: Docker Engine + Traefik Proxy + Portainer CE)
 COMPOSE_CMD = docker compose \
 	-f compose/compose.base.yml \
-	-f compose/compose.database.yml \
-	-f compose/compose.storage.yml \
-	-f compose/compose.monitoring.yml \
 	-f compose/compose.proxy.yml \
-	-f compose/compose.security.yml \
-	-f compose/compose.apps.yml \
-	-f compose/compose.dashboard.yml
+	-f compose/compose.security.yml
 
 # 1. System Host Provisioning
 bootstrap:
 	@echo "Bootstrapping VPS node environment..."
 	chmod +x bootstrap/*.sh backups/*.sh scripts/*.sh
 	sudo ./bootstrap/install.sh
+
+# 1b. Post-Bootstrap Verification Check
+verify:
+	@echo "Verifying production readiness..."
+	chmod +x bootstrap/verify.sh
+	sudo ./bootstrap/verify.sh --post
 
 # 2. Deploy Container Stacks (Infrastructure core)
 up:

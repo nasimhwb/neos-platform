@@ -17,7 +17,7 @@ echo "==========================================================================
 
 # 1. Resource capacity checks (Fail Fast)
 chmod +x verify.sh
-./verify.sh
+./verify.sh --pre
 
 # 2. Check for .env file at repository root
 REPO_DIR="$(dirname "$SCRIPT_DIR")"

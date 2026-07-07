@@ -2,10 +2,10 @@
 # ==============================================================================
 # NEOS PLATFORM - SYSTEM HEALTH DIAGNOSTIC UTILITY (DOCTOR)
 # ==============================================================================
-# Performs diagnostic audits on host resources, Docker status, container states,
-# port resolutions, SSL certificates, and DNS records.
+# Performs diagnostic audits on host resources, UFW status, Docker containers,
+# proxy connections, and certificates. Ignores unprovisioned services gracefully.
 # Usage: ./doctor.sh
-
+# ==============================================================================
 set -e
 set -o pipefail
 
@@ -51,6 +51,19 @@ else
     echo -e "${GREEN}PASS (${DISK_FREE_GB}GB left)${NC}"
 fi
 
+# Firewall Status
+echo -n "Checking Firewall (UFW) status: "
+if command -v ufw &>/dev/null; then
+    UFW_STATUS=$(ufw status | head -n 1)
+    if [[ "$UFW_STATUS" == *"active"* ]]; then
+        echo -e "${GREEN}PASS (Active)${NC}"
+    else
+        echo -e "${YELLOW}WARN (Installed but Inactive)${NC}"
+    fi
+else
+    echo -e "${RED}FAIL (UFW not installed)${NC}"
+fi
+
 # 2. Docker Daemon Check
 echo -e "\n${BLUE}--- [2/6] Auditing Docker Daemon Status ---${NC}"
 echo -n "Checking Docker daemon status: "
@@ -67,8 +80,8 @@ check_container() {
     local name=$1
     echo -n "Container '$name': "
     if ! docker ps -a --format '{{.Names}}' | grep -Eq "^${name}$"; then
-        echo -e "${RED}FAIL (Not created/missing)${NC}"
-        return 1
+        echo -e "${YELLOW}NOT DEPLOYED (Skipped)${NC}"
+        return 0
     fi
     
     local status
@@ -93,29 +106,46 @@ check_container() {
     fi
 }
 
-check_container "neos_nginx"
+check_container "neos_traefik"
+check_container "neos_portainer"
 check_container "neos_postgres"
 check_container "neos_redis"
 check_container "neos_minio"
 check_container "neos_prometheus"
 check_container "neos_grafana"
-check_container "neos_portainer"
-check_container "neos_uptime_kuma"
 
 # 4. Service Endpoint Connectivity Checks
 echo -e "\n${BLUE}--- [4/6] Auditing Service Endpoints API Connectivity ---${NC}"
 
-# Nginx port 80/443 test
-echo -n "Checking Nginx Proxy port 80: "
-if curl -s -I http://localhost:80/ &>/dev/null; then
+is_running() {
+    docker ps --filter "name=$1" --filter "status=running" --format '{{.Names}}' | grep -q "$1"
+}
+
+# Traefik port 80 check
+echo -n "Checking Traefik Proxy port 80: "
+if ! is_running "neos_traefik"; then
+    echo -e "${YELLOW}SKIPPED (Proxy container not running)${NC}"
+elif curl -s -I http://localhost:80/ &>/dev/null; then
     echo -e "${GREEN}PASS (HTTP responds)${NC}"
 else
-    echo -e "${RED}FAIL (Nginx port 80 not responding)${NC}"
+    echo -e "${RED}FAIL (Traefik port 80 not responding)${NC}"
+fi
+
+# Portainer check
+echo -n "Checking Portainer access on port 9000: "
+if ! is_running "neos_portainer"; then
+    echo -e "${YELLOW}SKIPPED (Portainer container not running)${NC}"
+elif curl -s -I http://localhost:9000/ &>/dev/null; then
+    echo -e "${GREEN}PASS (HTTP responds)${NC}"
+else
+    echo -e "${RED}FAIL (Portainer not responding)${NC}"
 fi
 
 # PostgreSQL connectivity test
 echo -n "Checking PostgreSQL database access: "
-if docker exec neos_postgres pg_isready -U postgres &>/dev/null; then
+if ! is_running "neos_postgres"; then
+    echo -e "${YELLOW}SKIPPED (Postgres container not running)${NC}"
+elif docker exec neos_postgres pg_isready -U postgres &>/dev/null; then
     echo -e "${GREEN}PASS (Database answers queries)${NC}"
 else
     echo -e "${RED}FAIL (PostgreSQL is unreachable)${NC}"
@@ -123,17 +153,22 @@ fi
 
 # Redis connectivity test
 echo -n "Checking Redis Cache connectivity: "
-# Retrieve redis password from environment if running
-REDIS_PASS=$(docker exec neos_redis printenv REDIS_PASSWORD 2>/dev/null || echo "")
-if docker exec neos_redis redis-cli ping &>/dev/null || [ -n "$REDIS_PASS" ] && docker exec neos_redis redis-cli -a "$REDIS_PASS" ping 2>/dev/null | grep -q PONG; then
-    echo -e "${GREEN}PASS (Redis cache answers PING)${NC}"
+if ! is_running "neos_redis"; then
+    echo -e "${YELLOW}SKIPPED (Redis container not running)${NC}"
 else
-    echo -e "${RED}FAIL (Redis cache unreachable)${NC}"
+    REDIS_PASS=$(docker exec neos_redis printenv REDIS_PASSWORD 2>/dev/null || echo "")
+    if docker exec neos_redis redis-cli ping &>/dev/null || [ -n "$REDIS_PASS" ] && docker exec neos_redis redis-cli -a "$REDIS_PASS" ping 2>/dev/null | grep -q PONG; then
+        echo -e "${GREEN}PASS (Redis cache answers PING)${NC}"
+    else
+        echo -e "${RED}FAIL (Redis cache unreachable)${NC}"
+    fi
 fi
 
 # MinIO endpoint check
 echo -n "Checking MinIO Storage health endpoint: "
-if docker exec neos_minio curl -s http://localhost:9000/minio/health/live &>/dev/null; then
+if ! is_running "neos_minio"; then
+    echo -e "${YELLOW}SKIPPED (MinIO container not running)${NC}"
+elif docker exec neos_minio curl -s http://localhost:9000/minio/health/live &>/dev/null; then
     echo -e "${GREEN}PASS (Storage reports healthy)${NC}"
 else
     echo -e "${RED}FAIL (MinIO storage unreachable)${NC}"
@@ -141,7 +176,9 @@ fi
 
 # Prometheus check
 echo -n "Checking Prometheus metrics endpoint: "
-if docker exec neos_prometheus curl -s http://localhost:9090/-/healthy &>/dev/null; then
+if ! is_running "neos_prometheus"; then
+    echo -e "${YELLOW}SKIPPED (Prometheus container not running)${NC}"
+elif docker exec neos_prometheus curl -s http://localhost:9090/-/healthy &>/dev/null; then
     echo -e "${GREEN}PASS (Metrics server reports healthy)${NC}"
 else
     echo -e "${RED}FAIL (Prometheus metrics unreachable)${NC}"
@@ -149,7 +186,9 @@ fi
 
 # Grafana check
 echo -n "Checking Grafana Dashboard API endpoint: "
-if docker exec neos_grafana curl -s http://localhost:3000/api/health &>/dev/null; then
+if ! is_running "neos_grafana"; then
+    echo -e "${YELLOW}SKIPPED (Grafana container not running)${NC}"
+elif docker exec neos_grafana curl -s http://localhost:3000/api/health &>/dev/null; then
     echo -e "${GREEN}PASS (Dashboard API responds)${NC}"
 else
     echo -e "${RED}FAIL (Grafana dashboards unreachable)${NC}"

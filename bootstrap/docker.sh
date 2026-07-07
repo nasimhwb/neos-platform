@@ -112,6 +112,12 @@ cat <<EOF > "$DAEMON_CONF"
   "features": {
     "buildkit": true
   },
+  "default-address-pools": [
+    {
+      "base": "172.80.0.0/16",
+      "size": 24
+    }
+  ],
   "default-ulimits": {
     "nofile": {
       "Name": "nofile",
