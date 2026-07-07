@@ -1,6 +1,9 @@
 version: '3.8'
 
 services:
+  # ------------------------------------------------------------------------------
+  # Database Engine (PostgreSQL 16)
+  # ------------------------------------------------------------------------------
   db:
     image: postgres:${POSTGRES_VERSION:-16.3-alpine}
     container_name: neos_postgres
@@ -20,8 +23,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ../configs/postgres/init-scripts:/docker-entrypoint-initdb.d
       - ../configs/postgres/postgresql.conf:/etc/postgresql/postgresql.conf:ro
+      # Read-only mount of host SSL directory for PostgreSQL certificates
+      - /srv/neos/shared/ssl:/etc/postgresql/ssl:ro
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
     networks:
+      # Isolated: Only reachable by PgBouncer, Exporter, and Monitoring
       - neos-database
       - neos-monitoring
     healthcheck:
@@ -38,38 +44,80 @@ services:
           cpus: '0.25'
           memory: 256M
 
-  cache:
-    image: redis:${REDIS_VERSION:-7.2-alpine}
-    container_name: neos_redis
+  # ------------------------------------------------------------------------------
+  # Connection Pooler (PgBouncer)
+  # ------------------------------------------------------------------------------
+  pgbouncer:
+    image: edoburu/pgbouncer:1.22.0
+    container_name: neos_pgbouncer
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     logging:
       driver: "json-file"
       options:
-        max-size: "50m"
+        max-size: "10m"
         max-file: "3"
+    ports:
+      - "6432:6432"
     volumes:
-      - redis_data:/data
-      - ../configs/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-    command: >
-      redis-server /usr/local/etc/redis/redis.conf
-      --requirepass "${REDIS_PASSWORD}"
-      --maxmemory "${REDIS_MAXMEMORY:-512mb}"
-      --maxmemory-policy "${REDIS_MAXMEMORY_POLICY:-allkeys-lru}"
+      - ../configs/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ../configs/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
     networks:
+      # Bridge: exposed to apps via neos-private, talks to database via neos-database
       - neos-database
-      - neos-monitoring
+      - neos-private
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      # Simple TCP test to ensure listener is active
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 6432 || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 3
     deploy:
       resources:
         limits:
           cpus: '0.5'
-          memory: 512M
+          memory: 256M
         reservations:
           cpus: '0.1'
+          memory: 64M
+
+  # ------------------------------------------------------------------------------
+  # Database Metrics Collector (Postgres Exporter)
+  # ------------------------------------------------------------------------------
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: neos_postgres_exporter
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    environment:
+      # Connect directly to Postgres db instance for metrics collection
+      - DATA_SOURCE_NAME=postgresql://postgres_exporter:${POSTGRES_EXPORTER_PASSWORD:-ChangeThisToASuperSecurePostgresExporterPassword123!}@db:5432/postgres?sslmode=disable
+    networks:
+      - neos-database
+      - neos-monitoring
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:9187/metrics || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 128M
+        reservations:
+          cpus: '0.05'
           memory: 64M

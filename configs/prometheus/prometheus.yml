@@ -32,10 +32,10 @@ scrape_configs:
     static_configs:
       - targets: ['alertmanager:9093']
 
-  # 5. Database Exporter (Optional Placeholder)
-  # - job_name: 'postgres-exporter'
-  #   static_configs:
-  #     - targets: ['postgres-exporter:9187']
+  # 5. Database Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
 
   # 6. Redis Exporter (Optional Placeholder)
   # - job_name: 'redis-exporter'
