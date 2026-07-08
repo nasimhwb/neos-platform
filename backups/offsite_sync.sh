@@ -93,6 +93,23 @@ fi
 echo "Verifying remote checksum integrity..."
 LOCAL_SUM=$(sha256sum "$LATEST_BACKUP" | awk '{print $1}')
 
+# Check remote SHA256 hash using rclone hash
+REMOTE_SUM=$(rclone hash sha256 "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" 2>/dev/null | awk '{print $1}' || echo "")
+
+if [ -n "$REMOTE_SUM" ] && [ "$REMOTE_SUM" != "-" ]; then
+    if [ "$REMOTE_SUM" = "$LOCAL_SUM" ]; then
+        echo -e "${GREEN}[PASS] Remote SHA256 checksum matches local hash: $REMOTE_SUM${NC}"
+    else
+        echo -e "${RED}ERROR: Remote checksum mismatch! Local: $LOCAL_SUM, Remote: $REMOTE_SUM${NC}"
+        # Cleanup failed upload
+        echo "Cleaning up invalid remote upload..."
+        rclone delete "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" || true
+        exit 1
+    fi
+else
+    echo -e "${YELLOW}Warning: Remote provider does not support direct SHA256 checksum query. Falling back to size checks.${NC}"
+fi
+
 # Fetch remote size/hash if supported by remote provider
 REMOTE_SIZE=$(rclone size "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" --json | grep -oP '"bytes":\s*\K\d+' || echo "0")
 LOCAL_SIZE=$(stat -c %s "$LATEST_BACKUP")
@@ -101,6 +118,9 @@ if [ "$REMOTE_SIZE" -eq "$LOCAL_SIZE" ]; then
     echo -e "${GREEN}[PASS] Remote file size ($REMOTE_SIZE bytes) matches local file size.${NC}"
 else
     echo -e "${RED}ERROR: Size mismatch! Local: $LOCAL_SIZE bytes, Remote: $REMOTE_SIZE bytes.${NC}"
+    # Cleanup failed upload
+    echo "Cleaning up invalid remote upload..."
+    rclone delete "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" || true
     exit 1
 fi
 

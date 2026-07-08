@@ -15,12 +15,36 @@
 set -e
 set -o pipefail
 
-LOCKFILE="/tmp/neos_backup.lock"
+START_TIME=$(date -uIs)
+LOCKFILE="/srv/neos/shared/locks/backup.lock"
+mkdir -p "$(dirname "$LOCKFILE")"
+
 if [ -e "$LOCKFILE" ]; then
     pid=$(cat "$LOCKFILE" 2>/dev/null || echo "")
     if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        echo "ERROR: Backup job is already running (PID: $pid). Aborting."
-        exit 1
+        # If lock exists and is older than 4 hours (14400 seconds), raise a stale warning, delete it and continue
+        if [ $(( $(date +%s) - $(stat -c %Y "$LOCKFILE" 2>/dev/null || date +%s) )) -gt 14400 ]; then
+            echo "Warning: Stale lock detected (PID: $pid, age > 4 hours). Sending stale lock notification..."
+            curl -s -X POST -H "Content-Type: application/json" \
+              -d "[{
+                \"labels\": {
+                  \"alertname\": \"BackupLockStale\",
+                  \"severity\": \"warning\",
+                  \"instance\": \"host-vps\"
+                },
+                \"annotations\": {
+                  \"summary\": \"Backup lockfile has persisted too long\",
+                  \"description\": \"The backup lockfile was found stale (PID: $pid, age > 4h). Releasing lock automatically.\"
+                }
+              }]" \
+              http://alertmanager:9093/api/v2/alerts || true
+            rm -f "$LOCKFILE"
+        else
+            echo "ERROR: Backup job is already running (PID: $pid). Aborting."
+            exit 1
+        fi
+    else
+        rm -f "$LOCKFILE"
     fi
 fi
 echo $$ > "$LOCKFILE"
@@ -55,8 +79,30 @@ send_failure_alert() {
     local line_num=$2
     if [ "$exit_code" -ne 0 ]; then
         echo ">>> ERROR: Backup job failed at line $line_num with exit code $exit_code."
-        echo "Sending critical alert to Alertmanager..."
         
+        # Write SRE JSON report
+        END_TIME=$(date -uIs)
+        mkdir -p "/srv/neos/shared/reports"
+        cat <<EOF > "/srv/neos/shared/reports/latest_backup.json"
+{
+  "start_time": "$START_TIME",
+  "end_time": "$END_TIME",
+  "duration_seconds": 0,
+  "status": "failed",
+  "file_size_bytes": 0,
+  "checksum": "",
+  "encrypted": false,
+  "offsite_sync_status": "skipped",
+  "error": "Script terminated on line $line_num with exit code $exit_code"
+}
+EOF
+
+        # Safe cleanup path for partial files
+        echo "Cleaning up partial backup files..."
+        rm -rf "${SESSION_DIR:-}"
+        rm -rf "$BACKUP_DIR/tmp"
+
+        echo "Sending critical alert to Alertmanager..."
         curl -s -X POST -H "Content-Type: application/json" \
           -d "[{
             \"labels\": {
@@ -179,6 +225,66 @@ find "$BACKUP_DIR" -name "neos_backup_*" -type f -mtime +"$RETENTION_DAYS" -exec
 # 9. Trigger Offsite Backup Synchronization
 echo "--- Triggering Offsite Backup Sync ---"
 chmod +x "$SCRIPT_DIR/offsite_sync.sh"
-"$SCRIPT_DIR/offsite_sync.sh" || echo "Warning: Offsite backup sync failed."
+OFFSITE_STATUS="success"
+
+if ! "$SCRIPT_DIR/offsite_sync.sh"; then
+    echo "Warning: Offsite backup sync failed."
+    OFFSITE_STATUS="failed"
+    # Send alert to Alertmanager
+    curl -s -X POST -H "Content-Type: application/json" \
+      -d "[{
+        \"labels\": {
+          \"alertname\": \"BackupOffsiteSyncFailed\",
+          \"severity\": \"critical\",
+          \"instance\": \"host-vps\"
+        },
+        \"annotations\": {
+          \"summary\": \"Backup offsite upload failed\",
+          \"description\": \"Backup was packaged locally, but pushing to the offsite target returned a failure code.\"
+        }
+      }]" \
+      http://alertmanager:9093/api/v2/alerts || true
+fi
+
+# 10. Generate SRE Execution Report
+END_TIME=$(date -uIs)
+# Handle date conversion compatibility on macOS vs Linux
+if date -d "$START_TIME" +%s &>/dev/null; then
+    START_SEC=$(date -d "$START_TIME" +%s)
+    END_SEC=$(date -d "$END_TIME" +%s)
+else
+    START_SEC=$(date -j -f "%Y-%m-%dT%H:%M:%S" "${START_TIME%Z}" +%s 2>/dev/null || echo "0")
+    END_SEC=$(date -j -f "%Y-%m-%dT%H:%M:%S" "${END_TIME%Z}" +%s 2>/dev/null || echo "0")
+fi
+DURATION=$(( END_SEC - START_SEC ))
+if [ $DURATION -lt 0 ]; then DURATION=0; fi
+
+FILE_SIZE=0
+if [ -f "${BACKUP_ARCHIVE}.gpg" ]; then
+    FILE_SIZE=$(stat -c %s "${BACKUP_ARCHIVE}.gpg" 2>/dev/null || stat -f %z "${BACKUP_ARCHIVE}.gpg" 2>/dev/null || echo "0")
+elif [ -f "$BACKUP_ARCHIVE" ]; then
+    FILE_SIZE=$(stat -c %s "$BACKUP_ARCHIVE" 2>/dev/null || stat -f %z "$BACKUP_ARCHIVE" 2>/dev/null || echo "0")
+fi
+
+CHECKSUM=""
+if [ -f "${BACKUP_ARCHIVE}.gpg.sha256" ]; then
+    CHECKSUM=$(cat "${BACKUP_ARCHIVE}.gpg.sha256" 2>/dev/null | awk '{print $1}')
+elif [ -f "${BACKUP_ARCHIVE}.sha256" ]; then
+    CHECKSUM=$(cat "${BACKUP_ARCHIVE}.sha256" 2>/dev/null | awk '{print $1}')
+fi
+
+mkdir -p "/srv/neos/shared/reports"
+cat <<EOF > "/srv/neos/shared/reports/latest_backup.json"
+{
+  "start_time": "$START_TIME",
+  "end_time": "$END_TIME",
+  "duration_seconds": $DURATION,
+  "status": "success",
+  "file_size_bytes": $FILE_SIZE,
+  "checksum": "$CHECKSUM",
+  "encrypted": true,
+  "offsite_sync_status": "$OFFSITE_STATUS"
+}
+EOF
 
 echo "=== Backup Completed Successfully at $(date) ==="

@@ -10,6 +10,7 @@ import { Archive, Clock, CheckCircle2, XCircle, ShieldCheck } from "lucide-react
 
 export default function BackupsPage() {
   const { data: backups } = useApiData("/api/backups", mockBackups);
+  const { data: healthInfo } = useApiData("/api/backups/health", { status: "healthy", offsiteStatus: "success" });
   
   const lastBackup = backups[0] || { timestamp: new Date().toISOString(), status: "success", sizeBytes: 0, expiresAt: new Date().toISOString() };
   const successCount = backups.filter(b => b.status === "success").length;
@@ -34,6 +35,34 @@ export default function BackupsPage() {
           <MetricCard title="Success Rate" value={backups.length > 0 ? `${Math.round((successCount / backups.length) * 100)}%` : "100%"} subtitle={`${successCount}/${backups.length} backups`} icon={CheckCircle2} />
           <MetricCard title="Total Stored" value={formatBytes(totalSize)} subtitle={`${backups.length} backup files`} icon={Archive} />
           <MetricCard title="Retention" value={`${lastBackup.retentionDays || 14} days`} subtitle="Auto-purge enabled" icon={Clock} />
+        </div>
+
+        {/* Backup Health & Offsite Sync Status */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-emerald-400/10 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">Backup Health</p>
+              <p className="text-xs text-muted-foreground">Status: {healthInfo.status === "healthy" ? "Healthy (All checkpoints passing)" : "Degraded (Failed runs detected)"}</p>
+            </div>
+            <div className="ml-auto">
+              <StatusBadge status={healthInfo.status} />
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Archive className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">Offsite Sync Status</p>
+              <p className="text-xs text-muted-foreground">Provider: rclone · Status: {healthInfo.offsiteStatus}</p>
+            </div>
+            <div className="ml-auto">
+              <StatusBadge status={healthInfo.offsiteStatus === "success" ? "healthy" : "warning"} />
+            </div>
+          </div>
         </div>
 
         {/* Next backup countdown */}
