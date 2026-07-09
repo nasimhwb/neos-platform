@@ -3,17 +3,18 @@
 This document provides step-by-step procedures for managing, debugging, and scaling the shared infrastructure.
 
 ## Platform Runbooks Index
-- [Deployment and Rollback Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/deployment-rollback.md)
-- [Disaster Recovery & Rollback Operations Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/disaster-recovery.md)
-- [Docker Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/docker-maintenance.md)
-- [Monitoring & Alerting Operations Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/monitoring-maintenance.md)
-- [Neos-App Migration Plan & Blue-Green Operations Guide](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/neos-app-migration.md)
-- [PostgreSQL Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/postgres-maintenance.md)
-- [MinIO Object Storage Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/minio-maintenance.md)
-- [Redis Cache Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/redis-maintenance.md)
-- [Supabase Compatibility Layer Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/supabase-compatibility.md)
-- [Traefik Ingress Maintenance Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/traefik-maintenance.md)
-- [Troubleshooting Runbook](file:///d:/Webapp/KVM2/neos-platform/docs/runbooks/troubleshooting.md)
+- [Backup & Recovery Operations Runbook](backup-and-recovery.md)
+- [Deployment and Rollback Runbook](deployment-rollback.md)
+- [Disaster Recovery & Rollback Operations Runbook](disaster-recovery.md)
+- [Docker Maintenance Runbook](docker-maintenance.md)
+- [Monitoring & Alerting Operations Runbook](monitoring-maintenance.md)
+- [Neos-App Migration Plan & Blue-Green Operations Guide](neos-app-migration.md)
+- [PostgreSQL Maintenance Runbook](postgres-maintenance.md)
+- [MinIO Object Storage Maintenance Runbook](minio-maintenance.md)
+- [Redis Cache Maintenance Runbook](redis-maintenance.md)
+- [Supabase Compatibility Layer Runbook](supabase-compatibility.md)
+- [Traefik Ingress Maintenance Runbook](traefik-maintenance.md)
+- [Troubleshooting Runbook](troubleshooting.md)
 
 ---
 

@@ -19,12 +19,16 @@ START_TIME=$(date -uIs)
 LOCKFILE="/srv/neos/shared/locks/backup.lock"
 mkdir -p "$(dirname "$LOCKFILE")"
 
-if [ -e "$LOCKFILE" ]; then
-    pid=$(cat "$LOCKFILE" 2>/dev/null || echo "")
-    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        # If lock exists and is older than 4 hours (14400 seconds), raise a stale warning, delete it and continue
-        if [ $(( $(date +%s) - $(stat -c %Y "$LOCKFILE" 2>/dev/null || date +%s) )) -gt 14400 ]; then
-            echo "Warning: Stale lock detected (PID: $pid, age > 4 hours). Sending stale lock notification..."
+# Open the lockfile on file descriptor 9
+exec 9>"$LOCKFILE"
+
+# Try to acquire an exclusive lock
+if ! flock -n 9; then
+    # Lock is held by another process. Check lock file age to alert if stale.
+    if [ -f "$LOCKFILE" ]; then
+        LOCK_AGE=$(( $(date +%s) - $(stat -c %Y "$LOCKFILE" 2>/dev/null || date +%s) ))
+        if [ "$LOCK_AGE" -gt 14400 ]; then
+            echo "Warning: Stale lock detected (age: ${LOCK_AGE}s > 4 hours). Sending stale lock notification..."
             curl -s -X POST -H "Content-Type: application/json" \
               -d "[{
                 \"labels\": {
@@ -34,21 +38,22 @@ if [ -e "$LOCKFILE" ]; then
                 },
                 \"annotations\": {
                   \"summary\": \"Backup lockfile has persisted too long\",
-                  \"description\": \"The backup lockfile was found stale (PID: $pid, age > 4h). Releasing lock automatically.\"
+                  \"description\": \"The backup lockfile has been held for more than 4 hours (age: ${LOCK_AGE}s). Investigation is required.\"
                 }
               }]" \
               http://alertmanager:9093/api/v2/alerts || true
-            rm -f "$LOCKFILE"
-        else
-            echo "ERROR: Backup job is already running (PID: $pid). Aborting."
-            exit 1
         fi
-    else
-        rm -f "$LOCKFILE"
     fi
+    echo "ERROR: Backup job is already running. Aborting."
+    exit 1
 fi
-echo $$ > "$LOCKFILE"
+
+# Write the current process ID into the lockfile
+echo $$ >&9
+
 cleanup_lock() {
+    # Close file descriptor 9 to release the lock, then remove the lock file.
+    exec 9>&-
     rm -f "$LOCKFILE"
 }
 trap cleanup_lock EXIT
