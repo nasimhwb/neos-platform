@@ -101,6 +101,20 @@ if [ -n "$REMOTE_SUM" ] && [ "$REMOTE_SUM" != "-" ]; then
         echo -e "${GREEN}[PASS] Remote SHA256 checksum matches local hash: $REMOTE_SUM${NC}"
     else
         echo -e "${RED}ERROR: Remote checksum mismatch! Local: $LOCAL_SUM, Remote: $REMOTE_SUM${NC}"
+        # Send Alertmanager notification
+        curl -s -X POST -H "Content-Type: application/json" \
+          -d "[{
+            \"labels\": {
+              \"alertname\": \"BackupChecksumMismatch\",
+              \"severity\": \"critical\",
+              \"instance\": \"host-vps\"
+            },
+            \"annotations\": {
+              \"summary\": \"Backup remote checksum verification failed\",
+              \"description\": \"The remote SHA256 checksum ($REMOTE_SUM) does not match local computed hash ($LOCAL_SUM). possible upload corruption.\"
+            }
+          }]" \
+          http://alertmanager:9093/api/v2/alerts || true
         # Cleanup failed upload
         echo "Cleaning up invalid remote upload..."
         rclone delete "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" || true
@@ -118,6 +132,20 @@ if [ "$REMOTE_SIZE" -eq "$LOCAL_SIZE" ]; then
     echo -e "${GREEN}[PASS] Remote file size ($REMOTE_SIZE bytes) matches local file size.${NC}"
 else
     echo -e "${RED}ERROR: Size mismatch! Local: $LOCAL_SIZE bytes, Remote: $REMOTE_SIZE bytes.${NC}"
+    # Send Alertmanager notification
+    curl -s -X POST -H "Content-Type: application/json" \
+      -d "[{
+        \"labels\": {
+          \"alertname\": \"BackupSizeMismatch\",
+          \"severity\": \"critical\",
+          \"instance\": \"host-vps\"
+        },
+        \"annotations\": {
+          \"summary\": \"Backup remote size verification failed\",
+          \"description\": \"The remote file size ($REMOTE_SIZE bytes) does not match local file size ($LOCAL_SIZE bytes).\"
+        }
+      }]" \
+          http://alertmanager:9093/api/v2/alerts || true
     # Cleanup failed upload
     echo "Cleaning up invalid remote upload..."
     rclone delete "$REMOTE_NAME:$BUCKET_NAME/$BACKUP_FILENAME" || true

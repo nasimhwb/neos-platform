@@ -9,6 +9,7 @@ import { formatBytes, formatUptime, formatRelativeTime } from "@/lib/utils";
 import {
   Cpu, MemoryStick, HardDrive, Activity, Container, GitBranch,
   GitCommit, Clock, Server, AlertTriangle, CheckCircle2, Network,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function OverviewPage() {
@@ -37,6 +38,17 @@ export default function OverviewPage() {
       { name: "Monitoring", status: "healthy" },
     ],
     system: { cpuUsage: 0, memoryUsage: 0, diskUsage: 0 },
+  });
+
+  // Fetch live backup health status
+  const { data: backupHealth } = useApiData("/api/backups/health", {
+    status: "healthy",
+    lastBackupTime: null,
+    durationSeconds: 0,
+    sizeBytes: 0,
+    offsiteStatus: "success",
+    checksumStatus: "verified",
+    error: null,
   });
 
   const metrics = sysData.metrics;
@@ -153,7 +165,7 @@ export default function OverviewPage() {
         {/* Platform Info */}
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Platform Status</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Last Deployment */}
             <div className="bg-card border border-border rounded-xl p-4 space-y-3">
               <div className="flex items-center justify-between">
@@ -228,6 +240,40 @@ export default function OverviewPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Backup & Recovery Status */}
+            <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Backup & Recovery</p>
+                <StatusBadge status={backupHealth.status === "healthy" ? "healthy" : "failed"} />
+              </div>
+              <div className="space-y-1.5 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Run</span>
+                  <span className="text-foreground text-xs font-medium">
+                    {backupHealth.lastBackupTime ? formatRelativeTime(backupHealth.lastBackupTime) : "Never"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Archive Size</span>
+                  <span className="font-mono text-foreground text-xs">
+                    {backupHealth.sizeBytes > 0 ? formatBytes(backupHealth.sizeBytes) : "0 B"}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Offsite Sync</span>
+                  <span className={`text-xs font-semibold capitalize ${backupHealth.offsiteStatus === "success" ? "text-emerald-400" : backupHealth.offsiteStatus === "skipped" ? "text-slate-400" : "text-amber-400"}`}>
+                    {backupHealth.offsiteStatus}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Checksum</span>
+                  <span className={`text-xs font-semibold capitalize ${backupHealth.checksumStatus === "verified" || backupHealth.checksumStatus === "generated" ? "text-emerald-400" : "text-red-400"}`}>
+                    {backupHealth.checksumStatus}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

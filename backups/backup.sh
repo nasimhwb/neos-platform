@@ -96,6 +96,7 @@ send_failure_alert() {
   "status": "failed",
   "file_size_bytes": 0,
   "checksum": "",
+  "checksum_status": "none",
   "encrypted": false,
   "offsite_sync_status": "skipped",
   "error": "Script terminated on line $line_num with exit code $exit_code"
@@ -107,17 +108,25 @@ EOF
         rm -rf "${SESSION_DIR:-}"
         rm -rf "$BACKUP_DIR/tmp"
 
-        echo "Sending critical alert to Alertmanager..."
+        # Check if it was a command timeout (exit code 124)
+        local alert_name="BackupSystemFailed"
+        local alert_desc="Backup execution script terminated abnormally on line $line_num. Status: $exit_code."
+        if [ "$exit_code" -eq 124 ]; then
+            alert_name="BackupTimeout"
+            alert_desc="Backup execution timed out on line $line_num (exceeded command timeout limit)."
+        fi
+
+        echo "Sending critical alert to Alertmanager ($alert_name)..."
         curl -s -X POST -H "Content-Type: application/json" \
           -d "[{
             \"labels\": {
-              \"alertname\": \"BackupSystemFailed\",
+              \"alertname\": \"$alert_name\",
               \"severity\": \"critical\",
               \"instance\": \"host-vps\"
             },
             \"annotations\": {
               \"summary\": \"NEOS Platform Backup Job Failed\",
-              \"description\": \"Backup execution script terminated abnormally on line $line_num. Status: $exit_code.\"
+              \"description\": \"$alert_desc\"
             }
           }]" \
           http://alertmanager:9093/api/v2/alerts || echo "Warning: Failed to contact Alertmanager."
@@ -278,6 +287,14 @@ elif [ -f "${BACKUP_ARCHIVE}.sha256" ]; then
     CHECKSUM=$(cat "${BACKUP_ARCHIVE}.sha256" 2>/dev/null | awk '{print $1}')
 fi
 
+# Determine checksum status
+CHECKSUM_STATUS="verified"
+if [ "$OFFSITE_STATUS" = "skipped" ]; then
+    CHECKSUM_STATUS="generated"
+elif [ "$OFFSITE_STATUS" = "failed" ]; then
+    CHECKSUM_STATUS="failed"
+fi
+
 mkdir -p "/srv/neos/shared/reports"
 cat <<EOF > "/srv/neos/shared/reports/latest_backup.json"
 {
@@ -287,7 +304,8 @@ cat <<EOF > "/srv/neos/shared/reports/latest_backup.json"
   "status": "success",
   "file_size_bytes": $FILE_SIZE,
   "checksum": "$CHECKSUM",
-  "encrypted": true,
+  "checksum_status": "$CHECKSUM_STATUS",
+  "encrypted": $([ -n "${BACKUP_PASSPHRASE:-}" ] && echo "true" || echo "false"),
   "offsite_sync_status": "$OFFSITE_STATUS"
 }
 EOF

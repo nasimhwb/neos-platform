@@ -99,4 +99,21 @@ echo "0 2 * * * root /bin/bash $REPO_DIR/backups/backup.sh >> /srv/neos/shared/l
 chmod 0644 "$CRON_FILE"
 echo "Daily backup cron job registered at $CRON_FILE."
 
+# 6. Configure Platform Host Log Rotation
+echo "Configuring platform and backup logs logrotate..."
+LOGROTATE_FILE="/etc/logrotate.d/neos-platform"
+cat <<EOF > "$LOGROTATE_FILE"
+/srv/neos/shared/logs/**/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
+EOF
+chmod 0644 "$LOGROTATE_FILE"
+echo "Log rotation registered at $LOGROTATE_FILE."
+
 echo "===> System Security Hardening Complete!"

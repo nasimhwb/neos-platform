@@ -198,7 +198,8 @@ cat <<EOF > "$NEW_RELEASE_PATH/release_notes.md"
 EOF
 
 # 9. Deployment Report Generation
-REPORT_FILE="C:/Users/Admin/.gemini/antigravity-ide/brain/c42b0173-eb59-445c-baee-15a09434e07e/deployment_report.md"
+mkdir -p "/srv/neos/shared/reports"
+REPORT_FILE="/srv/neos/shared/reports/deployment_report.md"
 cat <<EOF > "$REPORT_FILE"
 # Infrastructure Deployment Report
 
@@ -215,6 +216,13 @@ cat <<EOF > "$REPORT_FILE"
 - [x] Backup & Restore validation run
 - [x] Atomic symlink update
 EOF
+
+# Conditionally copy to local IDE brain directory if configured
+if [ -n "${IDE_BRAIN_DIR:-}" ] && [ -d "$IDE_BRAIN_DIR" ]; then
+    cp "$REPORT_FILE" "$IDE_BRAIN_DIR/deployment_report.md"
+    echo "Deployment report saved to IDE artifacts: $IDE_BRAIN_DIR/deployment_report.md"
+fi
+echo "Deployment report saved to: $REPORT_FILE"
 
 # 10. Prune obsolete releases (retain latest 5)
 echo "8. Cleaning up obsolete release files (retaining latest 5)..."

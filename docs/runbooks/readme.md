@@ -7,6 +7,7 @@ This document provides step-by-step procedures for managing, debugging, and scal
 - [Deployment and Rollback Runbook](deployment-rollback.md)
 - [Disaster Recovery & Rollback Operations Runbook](disaster-recovery.md)
 - [Docker Maintenance Runbook](docker-maintenance.md)
+- [Production Go-Live Checklist & Hardening Report](go_live_checklist.md)
 - [Monitoring & Alerting Operations Runbook](monitoring-maintenance.md)
 - [Neos-App Migration Plan & Blue-Green Operations Guide](neos-app-migration.md)
 - [PostgreSQL Maintenance Runbook](postgres-maintenance.md)

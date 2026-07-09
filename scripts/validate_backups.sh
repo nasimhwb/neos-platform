@@ -89,15 +89,18 @@ This report summarizes the automated testing results for the NEOS Platform backu
 
 EOF
 
-# Move report to brain artifacts folder if available
-BRAIN_DIR="C:/Users/Admin/.gemini/antigravity-ide/brain/c42b0173-eb59-445c-baee-15a09434e07e"
-if [ -d "$BRAIN_DIR" ]; then
-    mv "$REPORT_FILE" "$BRAIN_DIR/backup_verification_report.md"
-    echo "Backup verification report saved to artifacts: $BRAIN_DIR/backup_verification_report.md"
-else
-    mv "$REPORT_FILE" "./backup_verification_report.md"
-    echo "Backup verification report saved to current directory."
+# Standardize report output under shared reports
+mkdir -p "/srv/neos/shared/reports"
+cp "$REPORT_FILE" "/srv/neos/shared/reports/backup_verification_report.md"
+echo "Backup verification report saved to: /srv/neos/shared/reports/backup_verification_report.md"
+
+# Conditionally copy to local IDE brain directory if configured
+if [ -n "${IDE_BRAIN_DIR:-}" ] && [ -d "$IDE_BRAIN_DIR" ]; then
+    cp "$REPORT_FILE" "$IDE_BRAIN_DIR/backup_verification_report.md"
+    echo "Backup verification report saved to IDE artifacts: $IDE_BRAIN_DIR/backup_verification_report.md"
 fi
+
+mv "$REPORT_FILE" "./backup_verification_report.md"
 
 echo "=== Backup Validation Completed Successfully ==="
 exit 0
