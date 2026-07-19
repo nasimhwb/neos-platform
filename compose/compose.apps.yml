@@ -34,14 +34,14 @@ services:
         reservations:
           cpus: '0.05'
           memory: 128M
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.kuma.rule=Host(`${STATUS_DOMAIN:-status.neos-platform.local}`)"
-        - "traefik.http.routers.kuma.entrypoints=websecure"
-        - "traefik.http.routers.kuma.tls=true"
-        - "traefik.http.routers.kuma.tls.certresolver=letsencrypt"
-        - "traefik.http.routers.kuma.middlewares=security-headers@file,compression@file,rate-limit@file"
-        - "traefik.http.services.kuma.loadbalancer.server.port=3001"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kuma.rule=Host(`${STATUS_DOMAIN:-status.neos-platform.local}`)"
+      - "traefik.http.routers.kuma.entrypoints=websecure"
+      - "traefik.http.routers.kuma.tls=true"
+      - "traefik.http.routers.kuma.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.kuma.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.kuma.loadbalancer.server.port=3001"
     profiles:
       - infrastructure
 
