@@ -17,7 +17,7 @@ set -eo pipefail
 # Load environment configuration if present
 if [ -f "$(dirname "$0")/../.env" ]; then
     set -a
-    source "$(dirname "$0")/../.env"
+    source <(tr -d '\r' < "$(dirname "$0")/../.env")
     set +a
 fi
 
