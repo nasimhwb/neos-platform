@@ -10,9 +10,12 @@
 #   5. Invokes backups/test-restore.sh to execute isolated test restore loop.
 #   6. Outputs a markdown report.
 
-set -eo pipefail
+# Load environment configuration if present
+if [ -f "$(dirname "$0")/../.env" ]; then
+    export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+fi
 
-BACKUP_DIR="/srv/neos/shared/backups"
+BACKUP_DIR="${BACKUP_DIR:-/srv/neos/shared/backups}"
 REPORT_FILE="/tmp/backup_verification_report.md"
 
 echo "=== Starting Backup Validation Process ==="
