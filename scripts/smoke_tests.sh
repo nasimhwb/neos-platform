@@ -16,7 +16,9 @@ set -eo pipefail
 
 # Load environment configuration if present
 if [ -f "$(dirname "$0")/../.env" ]; then
-    export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+    set -a
+    source "$(dirname "$0")/../.env"
+    set +a
 fi
 
 # ANSI color codes
