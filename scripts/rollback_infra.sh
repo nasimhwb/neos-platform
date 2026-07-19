@@ -16,6 +16,9 @@ BASE_DIR="/srv/neos"
 RELEASES_DIR="$BASE_DIR/releases"
 CURRENT_LINK="$BASE_DIR/current"
 
+# Master Docker Compose command mapping all config files
+COMPOSE_CMD="docker compose --env-file .env -f compose/compose.base.yml -f compose/compose.database.yml -f compose/compose.storage.yml -f compose/compose.monitoring.yml -f compose/compose.proxy.yml -f compose/compose.security.yml -f compose/compose.dashboard.yml"
+
 # ANSI color codes
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -62,7 +65,7 @@ echo -e "Atomic swap complete: ${GREEN}$CURRENT_LINK -> $(readlink $CURRENT_LINK
 # 4. Redeploy compose from the reverted directory
 echo "Restarting service containers from previous configurations..."
 cd "$PREV_RELEASE_PATH"
-docker compose up -d
+$COMPOSE_CMD up -d
 
 # 5. Run health and smoke verification checks
 echo "Verifying health on reverted release..."

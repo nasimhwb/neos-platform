@@ -24,6 +24,9 @@ SHARED_DIR="$BASE_DIR/shared"
 CURRENT_LINK="$BASE_DIR/current"
 TMP_SRC="/srv/neos/tmp/deploy-src"
 
+# Master Docker Compose command mapping all config files
+COMPOSE_CMD="docker compose --env-file .env -f compose/compose.base.yml -f compose/compose.database.yml -f compose/compose.storage.yml -f compose/compose.monitoring.yml -f compose/compose.proxy.yml -f compose/compose.security.yml -f compose/compose.dashboard.yml"
+
 # ANSI color codes
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -100,7 +103,7 @@ rollback_deployment() {
     # Stop failed services in new release folder
     echo "Stopping failed containers..."
     cd "$NEW_RELEASE_PATH"
-    docker compose down --remove-orphans || true
+    $COMPOSE_CMD down --remove-orphans || true
     
     # Remove failed release folder to prevent garbage pollution
     rm -rf "$NEW_RELEASE_PATH"
@@ -112,7 +115,7 @@ rollback_deployment() {
         
         # Restart previous compose services
         cd "$PREV_RELEASE"
-        docker compose up -d || true
+        $COMPOSE_CMD up -d || true
         echo -e "${GREEN}Rollback finished. Production traffic remains on reverted release.${NC}"
     else
         echo -e "${YELLOW}No previous release available. Services torn down.${NC}"
@@ -125,14 +128,11 @@ echo "3. Starting services in strict dependency order..."
 
 # Phase 1: Base Networks and Volume structures
 echo "  [Phase 1] Initializing networks and volumes..."
-docker compose -f compose/compose.base.yml up -d
+# Networks and volumes are automatically created by docker compose during Phase 2.
 
 # Phase 2: Databases, Cache, and Storage
 echo "  [Phase 2] Launching PostgreSQL, PgBouncer, Redis, and MinIO..."
-docker compose \
-  -f compose/compose.base.yml \
-  -f compose/compose.database.yml \
-  -f compose/compose.storage.yml up -d
+$COMPOSE_CMD up -d db pgbouncer cache redis-exporter postgres-exporter minio minio_init
 
 # Phase 3: Wait for databases and storage to boot (Healthcheck loop)
 echo "  [Phase 3] Waiting for databases and storage health check..."
@@ -159,7 +159,7 @@ check_health "neos_minio" || { echo "MinIO object storage healthcheck failed."; 
 
 # Phase 4: Monitoring, Ingress Routing (Traefik), and Next.js Dashboard
 echo "  [Phase 4] Launching Monitoring stack, Traefik proxy, and Next.js Dashboard..."
-docker compose up -d
+$COMPOSE_CMD up -d
 
 # Phase 5: Wait for all health checks
 echo "  [Phase 5] Waiting for remaining core services health checks..."
