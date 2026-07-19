@@ -38,13 +38,13 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.supabase.rule=Host(`${API_DOMAIN:-supabase.neos-platform.local}`)"
-        - "traefik.http.routers.supabase.entrypoints=websecure"
-        - "traefik.http.routers.supabase.tls=true"
-        - "traefik.http.routers.supabase.middlewares=security-headers@file,compression@file,rate-limit@file"
-        - "traefik.http.services.supabase.loadbalancer.server.port=8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.supabase.rule=Host(`${API_DOMAIN:-supabase.neos-platform.local}`)"
+      - "traefik.http.routers.supabase.entrypoints=websecure"
+      - "traefik.http.routers.supabase.tls=true"
+      - "traefik.http.routers.supabase.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.supabase.loadbalancer.server.port=8000"
 
   # ------------------------------------------------------------------------------
   # Supabase Auth Engine (GoTrue)

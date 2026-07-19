@@ -39,22 +39,22 @@ services:
         reservations:
           cpus: '0.1'
           memory: 128M
-      labels:
-        - "traefik.enable=true"
-        # 1. S3 API Router
-        - "traefik.http.routers.minio-api.rule=Host(`${MINIO_DOMAIN:-s3.neos-platform.local}`)"
-        - "traefik.http.routers.minio-api.entrypoints=websecure"
-        - "traefik.http.routers.minio-api.tls=true"
-        - "traefik.http.routers.minio-api.service=minio-api-svc"
-        - "traefik.http.routers.minio-api.middlewares=security-headers@file,compression@file,rate-limit@file"
-        - "traefik.http.services.minio-api-svc.loadbalancer.server.port=9000"
-        # 2. Console Dashboard Router
-        - "traefik.http.routers.minio-console.rule=Host(`${MINIO_CONSOLE_DOMAIN:-console.s3.neos-platform.local}`)"
-        - "traefik.http.routers.minio-console.entrypoints=websecure"
-        - "traefik.http.routers.minio-console.tls=true"
-        - "traefik.http.routers.minio-console.service=minio-console-svc"
-        - "traefik.http.routers.minio-console.middlewares=security-headers@file,compression@file,rate-limit@file"
-        - "traefik.http.services.minio-console-svc.loadbalancer.server.port=9001"
+    labels:
+      - "traefik.enable=true"
+      # 1. S3 API Router
+      - "traefik.http.routers.minio-api.rule=Host(`${MINIO_DOMAIN:-s3.neos-platform.local}`)"
+      - "traefik.http.routers.minio-api.entrypoints=websecure"
+      - "traefik.http.routers.minio-api.tls=true"
+      - "traefik.http.routers.minio-api.service=minio-api-svc"
+      - "traefik.http.routers.minio-api.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.minio-api-svc.loadbalancer.server.port=9000"
+      # 2. Console Dashboard Router
+      - "traefik.http.routers.minio-console.rule=Host(`${MINIO_CONSOLE_DOMAIN:-console.s3.neos-platform.local}`)"
+      - "traefik.http.routers.minio-console.entrypoints=websecure"
+      - "traefik.http.routers.minio-console.tls=true"
+      - "traefik.http.routers.minio-console.service=minio-console-svc"
+      - "traefik.http.routers.minio-console.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.minio-console-svc.loadbalancer.server.port=9001"
 
   # ------------------------------------------------------------------------------
   # Bucket & Policy Auto-initializer (MinIO Client Sidecar)
