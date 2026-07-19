@@ -48,7 +48,7 @@
 ### Blocker 1: Missing SSH Private Key
 - **Details**: The identity file `C:\Users\nasim\.ssh\id_ed25519` is missing or unreadable on this machine. Connections to `root@200.97.161.179` and `nasim@200.97.161.179` return `Permission denied (publickey,password)`.
 - **Impact**: **CRITICAL**. Prevents execution of all SRE, deploy, and diagnostic commands on the VPS.
-- **Required Action**: Place the correct private key in `C:\Users\nasim\.ssh\id_ed25519` or provide the path to a valid key.
+- **Required Action**: Place the correct private key in `C:\Users\nasim\.ssh\id_ed25519` or follow the SSH Key Recovery Guide below to configure a new key.
 
 ### Blocker 2: Missing or Empty Sourced Folders
 - **Details**: Sibling directory `D:\WebApp\KVM2` does not exist on the disk, and `D:\WebApp\KVM2_SWB` exists but is completely empty.
@@ -57,7 +57,60 @@
 
 ---
 
-## 4. Go-Live Readiness Score Breakdown
+## 4. SSH Key Recovery & Setup Guide
+
+To restore SSH access and link the Windows laptop to both GitHub and the Hostinger VPS, follow these steps:
+
+### Step 4.1: Generate a New Secure SSH Key (on Windows Laptop)
+Open PowerShell and run:
+```powershell
+# Create the SSH directory if it does not exist
+New-Item -ItemType Directory -Path "$Home\.ssh" -Force
+
+# Generate a high-security Ed25519 SSH key pair
+ssh-keygen -t ed25519 -a 100 -C "nasimhwb@gmail.com" -f "$Home\.ssh\id_ed25519"
+```
+*When prompted, press Enter to skip passphrases (or enter one if you prefer to type it on connection).*
+
+---
+
+### Step 4.2: Add the Public Key to GitHub
+1. Copy the public key to your clipboard:
+   ```powershell
+   Get-Content -Path "$Home\.ssh\id_ed25519.pub" | Set-Clipboard
+   ```
+2. Go to [GitHub SSH Settings](https://github.com/settings/keys).
+3. Click **New SSH Key**, give it a title (e.g., `Windows Laptop - KVM2`), paste the key, and save.
+4. Verify GitHub connection:
+   ```powershell
+   ssh -T git@github.com
+   ```
+
+---
+
+### Step 4.3: Add the Public Key to Hostinger VPS
+Since current SSH access is blocked, you must add the public key using Hostinger's management console:
+1. Log in to the **Hostinger hPanel**.
+2. Navigate to **VPS** -> **Manage** -> **VPS Access** (or open the **Browser Terminal / Serial Console**).
+3. Log in as `root` (or `nasim`).
+4. Append your public key to the authorized keys file:
+   ```bash
+   # Create SSH folder if not exists
+   mkdir -p ~/.ssh
+   chmod 700 ~/.ssh
+
+   # Append the public key string (replace SSH_PUB_KEY_CONTENT with the content of your id_ed25519.pub)
+   echo "SSH_PUB_KEY_CONTENT" >> ~/.ssh/authorized_keys
+   chmod 600 ~/.ssh/authorized_keys
+   ```
+5. Test connection from Windows:
+   ```powershell
+   & "C:\Program Files\Git\usr\bin\ssh.exe" -i C:\Users\nasim\.ssh\id_ed25519 root@200.97.161.179 "hostname"
+   ```
+
+---
+
+## 5. Go-Live Readiness Score Breakdown
 
 The readiness score is currently calculated at **25/100** based on the following evaluation:
 
@@ -74,35 +127,3 @@ The readiness score is currently calculated at **25/100** based on the following
    - Unable to run `make doctor`, test auto-recovery, or execute rollbacks.
 5. **Backups & Telemetry Verification (0/20 pts)**: **FAIL**
    - Unable to test `make validate-backups` or audit the dashboard telemetry integrations.
-
----
-
-## 5. Recovery & Resolution Plan
-
-Once the SSH private key is provided, the deployment rehearsal lead will execute the following recovery protocol:
-
-```mermaid
-flowchart TD
-    A[Start Resolution] --> B[Load SSH Key locally]
-    B --> C[Verify SSH connection to 200.97.161.179]
-    C --> D[Audit VPS directories & permissions]
-    D --> E[Run make bootstrap]
-    E --> F[Run make verify]
-    F --> G[Run make up]
-    G --> H[Run make doctor & make smoke-tests]
-    H --> I[Run make validate-backups]
-    I --> J[Reboot VPS & Verify Auto-Recovery]
-    J --> K[Test make rollback-release]
-    K --> L[Generate Final Rehearsal Report]
-```
-
-### Action Checklist:
-1. Load the SSH key: `C:\Users\nasim\.ssh\id_ed25519`.
-2. Connect to the VPS and run pre-flight checks:
-   ```bash
-   ssh -i C:\Users\nasim\.ssh\id_ed25519 root@200.97.161.179 "uname -a; free -h; df -h"
-   ```
-3. Run the orchestration pipeline:
-   ```bash
-   & "C:\Program Files\Git\usr\bin\ssh.exe" -i C:\Users\nasim\.ssh\id_ed25519 root@200.97.161.179 "cd /srv/neos/neos-platform && make bootstrap && make verify && make deploy-release"
-   ```
