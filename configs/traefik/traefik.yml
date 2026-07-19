@@ -59,7 +59,7 @@ metrics:
 certificatesResolvers:
   letsencrypt:
     acme:
-      email: admin@neos-platform.local
+      email: info@neosfacility.com
       storage: /letsencrypt/acme.json
       httpChallenge:
         entryPoint: web
