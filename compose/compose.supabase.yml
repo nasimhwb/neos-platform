@@ -159,6 +159,7 @@ services:
       DB_NAME: postgres
       DB_SSL: "false"
       JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
+      SECRET_KEY_BASE: ${REALTIME_SECRET_KEY_BASE:-ChangeThisToASuperSecureSecretKeyBaseAtLeast64CharactersLong1234567890!}
       REPLICATION_MODE: WAL
       REPLICATION_SLOT_NAME: supabase_realtime_rcv
       PUBLISHER_CONN_TIMEOUT: 5000
@@ -202,6 +203,7 @@ services:
       # Proxy to local S3 compatibility layer (MinIO)
       FILE_STORAGE_BACKEND: s3
       STORAGE_BACKEND: s3
+      TENANT_ID: stub
       FILE_SIZE_LIMIT: "52428800"
       GLOBAL_S3_BUCKET: supabase-storage
       AWS_ACCESS_KEY_ID: supabase_user
