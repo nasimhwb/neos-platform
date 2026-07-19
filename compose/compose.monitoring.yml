@@ -259,6 +259,7 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`${GRAFANA_DOMAIN:-monitor.neos-platform.local}`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
       - "traefik.http.routers.grafana.middlewares=security-headers@file,compression@file,rate-limit@file"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
 
