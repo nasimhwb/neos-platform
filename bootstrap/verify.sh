@@ -102,16 +102,27 @@ echo -e "${GREEN}[PASS] DNS resolution functional.${NC}"
 # 7. Check Port Availability (80, 443, 9000 must be free in pre-flight)
 if [ "$MODE" == "--pre" ]; then
     echo -n "8. Checking required ports availability (80, 443, 9000)... "
-    if (echo >/dev/tcp/127.0.0.1/80) &>/dev/null; then
-        fail_check "Port 80 is already in use by another service on this host."
+    OURS_RUNNING=0
+    if command -v docker &>/dev/null && systemctl is-active --quiet docker 2>/dev/null; then
+        if docker ps --filter "name=neos_traefik" --filter "status=running" --format '{{.Names}}' | grep -q "neos_traefik" &>/dev/null; then
+            OURS_RUNNING=1
+        fi
     fi
-    if (echo >/dev/tcp/127.0.0.1/443) &>/dev/null; then
-        fail_check "Port 443 is already in use by another service on this host."
+
+    if [ "$OURS_RUNNING" -eq 1 ]; then
+        echo -e "${YELLOW}[WARN] Ports are occupied by running neos containers. Skipping check.${NC}"
+    else
+        if (echo >/dev/tcp/127.0.0.1/80) &>/dev/null; then
+            fail_check "Port 80 is already in use by another service on this host."
+        fi
+        if (echo >/dev/tcp/127.0.0.1/443) &>/dev/null; then
+            fail_check "Port 443 is already in use by another service on this host."
+        fi
+        if (echo >/dev/tcp/127.0.0.1/9000) &>/dev/null; then
+            fail_check "Port 9000 is already in use by another service on this host."
+        fi
+        echo -e "${GREEN}[PASS] Ports 80, 443, and 9000 are free.${NC}"
     fi
-    if (echo >/dev/tcp/127.0.0.1/9000) &>/dev/null; then
-        fail_check "Port 9000 is already in use by another service on this host."
-    fi
-    echo -e "${GREEN}[PASS] Ports 80, 443, and 9000 are free.${NC}"
 fi
 
 # 8. Firewall Status Verification
