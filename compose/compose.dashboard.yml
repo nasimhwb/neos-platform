@@ -60,6 +60,7 @@ services:
       - "traefik.http.routers.dashboard-ui.rule=Host(`${DASHBOARD_DOMAIN:-dashboard.neos-platform.local}`)"
       - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
       - "traefik.http.routers.dashboard-ui.tls=true"
+      - "traefik.http.routers.dashboard-ui.tls.certresolver=letsencrypt"
       - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"
       - "traefik.http.services.dashboard-ui.loadbalancer.server.port=3000"
     deploy:
