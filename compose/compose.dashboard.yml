@@ -24,8 +24,8 @@ services:
       NEXT_PUBLIC_PLATFORM_NAME: ${NEXT_PUBLIC_PLATFORM_NAME:-NEOS Platform}
       NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neos-platform.local}
       # Core platform connection configs
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
+      POSTGRES_HOST: pgbouncer
+      POSTGRES_PORT: 6432
       POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER:-postgres}
       POSTGRES_SUPERUSER_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD}
       REDIS_HOST: cache
@@ -41,12 +41,14 @@ services:
       ALERTMANAGER_PORT: 9093
       LOKI_HOST: loki
       LOKI_PORT: 3100
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       - neos-private
       - neos-monitoring
       - neos-database
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "wget --no-verbose --spider http://127.0.0.1:3000/api/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
