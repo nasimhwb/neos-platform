@@ -24,6 +24,7 @@ services:
       - minio_data:/data
     command: server /data --console-address ":9001"
     networks:
+      - neos-public
       - neos-storage
       - neos-monitoring
     healthcheck:

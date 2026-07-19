@@ -236,6 +236,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ../monitoring/provisioning:/etc/grafana/provisioning:ro
     networks:
+      - neos-public
       - neos-monitoring
     depends_on:
       - prometheus
