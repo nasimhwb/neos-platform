@@ -73,7 +73,7 @@ services:
       API_EXTERNAL_URL: https://${API_DOMAIN:-supabase.neos-platform.local}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DISABLE_SIGNUP: "false"
-      GOTRUE_EXTERNAL_EMAIL_ENABLED: "false" # Disable real SMTP for testing (uses mock logs)
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
       GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
       GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
       GOTRUE_SMTP_USER: ${SMTP_USER:-}
