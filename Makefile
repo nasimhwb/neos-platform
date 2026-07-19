@@ -6,7 +6,7 @@
 .PHONY: bootstrap up up-apps down restart ps logs reload-nginx doctor backup restore verify-backup config-check update clean
 
 # Compile compose files (Core Platform Services: Databases, Cache, Storage, Monitoring, Proxy, Security, and Dashboard)
-COMPOSE_CMD = docker compose \
+COMPOSE_CMD = docker compose --env-file .env \
 	-f compose/compose.base.yml \
 	-f compose/compose.database.yml \
 	-f compose/compose.storage.yml \
