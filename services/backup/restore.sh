@@ -81,7 +81,7 @@ echo "=== Starting Restoration from $BACKUP_ARCHIVE ==="
 
 # Extract backup package to temp folder
 echo "Extracting backup archive..."
-tar -xzf "$BACKUP_ARCHIVE" -C "$TEMP_DIR" --strip-components=1
+tar -xzf "$BACKUP_ARCHIVE" -C "$TEMP_DIR"
 
 # Get extracted session directory name
 SESSION_DIR=$(find "$TEMP_DIR" -maxdepth 1 -type d -name "backup_*" | head -n 1)

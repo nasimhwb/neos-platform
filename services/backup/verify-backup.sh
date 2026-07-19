@@ -96,7 +96,7 @@ echo "   [PASS] Archive is structurally valid."
 
 # Extract archive
 echo "3. Unpacking archive contents to workspace..."
-tar -xzf "$TARGET_ARCHIVE" -C "$TEMP_WORK_DIR" --strip-components=1
+tar -xzf "$TARGET_ARCHIVE" -C "$TEMP_WORK_DIR"
 
 # Get inside the session directory name
 SESSION_DIR=$(find "$TEMP_WORK_DIR" -maxdepth 1 -type d -name "backup_*" | head -n 1)

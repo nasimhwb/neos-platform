@@ -85,7 +85,7 @@ fi
 
 # Extract archive
 echo "Extracting backup..."
-tar -xzf "$TARGET_ARCHIVE" -C "$TEMP_RESTORE_DIR" --strip-components=1
+tar -xzf "$TARGET_ARCHIVE" -C "$TEMP_RESTORE_DIR"
 SESSION_DIR=$(find "$TEMP_RESTORE_DIR" -maxdepth 1 -type d -name "backup_*" | head -n 1)
 
 # Create isolated network
