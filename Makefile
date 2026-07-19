@@ -5,7 +5,7 @@
 
 .PHONY: bootstrap up up-apps down restart ps logs reload-nginx doctor backup restore verify-backup config-check update clean
 
-# Compile compose files (Core Platform Services: Databases, Cache, Storage, Monitoring, Proxy, Security, and Dashboard)
+# Compile compose files (Core Platform Services: Databases, Cache, Storage, Monitoring, Proxy, Security, Dashboard, Supabase Compat, and Apps)
 COMPOSE_CMD = docker compose --env-file .env \
 	-f compose/compose.base.yml \
 	-f compose/compose.database.yml \
@@ -13,7 +13,9 @@ COMPOSE_CMD = docker compose --env-file .env \
 	-f compose/compose.monitoring.yml \
 	-f compose/compose.proxy.yml \
 	-f compose/compose.security.yml \
-	-f compose/compose.dashboard.yml
+	-f compose/compose.dashboard.yml \
+	-f compose/compose.supabase.yml \
+	-f compose/compose.apps.yml
 
 # 1. System Host Provisioning
 bootstrap:
@@ -30,7 +32,7 @@ verify:
 # 2. Deploy Container Stacks (Infrastructure core)
 up:
 	@echo "Starting Neos Platform Infrastructure..."
-	$(COMPOSE_CMD) up -d --build --remove-orphans
+	$(COMPOSE_CMD) --profile infrastructure up -d --build --remove-orphans
 
 # 3. Deploy App Stacks (Launches the app profiles)
 up-apps:

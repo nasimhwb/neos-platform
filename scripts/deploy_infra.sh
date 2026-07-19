@@ -25,7 +25,7 @@ CURRENT_LINK="$BASE_DIR/current"
 TMP_SRC="/srv/neos/tmp/deploy-src"
 
 # Master Docker Compose command mapping all config files
-COMPOSE_CMD="docker compose --env-file .env -f compose/compose.base.yml -f compose/compose.database.yml -f compose/compose.storage.yml -f compose/compose.monitoring.yml -f compose/compose.proxy.yml -f compose/compose.security.yml -f compose/compose.dashboard.yml"
+COMPOSE_CMD="docker compose --env-file .env -f compose/compose.base.yml -f compose/compose.database.yml -f compose/compose.storage.yml -f compose/compose.monitoring.yml -f compose/compose.proxy.yml -f compose/compose.security.yml -f compose/compose.dashboard.yml -f compose/compose.supabase.yml -f compose/compose.apps.yml"
 
 # ANSI color codes
 GREEN='\033[0;32m'
@@ -159,12 +159,14 @@ check_health "neos_minio" || { echo "MinIO object storage healthcheck failed."; 
 
 # Phase 4: Monitoring, Ingress Routing (Traefik), and Next.js Dashboard
 echo "  [Phase 4] Launching Monitoring stack, Traefik proxy, and Next.js Dashboard..."
-$COMPOSE_CMD up -d
+$COMPOSE_CMD --profile infrastructure up -d
 
 # Phase 5: Wait for all health checks
 echo "  [Phase 5] Waiting for remaining core services health checks..."
 check_health "neos_traefik" || { echo "Traefik proxy healthcheck failed."; rollback_deployment; }
 check_health "neos_dashboard" || { echo "Dashboard control center healthcheck failed."; rollback_deployment; }
+check_health "neos_supabase_auth" || { echo "Supabase Auth healthcheck failed."; rollback_deployment; }
+check_health "neos_uptime_kuma" || { echo "Uptime Kuma healthcheck failed."; rollback_deployment; }
 
 # 5. Execute Smoke Tests
 echo "4. Running automated smoke checks..."
