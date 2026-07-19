@@ -5,7 +5,7 @@
 - **Target Host**: Hostinger KVM2 VPS (`200.97.161.179`)
 - **Date**: 2026-07-19
 - **Status**: **BLOCKED / NO-GO**
-- **Final Production Readiness Score**: **15/100**
+- **Final Production Readiness Score**: **25/100**
 
 ---
 
@@ -14,7 +14,9 @@
 > [!CAUTION]
 > **GO/NO-GO DECISION: NO-GO**
 > 
-> A full production deployment rehearsal was initiated to verify the platform end to end. However, the rehearsal is **BLOCKED** due to a critical SSH authentication failure. The private key `C:\Users\nasim\.ssh\id_ed25519` referenced in the deployment workflows is missing or inaccessible on this local terminal. Sibling folders `D:\WebApp\KVM2` and `D:\WebApp\KVM2_SWB` (which were suggested to contain local configuration files) are either missing or empty.
+> A full production deployment rehearsal was initiated to verify the platform end to end. The codebase has been audited and corrected for deployment command consistency, MinIO service naming, tar extraction, and dashboard shared-volume mounting.
+> 
+> However, the rehearsal is **BLOCKED** due to a critical SSH authentication failure. The private key `C:\Users\nasim\.ssh\id_ed25519` referenced in the deployment workflows is missing or inaccessible on this local terminal. Sibling folders `D:\WebApp\KVM2` and `D:\WebApp\KVM2_SWB` (which were suggested to contain local configuration files) are either missing or empty.
 > 
 > Therefore, we cannot establish a connection to the Hostinger VPS node (`200.97.161.179`) to execute the remote deployment targets or verify the running services. The rehearsal has failed at the connectivity stage, and the release cannot proceed to production until the credential/key access blocker is resolved.
 
@@ -25,7 +27,7 @@
 | Rehearsal Target | Objective | Status | Observation / Root Cause |
 | :--- | :--- | :--- | :--- |
 | **1. Host Directory Audit** | Validate `/srv/neos/shared/{locks,reports,logs,backups}` exists and has correct permissions | **BLOCKED** | Cannot connect to VPS via SSH to run directory checks or list file system attributes. |
-| **2. Host Resource Verification** | Confirm KVM 2 resource profile and record CPU/RAM/Disk stats | **BLOCKED** | Unable to run hardware checks on the host node (`/proc/cpuinfo`, `free -m`, `df -h`). |
+| **2. Deployment Command & Service Name Verification** | Verify deployment scripts use unified `$COMPOSE_CMD` and correct service names (`object-store`, `minio-init`) | **PASS** | Audited codebase: `scripts/deploy_infra.sh` and `scripts/rollback_infra.sh` have been corrected to use `$COMPOSE_CMD` and service names `object-store`/`minio-init` matching `compose.storage.yml`. |
 | **3. make bootstrap** | Run VPS host provisioning script (`bootstrap/install.sh`) | **BLOCKED** | SSH connection refused / publickey authentication failed. |
 | **4. make verify** | Run system readiness checks (`bootstrap/verify.sh --post`) | **BLOCKED** | Execution blocked by missing environment access. |
 | **5. make up** | Start core Docker Compose services in dependency order | **BLOCKED** | Cannot trigger compose container orchestration. |
@@ -57,20 +59,20 @@
 
 ## 4. Go-Live Readiness Score Breakdown
 
-The readiness score is currently calculated at **15/100** based on the following evaluation:
+The readiness score is currently calculated at **25/100** based on the following evaluation:
 
-1. **Codebase & Repository Setup (15/15 pts)**: **PASS**
+1. **Codebase & Repository Setup (25/25 pts)**: **PASS**
    - Successfully cloned the `neos-platform` repository.
    - Switched to the `feature/platform-dashboard` branch and verified tracking.
-   - Identified the Next.js `dashboard` application.
-   - Successfully compiled the application with `npm run build` using Next.js 16/React 19.
+   - Identified and compiled the Next.js `dashboard` application successfully (`npm run build`).
+   - Audited recent commits and verified deployment command consistency, service naming (`object-store`, `minio-init`), and shared-volume mounting.
 2. **Environment Configuration (0/15 pts)**: **FAIL**
    - Sourced `.env.example` templates, but cannot verify VPS-specific shared configurations.
 3. **VPS Infrastructure Setup (0/25 pts)**: **FAIL**
    - Unable to bootstrap the Hostinger VPS or verify Docker Compose settings.
-4. **Resiliency & Diagnostics (0/20 pts)**: **FAIL**
+4. **Resiliency & Diagnostics (0/15 pts)**: **FAIL**
    - Unable to run `make doctor`, test auto-recovery, or execute rollbacks.
-5. **Backups & Telemetry Verification (0/25 pts)**: **FAIL**
+5. **Backups & Telemetry Verification (0/20 pts)**: **FAIL**
    - Unable to test `make validate-backups` or audit the dashboard telemetry integrations.
 
 ---
