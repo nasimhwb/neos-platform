@@ -145,6 +145,7 @@ services:
       - SYS_RESOURCE
     security_opt:
       - no-new-privileges:true
+    command: ["/app/bin/server"]
     logging:
       driver: "json-file"
       options:
