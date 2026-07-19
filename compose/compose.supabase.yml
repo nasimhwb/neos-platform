@@ -69,6 +69,7 @@ services:
       GOTRUE_JWT_EXP: 3600
       GOTRUE_SITE_URL: https://app.${BASE_DOMAIN:-neos-platform.local}
       GOTRUE_URI_ALLOW_LIST: https://app.${BASE_DOMAIN:-neos-platform.local}/*
+      API_EXTERNAL_URL: https://${API_DOMAIN:-supabase.neos-platform.local}
       GOTRUE_DISABLE_SIGNUP: "false"
       GOTRUE_EXTERNAL_EMAIL_ENABLED: "false" # Disable real SMTP for testing (uses mock logs)
       GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
