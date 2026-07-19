@@ -23,7 +23,12 @@ function getPool(): Pool {
     user,
     password,
     database,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 3000,
+  });
+  // Prevent uncaughtException when idle connections are terminated
+  // (e.g. PgBouncer restart drops server-side connections in the pool)
+  poolInstance.on("error", (err) => {
+    console.warn("[DatabaseService] Pool idle client error (safe to ignore):", err.message);
   });
 
   return poolInstance;

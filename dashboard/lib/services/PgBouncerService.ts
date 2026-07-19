@@ -21,8 +21,12 @@ export class PgBouncerService {
       user,
       password,
       database: "pgbouncer",
-      connectionTimeoutMillis: 2000,
+      connectionTimeoutMillis: 3000,
+      idleTimeoutMillis: 1000,
+      max: 1,
     });
+    // Suppress uncaught pool errors (e.g. idle connection termination)
+    pool.on("error", () => {});
 
     let client;
     try {
@@ -59,7 +63,9 @@ export class PgBouncerService {
         status: "unhealthy" // Reflect offline state for SRE health check if connection failed
       };
     } finally {
-      await pool.end();
+      // Fire-and-forget: do NOT await pool.end() — it can hang indefinitely
+      // when the connection failed or was terminated mid-flight.
+      pool.end().catch(() => {});
     }
   }
 }
