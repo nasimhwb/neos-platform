@@ -132,7 +132,7 @@ echo "  [Phase 1] Initializing networks and volumes..."
 
 # Phase 2: Databases, Cache, and Storage
 echo "  [Phase 2] Launching PostgreSQL, PgBouncer, Redis, and MinIO..."
-$COMPOSE_CMD up -d db pgbouncer cache redis-exporter postgres-exporter minio minio_init
+$COMPOSE_CMD up -d db pgbouncer cache redis-exporter postgres-exporter object-store minio-init
 
 # Phase 3: Wait for databases and storage to boot (Healthcheck loop)
 echo "  [Phase 3] Waiting for databases and storage health check..."
