@@ -48,7 +48,7 @@ services:
   # Connection Pooler (PgBouncer)
   # ------------------------------------------------------------------------------
   pgbouncer:
-    image: edoburu/pgbouncer:1.22.0
+    image: edoburu/pgbouncer:1.22.0-p0
     container_name: neos_pgbouncer
     restart: unless-stopped
     security_opt:
