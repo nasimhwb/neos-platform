@@ -14,6 +14,11 @@
 
 set -eo pipefail
 
+# Load environment configuration if present
+if [ -f "$(dirname "$0")/../.env" ]; then
+    export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+fi
+
 # ANSI color codes
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -106,7 +111,7 @@ fi
 
 # 7. Check Redis
 echo -e "\n${BLUE}--- 7. Verifying Redis Cache ---${NC}"
-if docker exec neos_redis redis-cli ping 2>/dev/null | grep -q "PONG"; then
+if docker exec neos_redis redis-cli -a "${REDIS_PASSWORD}" ping 2>/dev/null | grep -q "PONG"; then
     echo -e "${GREEN}[PASS] Redis cache answers PING request.${NC}"
 else
     echo -e "${RED}[FAIL] Redis cache did not answer PING.${NC}"

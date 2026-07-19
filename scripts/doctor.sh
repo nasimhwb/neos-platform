@@ -9,6 +9,11 @@
 set -e
 set -o pipefail
 
+# Load environment configuration if present
+if [ -f "$(dirname "$0")/../.env" ]; then
+    export $(grep -v '^#' "$(dirname "$0")/../.env" | xargs)
+fi
+
 # ANSI color codes
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -143,7 +148,7 @@ fi
 echo -n "Checking Portainer access on port 9000: "
 if ! is_running "neos_portainer"; then
     echo -e "${YELLOW}SKIPPED (Portainer container not running)${NC}"
-elif curl -s -I http://localhost:9000/ &>/dev/null; then
+elif docker exec neos_dashboard wget -q --spider http://portainer:9000/ &>/dev/null; then
     echo -e "${GREEN}PASS (HTTP responds)${NC}"
 else
     echo -e "${RED}FAIL (Portainer not responding)${NC}"
@@ -172,8 +177,7 @@ echo -n "Checking Redis Cache connectivity: "
 if ! is_running "neos_redis"; then
     echo -e "${YELLOW}SKIPPED (Redis container not running)${NC}"
 else
-    REDIS_PASS=$(docker exec neos_redis printenv REDIS_PASSWORD 2>/dev/null || echo "")
-    if docker exec neos_redis redis-cli ping &>/dev/null || [ -n "$REDIS_PASS" ] && docker exec neos_redis redis-cli -a "$REDIS_PASS" ping 2>/dev/null | grep -q PONG; then
+    if [ -n "${REDIS_PASSWORD}" ] && docker exec neos_redis redis-cli -a "${REDIS_PASSWORD}" ping 2>/dev/null | grep -q PONG; then
         echo -e "${GREEN}PASS (Redis cache answers PING)${NC}"
     else
         echo -e "${RED}FAIL (Redis cache unreachable)${NC}"
@@ -194,7 +198,7 @@ fi
 echo -n "Checking Prometheus metrics endpoint: "
 if ! is_running "neos_prometheus"; then
     echo -e "${YELLOW}SKIPPED (Prometheus container not running)${NC}"
-elif docker exec neos_prometheus curl -s http://localhost:9090/-/healthy &>/dev/null; then
+elif docker exec neos_dashboard wget -q --spider http://prometheus:9090/-/healthy &>/dev/null; then
     echo -e "${GREEN}PASS (Metrics server reports healthy)${NC}"
 else
     echo -e "${RED}FAIL (Prometheus metrics unreachable)${NC}"
