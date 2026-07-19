@@ -165,7 +165,7 @@ services:
       - neos-private
       - neos-database
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --spider http://localhost:4000/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:4000/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -182,7 +182,7 @@ services:
   # Supabase Storage S3-compatible API Adapter
   # ------------------------------------------------------------------------------
   supabase-storage:
-    image: supabase/storage-api:v0.40.4
+    image: supabase/storage-api:latest
     container_name: neos_supabase_storage
     restart: unless-stopped
     security_opt:
