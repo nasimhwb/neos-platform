@@ -99,8 +99,8 @@ Since current SSH access is blocked, you must add the public key using Hostinger
    mkdir -p ~/.ssh
    chmod 700 ~/.ssh
 
-   # Append the public key string (replace SSH_PUB_KEY_CONTENT with the content of your id_ed25519.pub)
-   echo "SSH_PUB_KEY_CONTENT" >> ~/.ssh/authorized_keys
+   # Append the public key string
+   echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBhkppTOTedtc4nVYsfDSmEQflRnOXY3tTTS7RehAqwe nasimhwb@gmail.com" >> ~/.ssh/authorized_keys
    chmod 600 ~/.ssh/authorized_keys
    ```
 5. Test connection from Windows:
