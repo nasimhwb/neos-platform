@@ -74,7 +74,7 @@ services:
       INVENTORY_S3_PASSWORD: ${INVENTORY_S3_PASSWORD}
       AI_S3_PASSWORD: ${AI_S3_PASSWORD}
       SUPABASE_S3_PASSWORD: ${SUPABASE_S3_PASSWORD}
-    entrypoint: /bin/sh -c "chmod +x /init.sh && /init.sh"
+    entrypoint: /bin/sh /init.sh
     networks:
       - neos-storage
     restart: "no"
