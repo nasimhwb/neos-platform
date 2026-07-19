@@ -11,6 +11,7 @@ services:
       dockerfile: Dockerfile
     image: neos_dashboard:latest
     container_name: neos_dashboard
+    user: root
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
