@@ -39,27 +39,27 @@ http:
           - "admin:$2y$05$y8.yH77e0340Gf85/n2NSeY4w514h/h9j5cOu349d91e3e7f59d57a"
 
   # ----------------------------------------------------------------------------
-  # Production Ingress Routing
+  # Production Ingress Routing (Handled by Docker Compose labels in docker-compose.app.yml)
   # ----------------------------------------------------------------------------
-  routers:
-    neos-app-production:
-      rule: "HostRegexp(`app\\..+`)"
-      entryPoints:
-        - websecure
-      tls: {}
-      service: neos-app-production-service
-      middlewares:
-        - security-headers@file
-        - compression@file
-        - rate-limit@file
+  # routers:
+  #   neos-app-production:
+  #     rule: "HostRegexp(`app\\..+`)"
+  #     entryPoints:
+  #       - websecure
+  #     tls: {}
+  #     service: neos-app-production-service
+  #     middlewares:
+  #       - security-headers@file
+  #       - compression@file
+  #       - rate-limit@file
 
-  services:
-    neos-app-production-service:
-      loadBalancer:
-        servers:
-          # Swapped dynamically by deployment script (blue vs green)
-          - url: "http://neos-app-blue:80"
-        passHostHeader: true
+  # services:
+  #   neos-app-production-service:
+  #     loadBalancer:
+  #       servers:
+  #         # Swapped dynamically by deployment script (blue vs green)
+  #         - url: "http://neos-app-blue:80"
+  #       passHostHeader: true
 
 tls:
   options:
