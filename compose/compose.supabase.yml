@@ -152,6 +152,7 @@ services:
         max-file: "3"
     environment:
       PORT: 4000
+      APP_NAME: realtime
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: supabase_admin
