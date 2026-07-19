@@ -55,6 +55,13 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard-ui.rule=Host(`${DASHBOARD_DOMAIN:-dashboard.neos-platform.local}`)"
+      - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
+      - "traefik.http.routers.dashboard-ui.tls=true"
+      - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.dashboard-ui.loadbalancer.server.port=3000"
     deploy:
       resources:
         limits:
@@ -63,10 +70,3 @@ services:
         reservations:
           cpus: '0.1'
           memory: 256M
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.dashboard-ui.rule=Host(`${DASHBOARD_DOMAIN:-dashboard.neos-platform.local}`)"
-        - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
-        - "traefik.http.routers.dashboard-ui.tls=true"
-        - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"
-        - "traefik.http.services.dashboard-ui.loadbalancer.server.port=3000"
