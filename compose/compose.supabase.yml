@@ -40,7 +40,7 @@ services:
           memory: 64M
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.supabase.rule=Host(`supabase.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.supabase.rule=Host(`${API_DOMAIN:-supabase.neos-platform.local}`)"
         - "traefik.http.routers.supabase.entrypoints=websecure"
         - "traefik.http.routers.supabase.tls=true"
         - "traefik.http.routers.supabase.middlewares=security-headers@file,compression@file,rate-limit@file"

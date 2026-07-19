@@ -46,6 +46,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/neos/shared:/srv/neos/shared:ro
     networks:
+      - neos-public
       - neos-private
       - neos-monitoring
       - neos-database
@@ -64,7 +65,7 @@ services:
           memory: 256M
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.dashboard-ui.rule=Host(`dashboard.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.dashboard-ui.rule=Host(`${DASHBOARD_DOMAIN:-dashboard.neos-platform.local}`)"
         - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
         - "traefik.http.routers.dashboard-ui.tls=true"
         - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"

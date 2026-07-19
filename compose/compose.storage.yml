@@ -42,14 +42,14 @@ services:
       labels:
         - "traefik.enable=true"
         # 1. S3 API Router
-        - "traefik.http.routers.minio-api.rule=Host(`s3.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.minio-api.rule=Host(`${MINIO_DOMAIN:-s3.neos-platform.local}`)"
         - "traefik.http.routers.minio-api.entrypoints=websecure"
         - "traefik.http.routers.minio-api.tls=true"
         - "traefik.http.routers.minio-api.service=minio-api-svc"
         - "traefik.http.routers.minio-api.middlewares=security-headers@file,compression@file,rate-limit@file"
         - "traefik.http.services.minio-api-svc.loadbalancer.server.port=9000"
         # 2. Console Dashboard Router
-        - "traefik.http.routers.minio-console.rule=Host(`console.s3.${BASE_DOMAIN:-neos-platform.local}`)"
+        - "traefik.http.routers.minio-console.rule=Host(`${MINIO_CONSOLE_DOMAIN:-console.s3.neos-platform.local}`)"
         - "traefik.http.routers.minio-console.entrypoints=websecure"
         - "traefik.http.routers.minio-console.tls=true"
         - "traefik.http.routers.minio-console.service=minio-console-svc"
