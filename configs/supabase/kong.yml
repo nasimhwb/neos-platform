@@ -24,6 +24,8 @@ plugins:
         - content-type
         - X-Client-Info
         - ApiKey
+        - x-supabase-api-version
+        - X-Supabase-Api-Version
       exposed_headers:
         - x-supabase-info
         - Content-Range
