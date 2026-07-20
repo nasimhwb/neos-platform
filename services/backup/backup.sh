@@ -77,12 +77,12 @@ if [ -n "${POSTGRES_MULTIPLE_DATABASES:-}" ]; then
             db_name="${DB_PARTS[0]}"
             
             echo "Dumping database: $db_name..."
-            docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$db_name" | gzip > "$SESSION_DIR/postgres_$db_name.sql.gz"
+            docker exec -i neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$db_name" | gzip > "$SESSION_DIR/postgres_$db_name.sql.gz"
         fi
     done
 else
     echo "No databases defined in POSTGRES_MULTIPLE_DATABASES, dumping only main..."
-    docker exec -t neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$POSTGRES_SUPERUSER" | gzip > "$SESSION_DIR/postgres_main.sql.gz"
+    docker exec -i neos_postgres pg_dump -U "$POSTGRES_SUPERUSER" "$POSTGRES_SUPERUSER" | gzip > "$SESSION_DIR/postgres_main.sql.gz"
 fi
 
 # ------------------------------------------------------------------------------
