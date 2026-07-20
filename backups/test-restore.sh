@@ -23,7 +23,9 @@ echo "=== Starting Automated Restore Integrity Check ==="
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$(dirname "$SCRIPT_DIR")/.env"
 if [ -f "$ENV_FILE" ]; then
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+    set -a
+    source <(tr -d '\r' < "$ENV_FILE")
+    set +a
 fi
 
 # Locate latest backup package (.gpg or .tar.gz)

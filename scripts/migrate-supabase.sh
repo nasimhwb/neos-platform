@@ -19,7 +19,9 @@ REPO_DIR="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$REPO_DIR/.env"
 
 if [ -f "$ENV_FILE" ]; then
-    export $(grep -v '^#' "$ENV_FILE" | xargs)
+    set -a
+    source <(tr -d '\r' < "$ENV_FILE")
+    set +a
 else
     echo "ERROR: .env file not found at $ENV_FILE. Cannot run migration."
     exit 1
