@@ -26,6 +26,16 @@ plugins:
         - ApiKey
         - x-supabase-api-version
         - X-Supabase-Api-Version
+        - accept-profile
+        - Accept-Profile
+        - prefer
+        - Prefer
+        - Range
+        - range
+        - Content-Range
+        - content-range
+        - Profile-Options
+        - profile-options
       exposed_headers:
         - x-supabase-info
         - Content-Range
