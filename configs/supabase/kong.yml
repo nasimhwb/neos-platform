@@ -29,6 +29,10 @@ services:
             - x-client-info
             - Accept
             - X-Requested-With
+            - authorization
+            - content-type
+            - X-Client-Info
+            - ApiKey
           exposed_headers:
             - x-supabase-info
           credentials: true
@@ -64,6 +68,10 @@ services:
             - Accept
             - Prefer
             - Range
+            - authorization
+            - content-type
+            - X-Client-Info
+            - ApiKey
           exposed_headers:
             - Content-Range
           credentials: true
@@ -93,6 +101,10 @@ services:
             - Content-Type
             - apikey
             - x-client-info
+            - authorization
+            - content-type
+            - X-Client-Info
+            - ApiKey
           credentials: true
           max_age: 3600
           preflight_continue: false
@@ -124,6 +136,10 @@ services:
             - apikey
             - x-client-info
             - Range
+            - authorization
+            - content-type
+            - X-Client-Info
+            - ApiKey
           exposed_headers:
             - Content-Range
           credentials: true
