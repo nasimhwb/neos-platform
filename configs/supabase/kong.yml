@@ -1,5 +1,36 @@
 _format_version: "1.1"
 
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "https://webapp.neosfacility.com"
+        - "https://dashboard.neosfacility.com"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Authorization
+        - Content-Type
+        - apikey
+        - x-client-info
+        - Accept
+        - X-Requested-With
+        - authorization
+        - content-type
+        - X-Client-Info
+        - ApiKey
+      exposed_headers:
+        - x-supabase-info
+        - Content-Range
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+
 services:
   # 1. Supabase Auth Routing
   - name: auth
@@ -9,35 +40,6 @@ services:
         paths:
           - /auth/v1
         strip_path: true
-    plugins:
-      - name: cors
-        config:
-          origins:
-            - "https://webapp.neosfacility.com"
-            - "https://dashboard.neosfacility.com"
-          methods:
-            - GET
-            - POST
-            - PUT
-            - PATCH
-            - DELETE
-            - OPTIONS
-          headers:
-            - Authorization
-            - Content-Type
-            - apikey
-            - x-client-info
-            - Accept
-            - X-Requested-With
-            - authorization
-            - content-type
-            - X-Client-Info
-            - ApiKey
-          exposed_headers:
-            - x-supabase-info
-          credentials: true
-          max_age: 3600
-          preflight_continue: false
 
   # 2. Supabase PostgREST Schema REST routing
   - name: rest
@@ -47,36 +49,6 @@ services:
         paths:
           - /rest/v1
         strip_path: true
-    plugins:
-      - name: cors
-        config:
-          origins:
-            - "https://webapp.neosfacility.com"
-            - "https://dashboard.neosfacility.com"
-          methods:
-            - GET
-            - POST
-            - PUT
-            - PATCH
-            - DELETE
-            - OPTIONS
-          headers:
-            - Authorization
-            - Content-Type
-            - apikey
-            - x-client-info
-            - Accept
-            - Prefer
-            - Range
-            - authorization
-            - content-type
-            - X-Client-Info
-            - ApiKey
-          exposed_headers:
-            - Content-Range
-          credentials: true
-          max_age: 3600
-          preflight_continue: false
 
   # 3. Supabase Elixir Realtime WebSocket routing
   - name: realtime
@@ -86,28 +58,6 @@ services:
         paths:
           - /realtime/v1
         strip_path: true
-    plugins:
-      - name: cors
-        config:
-          origins:
-            - "https://webapp.neosfacility.com"
-            - "https://dashboard.neosfacility.com"
-          methods:
-            - GET
-            - POST
-            - OPTIONS
-          headers:
-            - Authorization
-            - Content-Type
-            - apikey
-            - x-client-info
-            - authorization
-            - content-type
-            - X-Client-Info
-            - ApiKey
-          credentials: true
-          max_age: 3600
-          preflight_continue: false
 
   # 4. Supabase storage proxy routing
   - name: storage
@@ -117,31 +67,3 @@ services:
         paths:
           - /storage/v1
         strip_path: true
-    plugins:
-      - name: cors
-        config:
-          origins:
-            - "https://webapp.neosfacility.com"
-            - "https://dashboard.neosfacility.com"
-          methods:
-            - GET
-            - POST
-            - PUT
-            - PATCH
-            - DELETE
-            - OPTIONS
-          headers:
-            - Authorization
-            - Content-Type
-            - apikey
-            - x-client-info
-            - Range
-            - authorization
-            - content-type
-            - X-Client-Info
-            - ApiKey
-          exposed_headers:
-            - Content-Range
-          credentials: true
-          max_age: 3600
-          preflight_continue: false

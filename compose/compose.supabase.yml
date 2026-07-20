@@ -74,7 +74,8 @@ services:
       API_EXTERNAL_URL: https://${API_DOMAIN:-supabase.neos-platform.local}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DISABLE_SIGNUP: "false"
-      GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
+      GOTRUE_CORS_ALLOWED_HEADERS: "apikey,content-type,authorization,x-client-info,x-supabase-auth,accept,origin"
+      GOTRUE_CORS_ALLOW_CREDENTIALS: "true"
       GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
       GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
       GOTRUE_SMTP_USER: ${SMTP_USER:-}
