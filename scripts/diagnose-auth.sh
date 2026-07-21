@@ -47,14 +47,14 @@ done
 
 echo ""
 echo -e "${CYAN}--- 2. PostgreSQL Databases ---${NC}"
-docker exec -t neos_postgres psql -U postgres -tAc \
+docker exec neos_postgres psql -U postgres -tAc \
   "SELECT datname FROM pg_database WHERE datistemplate=false ORDER BY datname;" 2>/dev/null | \
   while read -r db; do echo "  database: $db"; done
 
 echo ""
 echo -e "${CYAN}--- 3. Required Supabase Roles ---${NC}"
 for role in anon authenticated service_role authenticator supabase_admin supabase_auth_admin; do
-  exists=$(docker exec -t neos_postgres psql -U postgres -tAc \
+  exists=$(docker exec neos_postgres psql -U postgres -tAc \
     "SELECT 1 FROM pg_roles WHERE rolname='$role';" 2>/dev/null | tr -d '[:space:]')
   if [ "$exists" = "1" ]; then
     echo -e "  ${PASS} Role '$role' exists"
@@ -65,16 +65,16 @@ done
 
 echo ""
 echo -e "${CYAN}--- 4. Auth Schema & Tables ---${NC}"
-auth_schema=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+auth_schema=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT 1 FROM information_schema.schemata WHERE schema_name='auth';" 2>/dev/null | tr -d '[:space:]')
 if [ "$auth_schema" = "1" ]; then
   echo -e "  ${PASS} auth schema exists"
-  auth_count=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+  auth_count=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
     "SELECT count(*) FROM auth.users;" 2>/dev/null | tr -d '[:space:]')
   echo -e "  ${PASS} auth.users count: $auth_count"
   echo ""
   echo "  Recent auth.users (last 10):"
-  docker exec -t neos_postgres psql -U postgres -d postgres -c \
+  docker exec neos_postgres psql -U postgres -d postgres -c \
     "SELECT id, email, confirmed_at IS NOT NULL AS confirmed, created_at FROM auth.users ORDER BY created_at DESC LIMIT 10;" 2>/dev/null
 else
   echo -e "  ${FAIL} auth schema MISSING — GoTrue has not run migrations yet"
@@ -83,14 +83,14 @@ fi
 
 echo ""
 echo -e "${CYAN}--- 5. Application Tables (public schema) ---${NC}"
-tables=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+tables=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename;" 2>/dev/null)
 if [ -z "$tables" ]; then
   echo -e "  ${FAIL} No tables in public schema — run 03-app-schema.sql"
 else
   echo "$tables" | while read -r t; do
     if [ -n "$t" ]; then
-      cnt=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+      cnt=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
         "SELECT count(*) FROM public.$t;" 2>/dev/null | tr -d '[:space:]')
       echo -e "  ${PASS} public.$t (rows: $cnt)"
     fi
@@ -98,7 +98,7 @@ else
 fi
 
 # Check client_profiles specifically
-cp_exists=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+cp_exists=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='client_profiles';" 2>/dev/null | tr -d '[:space:]')
 if [ "$cp_exists" != "1" ]; then
   echo -e "  ${FAIL} public.client_profiles MISSING — run 03-app-schema.sql"
@@ -107,9 +107,9 @@ fi
 echo ""
 echo -e "${CYAN}--- 6. Profile ↔ Auth User Sync ---${NC}"
 if [ "$auth_schema" = "1" ] && [ "$cp_exists" = "1" ]; then
-  orphan_auth=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+  orphan_auth=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
     "SELECT count(*) FROM auth.users u WHERE NOT EXISTS (SELECT 1 FROM public.client_profiles p WHERE p.id = u.id);" 2>/dev/null | tr -d '[:space:]')
-  orphan_profile=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+  orphan_profile=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
     "SELECT count(*) FROM public.client_profiles p WHERE NOT EXISTS (SELECT 1 FROM auth.users u WHERE u.id = p.id);" 2>/dev/null | tr -d '[:space:]')
   if [ "$orphan_auth" = "0" ]; then
     echo -e "  ${PASS} All auth.users have a client_profiles row"

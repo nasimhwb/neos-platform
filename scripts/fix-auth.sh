@@ -48,7 +48,7 @@ echo -e "${CYAN}--- Step 1: Setting role passwords from .env ---${NC}"
 ADMIN_PASS="${POSTGRES_SUPABASE_ADMIN_PASSWORD:-change_this_admin_password_123}"
 AUTH_PASS="${POSTGRES_AUTHENTICATOR_PASSWORD:-change_this_supabase_auth_password_in_prod}"
 
-docker exec -t neos_postgres psql -U postgres <<SQL
+docker exec neos_postgres psql -U postgres <<SQL
   -- Update passwords (safe to re-run)
   DO \$\$
   BEGIN
@@ -100,7 +100,7 @@ for i in {1..6}; do
 done
 
 # Verify auth schema was created
-AUTH_EXISTS=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+AUTH_EXISTS=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT 1 FROM information_schema.schemata WHERE schema_name='auth';" 2>/dev/null | tr -d '[:space:]')
 if [ "$AUTH_EXISTS" = "1" ]; then
   echo -e "${GREEN}[OK]${NC} auth schema exists"
@@ -115,7 +115,7 @@ fi
 # -----------------------------------------------------------------------
 echo ""
 echo -e "${CYAN}--- Step 4: Granting permissions on auth schema ---${NC}"
-docker exec -t neos_postgres psql -U postgres -d postgres <<SQL
+docker exec neos_postgres psql -U postgres -d postgres <<SQL
   GRANT USAGE ON SCHEMA auth TO anon, authenticated, service_role, authenticator, dashboard_user;
   GRANT ALL ON ALL TABLES IN SCHEMA auth TO supabase_admin;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_auth_admin IN SCHEMA auth
@@ -152,15 +152,15 @@ echo -e "${GREEN}[OK]${NC} PostgREST restarted"
 echo ""
 echo -e "${CYAN}--- Step 7: Validation ---${NC}"
 
-auth_users=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+auth_users=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT count(*) FROM auth.users;" 2>/dev/null | tr -d '[:space:]')
 echo -e "  auth.users count: $auth_users"
 
-profiles=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+profiles=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT count(*) FROM public.client_profiles;" 2>/dev/null | tr -d '[:space:]')
 echo -e "  client_profiles count: $profiles"
 
-orphans=$(docker exec -t neos_postgres psql -U postgres -d postgres -tAc \
+orphans=$(docker exec neos_postgres psql -U postgres -d postgres -tAc \
   "SELECT count(*) FROM auth.users u WHERE NOT EXISTS (SELECT 1 FROM public.client_profiles p WHERE p.id=u.id);" 2>/dev/null | tr -d '[:space:]')
 if [ "$orphans" = "0" ]; then
   echo -e "  ${GREEN}[OK]${NC} All auth users have profiles"
