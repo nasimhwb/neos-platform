@@ -145,3 +145,15 @@ rollback-release:
 	@echo "Triggering automated production infrastructure rollback..."
 	chmod +x scripts/rollback_infra.sh
 	./scripts/rollback_infra.sh
+
+# 21. Diagnose Auth Stack (run first before fix-auth)
+diagnose-auth:
+	@echo "Running auth stack diagnostics..."
+	chmod +x scripts/diagnose-auth.sh
+	./scripts/diagnose-auth.sh
+
+# 22. Fix Auth Stack (restores auth roles, schema, profiles)
+fix-auth:
+	@echo "Running production auth recovery..."
+	chmod +x scripts/fix-auth.sh
+	./scripts/fix-auth.sh
