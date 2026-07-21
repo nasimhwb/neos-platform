@@ -66,6 +66,109 @@ CREATE POLICY "Service role full access"
   WITH CHECK (true);
 
 -- ------------------------------------------------------------------------------
+-- 1b. profiles — Alias View pointing to client_profiles
+--     Required by webapp queries (.from('profiles'))
+-- ------------------------------------------------------------------------------
+CREATE OR REPLACE VIEW public.profiles AS
+SELECT
+  id,
+  email,
+  full_name,
+  avatar_url,
+  role,
+  company_name,
+  phone,
+  is_active,
+  created_at,
+  updated_at
+FROM public.client_profiles;
+
+-- Grant permissions on profiles view
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.profiles TO authenticated, service_role, anon;
+
+-- ------------------------------------------------------------------------------
+-- 1c. tasks — Core task management table (accessed by Tasks page)
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.tasks (
+  id                       UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  title                    TEXT        NOT NULL,
+  notes                    TEXT,
+  due_date                 TIMESTAMPTZ,
+  due_date_reason          TEXT,
+  assigned_to              UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_by               UUID        REFERENCES auth.users(id) ON DELETE SET NULL,
+  starred                  BOOLEAN     NOT NULL DEFAULT false,
+  completed                BOOLEAN     NOT NULL DEFAULT false,
+  cancelled                BOOLEAN     NOT NULL DEFAULT false,
+  order_id                 UUID,
+  client_id                UUID,
+  vendor_id                UUID,
+  lead_id                  UUID,
+  stage                    TEXT,
+  amount                   NUMERIC(12, 2),
+  completed_at             TIMESTAMPTZ,
+  original_due_date        TIMESTAMPTZ,
+  overdue_notified         BOOLEAN     NOT NULL DEFAULT false,
+  last_overdue_reminded_at TIMESTAMPTZ,
+  created_at               TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at               TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_tasks_assigned_to ON public.tasks(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_tasks_created_by  ON public.tasks(created_by);
+CREATE INDEX IF NOT EXISTS idx_tasks_completed   ON public.tasks(completed);
+
+ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Users can view own tasks" ON public.tasks;
+CREATE POLICY "Users can view own tasks"
+  ON public.tasks FOR SELECT
+  TO authenticated
+  USING (auth.uid() = assigned_to OR auth.uid() = created_by OR auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "Users can insert own tasks" ON public.tasks;
+CREATE POLICY "Users can insert own tasks"
+  ON public.tasks FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = created_by OR auth.uid() = assigned_to OR auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "Users can update own tasks" ON public.tasks;
+CREATE POLICY "Users can update own tasks"
+  ON public.tasks FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = assigned_to OR auth.uid() = created_by OR auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "Service role full access on tasks" ON public.tasks;
+CREATE POLICY "Service role full access on tasks"
+  ON public.tasks FOR ALL
+  TO service_role
+  USING (true) WITH CHECK (true);
+
+-- ------------------------------------------------------------------------------
+-- 1d. task_assignees — Multi-assignee support table
+-- ------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.task_assignees (
+  id          SERIAL      PRIMARY KEY,
+  task_id     UUID        NOT NULL REFERENCES public.tasks(id) ON DELETE CASCADE,
+  profile_id  UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(task_id, profile_id)
+);
+
+ALTER TABLE public.task_assignees ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Service role full access on task_assignees" ON public.task_assignees;
+CREATE POLICY "Service role full access on task_assignees"
+  ON public.task_assignees FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Authenticated read on task_assignees" ON public.task_assignees;
+CREATE POLICY "Authenticated read on task_assignees"
+  ON public.task_assignees FOR SELECT TO authenticated USING (true);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tasks          TO authenticated, service_role, anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.task_assignees TO authenticated, service_role, anon;
+
+-- ------------------------------------------------------------------------------
 -- 2. roles — Named roles table
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.roles (
