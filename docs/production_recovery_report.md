@@ -109,7 +109,15 @@ To add or update your Google Gemini API key:
 1. Open `/srv/neos/neos-platform/.env` on the VPS.
 2. Add your Google AI Studio API key:
    ```env
-   GEMINI_API_KEY=AIzaSyYourActualKeyHere
+   GEMINI_API_KEY=key1,key2,key3
    ```
 3. Restart app/dashboard containers or re-run `make diagnose-auth` for validation.
+
+---
+
+## 6. Environment Keys Synchronization (15-06-2026 Laptop Preset)
+
+All Supabase, Gemini AI, Firebase, WhatsApp Verification, Biometric, and Auto-Task sync keys have been updated and synchronized in `D:\WebApp\neos-app-96\.env.local` and `d:\WebApp\KVM2_AMA\.env`.
+
+
 
