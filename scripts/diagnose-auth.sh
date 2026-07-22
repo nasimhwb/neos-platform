@@ -178,6 +178,25 @@ else
 fi
 
 echo ""
+echo -e "${CYAN}--- 13. AI / Gemini API Configuration ---${NC}"
+gemini_key=$(grep -s "^GEMINI_API_KEY=" "$ENV_FILE" | cut -d= -f2-)
+groq_key=$(grep -s "^GROQ_API_KEY=" "$ENV_FILE" | cut -d= -f2-)
+
+if [ -n "$gemini_key" ] && [ "$gemini_key" != "AIzaSy_placeholder_key_here" ]; then
+  echo -e "  ${PASS} GEMINI_API_KEY is set in .env (active keys: $(echo "$gemini_key" | tr ',' '\n' | wc -l))"
+else
+  echo -e "  ${WARN} GEMINI_API_KEY missing or placeholder in .env"
+  echo -e "       → AI Copilot, Dev Prompt generator, and Error analyzer will use Groq or fallback"
+fi
+
+if [ -n "$groq_key" ] && [ "$groq_key" != "gsk_placeholder_key_here" ]; then
+  echo -e "  ${PASS} GROQ_API_KEY is set in .env (fallback provider active)"
+else
+  echo -e "  ${WARN} GROQ_API_KEY missing or placeholder in .env"
+fi
+
+echo ""
 echo -e "${CYAN}================================================================${NC}"
 echo -e "${CYAN}  Diagnostic complete. Review FAILs and WARNs above.${NC}"
 echo -e "${CYAN}================================================================${NC}"
+
