@@ -86,3 +86,30 @@ All missing database components, schema migrations, and diagnostic scripts have 
   Response: {"status":"ok"}
 ================================================================
 ```
+
+---
+
+## 5. AI / Gemini Environment Audit
+
+### Variable Specifications
+* **Primary Key**: `GEMINI_API_KEY` (supports comma-separated list for multi-key rotation and load balancing).
+* **Fallback Key**: `GROQ_API_KEY` (optional fallback for rate limits).
+* **Target Environment File**: `/srv/neos/neos-platform/.env` on VPS host node.
+
+### Dependent Application Features
+* **Developer Prompt Generator**: `/api/ai/generate-dev-prompt`
+* **Error Center Stack Diagnostic**: `/api/errors/analyze`
+* **ERP AI Copilot Assistant**: `/api/ai/help-chat`
+* **Vendor Sourcing & Research**: `/api/ai/suggest-sourcing` & `/api/ai/research-vendor`
+* **Smart Task & Visiting Card OCR**: `/api/ai/parse-task` & `/api/ai/parse-contact`
+* **Executive AI Analytics**: `/api/executive/analytics` & `/api/telemetry/analyze`
+
+### Manual Setup Procedure
+To add or update your Google Gemini API key:
+1. Open `/srv/neos/neos-platform/.env` on the VPS.
+2. Add your Google AI Studio API key:
+   ```env
+   GEMINI_API_KEY=AIzaSyYourActualKeyHere
+   ```
+3. Restart app/dashboard containers or re-run `make diagnose-auth` for validation.
+
