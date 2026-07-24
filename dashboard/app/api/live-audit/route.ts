@@ -79,16 +79,16 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       phase1_evidence: {
-        1_count_auth_users: countUsers,
-        2_count_auth_identities: countIdentities,
-        3_users_missing_identities: missingIdentitiesRes.rows,
-        4_instance_id_distribution: instanceIdRes.rows,
-        5_aud_distribution: audRes.rows,
-        6_role_distribution: roleRes.rows,
-        7_raw_app_meta_data_sample: appMetaDataRes.rows,
-        8_public_profiles_table_type: profilesExistRes.rows,
-        9_table_grants: grantsRes.rows,
-        10_rls_policies: policiesRes.rows,
+        "1_count_auth_users": countUsers,
+        "2_count_auth_identities": countIdentities,
+        "3_users_missing_identities": missingIdentitiesRes.rows,
+        "4_instance_id_distribution": instanceIdRes.rows,
+        "5_aud_distribution": audRes.rows,
+        "6_role_distribution": roleRes.rows,
+        "7_raw_app_meta_data_sample": appMetaDataRes.rows,
+        "8_public_profiles_table_type": profilesExistRes.rows,
+        "9_table_grants": grantsRes.rows,
+        "10_rls_policies": policiesRes.rows,
       },
       timestamp: new Date().toISOString(),
     });
