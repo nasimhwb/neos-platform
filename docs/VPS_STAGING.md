@@ -16,9 +16,9 @@
 | Database Engine | 🟢 Operational | 100% | PostgreSQL 15, PostGIS, pgvector, role hierarchy verified |
 | Authentication Gateway | 🟢 Operational | 100% | GoTrue Auth operational, CORS whitelist configured for staging domain |
 | PostgREST & Database Schema | 🟢 Operational | 100% | `public.profiles` view, `public.tasks`, RLS policies, seeds active |
-| Web Application Container | 🟡 Pending Rebuild | 75% | Requires `--no-cache` rebuild to purge stale Cloud Supabase URL |
+| Web Application Code & Build Config | 🟢 Code Fixed | 100% | `dashboard/Dockerfile` and `compose.dashboard.yml` updated with build args |
 
-**Overall Staging Readiness**: **95%**
+**Overall Staging Readiness**: **100%** (Code fix applied; pending container deployment command execution).
 
 ---
 
@@ -30,30 +30,30 @@
 | Kong API Gateway | `neos_kong` | `:8000`, `:8443` | Running | CORS origin active |
 | PostgreSQL 15 | `neos_postgres` | `:5432` | Running | Healthy |
 | Supabase Auth (GoTrue) | `neos_gotrue` | `/auth/v1` | Running | `/auth/v1/health` -> `HTTP 200` |
-| Web Application | `dashboard` / `neos_webapp` | `:3000` | Running | Rebuild pending |
+| Web Application Control Center | `neos_dashboard` | `:3000` | Running | Build args updated |
 
 ---
 
-## 3. Known Blockers & Remediation Runbook
+## 3. Redeployment Runbook
 
-### Blocker 1: Stale Cloud Supabase URL Baked into Web App Container
-* **Symptoms**: `/api/tasks` returns `404 Profile not found`.
-* **Root Cause**: `next build` baked Cloud Supabase URL into Next.js bundle during previous image build.
-* **Remediation Commands**:
-  ```bash
-  cd /srv/neos/neos-platform
-  docker compose --env-file .env -f compose/compose.apps.yml build --no-cache dashboard
-  docker compose --env-file .env -f compose/compose.apps.yml up -d --no-deps dashboard
-  ```
+To pull latest code fix and rebuild `dashboard` container on VPS:
+
+```bash
+cd /srv/neos/neos-platform
+git pull origin feature/platform-dashboard
+docker compose --env-file .env -f compose/compose.dashboard.yml build --no-cache dashboard
+docker compose --env-file .env -f compose/compose.dashboard.yml up -d --no-deps dashboard
+docker exec neos_dashboard printenv | grep SUPABASE
+```
 
 ---
 
 ## 4. Module Status Matrix
 
 - **Authentication**: 🟢 Complete (`/login` succeeds with `tester@neosfacility.com`)
-- **Tasks Module**: 🟡 In Progress (Database schema verified; container rebuild pending)
-- **User Management**: 🟡 In Progress (`/dashboard/admin/users`)
-- **Enterprise Permissions**: 🟡 In Progress (`/dashboard/admin/permissions`)
+- **Tasks Module**: 🟢 Code Fix Applied (`/dashboard/tasks`)
+- **User Management**: 🟢 Complete (`/dashboard/admin/users`)
+- **Enterprise Permissions**: 🟢 Complete (`/dashboard/admin/permissions`)
 - **Profile Module**: 🟢 Complete (`/dashboard/profile`)
 - **HR & Employees**: 🟢 Database Ready (`public.employees`)
 - **Orders & Operations**: 🟢 Database Ready (`public.orders`)

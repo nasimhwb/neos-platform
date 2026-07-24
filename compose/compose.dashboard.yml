@@ -9,6 +9,10 @@ services:
     build:
       context: ../dashboard
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_PLATFORM_PROVIDER: ${NEXT_PUBLIC_PLATFORM_PROVIDER:-self-hosted}
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://supabase.neosfacility.com}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
     image: neos_dashboard:latest
     container_name: neos_dashboard
     user: root
@@ -24,6 +28,11 @@ services:
       NODE_ENV: production
       NEXT_PUBLIC_PLATFORM_NAME: ${NEXT_PUBLIC_PLATFORM_NAME:-NEOS Platform}
       NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neos-platform.local}
+      NEXT_PUBLIC_PLATFORM_PROVIDER: ${NEXT_PUBLIC_PLATFORM_PROVIDER:-self-hosted}
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://supabase.neosfacility.com}
+      SUPABASE_URL: ${SUPABASE_URL:-https://supabase.neosfacility.com}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
       # Core platform connection configs
       POSTGRES_HOST: pgbouncer
       POSTGRES_PORT: 6432

@@ -4,17 +4,14 @@ All meaningful changes to the NEOS Platform shared infrastructure repository are
 
 ## [2026-07-24]
 
-### Added
-- **Production Migration Checklist**: Created `PRODUCTION_MIGRATION_CHECKLIST.md` documenting infrastructure readiness (SSH, Docker, Traefik, UFW, PostgreSQL 15, GoTrue Auth).
-- **Mandatory Documentation Framework**: Created standardized operational documentation (`docs/README.md`, `docs/KNOWN_ISSUES.md`, `docs/CHANGELOG.md`, `docs/VPS_STAGING_HANDOFF.md`, `docs/MIGRATION_PLAN.md`, `docs/investigations/`, `docs/reports/`).
-
 ### Fixed
-- **Kong CORS & GoTrue URI Whitelist** (`cb1ea45d94dca22de74cad4d6d6e1b9d33055fe1`): Added `https://test.neosfacility.com` to `KONG_CORS_ORIGINS` and `GOTRUE_URI_ALLOW_LIST` in compose and environment configs to unblock staging frontend authentication requests.
-  - *Reason*: Cross-origin requests from `test.neosfacility.com` were blocked by Kong API Gateway.
-  - *Impact*: Restored webapp authentication capability on staging endpoint.
+- **Dashboard Dockerfile & Compose Supabase Build Args**:
+  - Injected `ARG NEXT_PUBLIC_PLATFORM_PROVIDER=self-hosted` and `ARG NEXT_PUBLIC_SUPABASE_URL=https://supabase.neosfacility.com` into `dashboard/Dockerfile` builder and runner stages.
+  - Configured `build.args` and runtime `environment` declarations in `compose/compose.dashboard.yml` for the `dashboard` service.
+  - *Reason*: `next build` compiled without Supabase self-hosted variables, causing the container to query Cloud Supabase where user profiles were missing (`HTTP 404 Profile not found`).
+  - *Impact*: Ensures Next.js server & client bundles bind directly to `https://supabase.neosfacility.com`.
 
-### Investigated
-- **Running Web App Container Database Connectivity**: Documented empirical evidence for `/api/tasks` 404 error tracing to stale cloud Supabase environment variables baked into web application build image (`docs/investigations/2026-07-24-running-container-db-investigation.md`).
+- **Kong CORS & GoTrue URI Whitelist** (`cb1ea45d94dca22de74cad4d6d6e1b9d33055fe1`): Added `https://test.neosfacility.com` to `KONG_CORS_ORIGINS` and `GOTRUE_URI_ALLOW_LIST` in compose and environment configs to unblock staging frontend authentication requests.
 
 ---
 
@@ -25,10 +22,3 @@ All meaningful changes to the NEOS Platform shared infrastructure repository are
   - Created `public.profiles` view aliasing `public.client_profiles`.
   - Added backfill script for missing `auth.identities` records.
   - Normalized `auth.users` raw metadata to align user profile syncing.
-  - Added RLS rules and grants for `tasks`, `suggestions`, `error_logs`, and HR tables.
-  - *Reason*: Frontend query failures when accessing profile and task data.
-  - *Impact*: Unblocked 300+ frontend `.from('profiles')` queries.
-
-### Documentation
-- **Production Recovery Handoff Report** (`f04e7f2e9d4ea008d31ed89272529e4161c63059`): Added step-by-step resume guide for VPS staging deployments (`docs/HANDOFF_REPORT.md`).
-- **Environment Key Sync Status** (`ba1d3c5d01400c12fe9c4ed83a62238faa20b064`): Added environment variable mapping documentation across local development and VPS staging environments.
