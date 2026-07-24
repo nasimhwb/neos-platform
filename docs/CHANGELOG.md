@@ -13,6 +13,9 @@ All meaningful changes to the NEOS Platform shared infrastructure repository are
   - *Reason*: Cross-origin requests from `test.neosfacility.com` were blocked by Kong API Gateway.
   - *Impact*: Restored webapp authentication capability on staging endpoint.
 
+### Investigated
+- **Running Web App Container Database Connectivity**: Documented empirical evidence for `/api/tasks` 404 error tracing to stale cloud Supabase environment variables baked into web application build image (`docs/investigations/2026-07-24-running-container-db-investigation.md`).
+
 ---
 
 ## [2026-07-22]
