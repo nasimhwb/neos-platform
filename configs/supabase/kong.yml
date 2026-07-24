@@ -6,6 +6,7 @@ plugins:
       origins:
         - "https://webapp.neosfacility.com"
         - "https://dashboard.neosfacility.com"
+        - "https://test.neosfacility.com"
       methods:
         - GET
         - POST

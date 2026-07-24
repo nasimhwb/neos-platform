@@ -70,7 +70,7 @@ services:
       GOTRUE_JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_SITE_URL: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}
-      GOTRUE_URI_ALLOW_LIST: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}/*,https://${DASHBOARD_DOMAIN:-dashboard.neosfacility.com}/*
+      GOTRUE_URI_ALLOW_LIST: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}/*,https://${DASHBOARD_DOMAIN:-dashboard.neosfacility.com}/*,https://${TEST_DOMAIN:-test.neosfacility.com}/*
       API_EXTERNAL_URL: https://${API_DOMAIN:-supabase.neos-platform.local}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DISABLE_SIGNUP: "false"
