@@ -4,6 +4,7 @@ This document tracks all identified, ongoing, and resolved issues across the NEO
 
 | Issue | Status | Evidence | Root Cause | Solution | Owner | Date |
 |---|---|---|---|---|---|---|
+| `/api/tasks` returns `404 Profile not found` | IN PROGRESS | `GET /api/tasks` returns 404; PostgREST profile returns 200 | Running container built with stale Cloud Supabase URL | Rebuild container with `--no-cache` using VPS `.env` | DevOps / App Team | 2026-07-24 |
 | SSH Port 22 Unreachable on VPS | RESOLVED | `nc -zv 200.97.161.179 22` timed out | Systemd `ssh.socket` override bound port 6432 instead of 22 | Reconfigured `ssh.socket` to listen globally on `0.0.0.0:22` | SRE Team | 2026-07-24 |
 | Frontend Auth CORS Failure on test.neosfacility.com | RESOLVED | Browser console origin blocked error during login | Kong and GoTrue allowed origin lists omitted `test.neosfacility.com` | Added `https://test.neosfacility.com` to `KONG_CORS_ORIGINS` and `GOTRUE_URI_ALLOW_LIST` | Backend Team | 2026-07-24 |
 | Frontend `profiles` Query 404/Error | RESOLVED | Supabase query `.from('profiles')` returned relation missing | Migration script created `client_profiles` without `profiles` alias view | Created `public.profiles` view aliasing `public.client_profiles` | DB Team | 2026-07-22 |
