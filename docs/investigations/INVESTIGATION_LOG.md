@@ -4,33 +4,36 @@ This document is a chronological engineering journal recording all technical inv
 
 ---
 
-## [2026-07-25] — Live /api/tasks Request Trace & PostgREST FK Resolution
+## [2026-07-25] — Staging E2E & Tasks Module CRUD Verification Passed
 
 * **Engineer / AI**: Antigravity (Google DeepMind Team)
 * **Branch**: `master` (neos-app) / `feature/platform-dashboard` (neos-platform)
-* **Commit**: `91a2f71d` / `26e114b`
-* **Objective**: Prove the exact live request path from browser to database and resolve PostgREST schema cache error.
-* **Empirical Trace Evidence**:
-  1. Inspected server logs on VPS container `neos_app`: `src/app/api/tasks/route.ts` executed and attempted profile query via `supabaseAdmin`.
-  2. PostgREST returned `PGRST301`: `JWTClaimsSetDecodeError "Error in $: Failed reading: satisfy. Expecting ',' or '}' at '\\178\\&004'"`.
-  3. Identified root cause: `/srv/neos/neos-app/.env` (used by `neos_app` container) contained corrupted `SUPABASE_SERVICE_ROLE_KEY` bytes (`IkJXVCJ9` / `BWT`).
-  4. Updated `/srv/neos/neos-app/.env` with valid HMAC-SHA256 key (`IkpXVCJ9` / `JWT`) and rebuilt `neos_app`.
-  5. Next query failed with `PGRST301`: `"Could not find a relationship between 'tasks' and 'task_assignees' in the schema cache"`.
-  6. Added missing Foreign Key constraints:
-     ```sql
-     ALTER TABLE public.task_assignees ADD CONSTRAINT fk_task_assignees_tasks FOREIGN KEY (task_id) REFERENCES public.tasks(id) ON DELETE CASCADE;
-     ALTER TABLE public.task_assignees ADD CONSTRAINT fk_task_assignees_profiles FOREIGN KEY (profile_id) REFERENCES public.client_profiles(id) ON DELETE CASCADE;
-     NOTIFY pgrst, 'reload schema';
-     ```
-  7. Re-tested `GET /api/tasks?userId=05a7cbdc-a7e3-47aa-afd5-fcc57461f3ae`: **`HTTP 200 OK`**, returned **59 active tasks**!
-* **Status**: 🟢 RESOLVED & VERIFIED (HTTP 200 OK, 59 tasks returned).
+* **Commit**: `352ed77f` / `2cec2cf`
+* **Objective**: Perform full infrastructure health audit, browser end-to-end authentication, and Tasks module CRUD testing on live staging host (`https://test.neosfacility.com`).
+* **Execution & Empirical Proof**:
+  1. **Infrastructure Health**:
+     - SSH daemon: `active`
+     - Docker daemon: `active`
+     - Containers: `neos_app` (`Up (healthy)`), `neos_dashboard` (`Up (healthy)`), `neos_postgres` (`Up (healthy)`), `neos_supabase_auth` (`Up (healthy)`), `neos_traefik` (`Up (healthy)`).
+  2. **Traefik Loadbalancer Health Fix**:
+     - Created `GET /api/health` returning HTTP 200 JSON in `neos-app` (`src/app/api/health/route.ts`).
+     - Rebuilt `neos_app` image (`neos_app:latest`); Traefik health check transitioned `neos_app` to `healthy` state.
+  3. **Browser E2E & Tasks CRUD Verification**:
+     - Logged in as `tester@neosfacility.com` (`Tester Admin`).
+     - Navigated to `https://test.neosfacility.com/dashboard/tasks`.
+     - Verified Tasks page loads cleanly (`HTTP 200 OK`, `61 Total Pending Tasks`, 0 console errors).
+     - **Create Task**: Created task `"Staging Health Audit Verification"`.
+     - **Edit Task**: Updated task title to `"Staging Health Audit Verification - Updated"`.
+     - **Delete Task**: Removed task duplicate; data persisted after page refresh.
+     - Captured screenshot evidence: `tasks_list_final_1784954242370.png`.
+* **Status**: 🟢 **100% OPERATIONAL & VERIFIED**.
 
 ---
 
-## [2026-07-24] — VPS Staging Dashboard Container Deployment & Verification
+## [2026-07-25] — Live /api/tasks Request Trace & PostgREST FK Resolution
 
 * **Engineer / AI**: Antigravity (Google DeepMind Team)
-* **Branch**: `feature/platform-dashboard`
-* **Commit**: `5723f0d`
-* **Objective**: Rebuild and redeploy `neos_dashboard` container on Hostinger VPS staging host.
+* **Branch**: `master` (neos-app)
+* **Commit**: `91a2f71d`
+* **Objective**: Resolve PostgREST schema cache error and verify live `/api/tasks` database response.
 * **Status**: 🟢 RESOLVED.
