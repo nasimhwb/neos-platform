@@ -30,10 +30,21 @@ This document is a chronological engineering journal recording all technical inv
 
 ---
 
-## [2026-07-25] — Live /api/tasks Request Trace & PostgREST FK Resolution
+## [2026-07-25] — Application Audit: Users & Suggestions Pages Root Cause Diagnostics
 
 * **Engineer / AI**: Antigravity (Google DeepMind Team)
-* **Branch**: `master` (neos-app)
-* **Commit**: `91a2f71d`
-* **Objective**: Resolve PostgREST schema cache error and verify live `/api/tasks` database response.
-* **Status**: 🟢 RESOLVED.
+* **Branch**: `master` (neos-app) / `feature/platform-dashboard` (neos-platform)
+* **Objective**: Audit Users (`/dashboard/admin/users`) and Suggestions & Errors (`/dashboard/admin/suggestions`) pages on live staging environment (`https://test.neosfacility.com`).
+* **Empirical Diagnostics & Root Causes**:
+  1. **Users Page (`/dashboard/admin/users`)**:
+     - **Observation**: Renders shell UI but shows 0 users, "No users found", and toast `Failed to load users 🚨`.
+     - **Network Trace**: `POST https://supabase.neosfacility.com/rest/v1/rpc/get_user_order_counts` throws `TypeError: Failed to fetch`.
+     - **Root Cause**: CORS preflight response from Supabase omits `content-profile` in `Access-Control-Allow-Headers`. When `Promise.all` executes in `fetchProfiles`, the RPC POST failure rejects the entire data fetch.
+     - **Evidence**: `audit_users_page_1784991934380.png`.
+  2. **Suggestions & Errors Page (`/dashboard/admin/suggestions`)**:
+     - **Observation**: Backlog tab renders empty state with error toast `Failed to load suggestions backlog`.
+     - **Network Trace**: `GET https://test.neosfacility.com/api/suggestions` returns HTTP 500 JSON: `{"status":"error","message":"Could not find a relationship between 'suggestions' and 'assigned_developer_id' in the schema cache"}`.
+     - **Root Cause**: Database table `public.suggestions` column `assigned_developer_id` lacks foreign key constraint referencing `public.profiles(id)`. Joined PostgREST query in `/api/suggestions` crashes.
+     - **Evidence**: `audit_suggestions_page_1784992017152.png`.
+* **Status**: 🔴 **DIAGNOSED & AUDIT LOGGED** (Fixes deferred per strict audit workflow).
+

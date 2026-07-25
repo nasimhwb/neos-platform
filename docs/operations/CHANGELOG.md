@@ -11,3 +11,5 @@ All notable changes to the NEOS Platform codebase, infrastructure, and deploymen
 
 ### Verified
 - **Staging End-to-End Tasks CRUD**: Verified browser login as `tester@neosfacility.com`, task creation, editing, deletion, searching, and persistence on `https://test.neosfacility.com/dashboard/tasks`.
+- **Users & Suggestions Application Audit**: Audited Users (`/dashboard/admin/users`) and Suggestions & Errors (`/dashboard/admin/suggestions`) pages on live staging environment, captured screenshot evidence, console/network traces, and diagnosed root causes in `APPLICATION_AUDIT.md`.
+

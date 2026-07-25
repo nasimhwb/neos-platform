@@ -19,8 +19,8 @@
 |---|---|---|
 | **Authentication** | 🟢 Operational | GoTrue JWT issued, browser login succeeds with `tester@neosfacility.com`. |
 | **Tasks Module** | 🟢 Operational | Deployed on VPS; 61 tasks loaded, Create / Edit / Delete CRUD verified in browser. |
-| **User Management** | 🟢 Operational | UI route `/dashboard/admin/users` verified. |
-| **Enterprise Permissions (EAPC)** | 🟢 Operational | UI route `/dashboard/admin/permissions` verified. |
-| **Profile Module** | 🟢 Operational | User profile linkage to employee records operational. |
-| **Employees & HR** | 🟢 Database Ready | Table `public.employees` populated with seeds. |
-| **Orders & Operations** | 🟢 Database Ready | Table `public.orders` populated with seeds. |
+| **Dashboard / Workspace** | 🟢 Operational | Dashboard, Operations Workspace, and GeM Command audited & PASS. |
+| **Orders & Operations** | 🟢 Verified | Table `public.orders` populated; verified and awaiting owner confirmation. |
+| **User Management** | 🔴 Audit FAIL | UI route `/dashboard/admin/users` audited; CORS preflight issue on RPC call (`get_user_order_counts`). |
+| **Suggestions & Errors** | 🔴 Audit FAIL | UI route `/dashboard/admin/suggestions` audited; HTTP 500 on `/api/suggestions` due to missing FK constraint on `assigned_developer_id`. |
+
