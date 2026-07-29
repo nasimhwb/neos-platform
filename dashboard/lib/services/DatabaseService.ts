@@ -161,4 +161,50 @@ export class DatabaseService {
       if (client) client.release();
     }
   }
+
+  static async getPlatformUsers(): Promise<{ users: any[]; source: "live" | "cached" }> {
+    const cached = localCache.get<any[]>("platform_users", CACHE_TTL);
+    if (cached) return { users: cached, source: "cached" };
+
+    const pool = getPool();
+    let client;
+    try {
+      client = await pool.connect();
+      const res = await client.query(`
+        SELECT 
+          id, 
+          COALESCE(email, 'no-email@neosfacility.com') as email, 
+          COALESCE(full_name, 'Unnamed User') as name, 
+          CASE 
+            WHEN role IN ('admin', 'superadmin') THEN 'admin' 
+            WHEN role IN ('sales', 'manager', 'operator') THEN 'operator' 
+            ELSE 'viewer' 
+          END as role, 
+          COALESCE(last_login, created_at, NOW()) as "lastLogin", 
+          COALESCE(created_at, NOW()) as "createdAt", 
+          COALESCE(is_active, true) as active 
+        FROM public.profiles 
+        ORDER BY full_name ASC;
+      `);
+
+      const users = res.rows.map(r => ({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        role: r.role,
+        lastLogin: new Date(r.lastLogin).toISOString(),
+        createdAt: new Date(r.createdAt).toISOString(),
+        active: r.active,
+      }));
+
+      localCache.set("platform_users", users);
+      return { users, source: "live" };
+    } catch (e) {
+      console.warn("Error fetching platform users from Postgres, fallback to mockUsers:", (e as any).message);
+      return { users: mockUsers, source: "live" };
+    } finally {
+      if (client) client.release();
+    }
+  }
 }
+
