@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 import { PostgresStats, PostgresDatabase, PostgresUser } from "../types";
-import { mockPostgresStats } from "../mock-data";
+import { mockPostgresStats, mockUsers } from "../mock-data";
 import { localCache } from "./cache";
 
 const CACHE_KEY = "postgres_stats";
