@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const validAnon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxNTAwODAwLCJleHAiOjE5MDkyNjcyMDB9.y9qAFXTgnlk_vn8N_n2cSWoZ1EniTQQ76ty7V3bZUe4';
-const validService = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE1MDA4MDAsImV4cCI6MTkwOTI2NzIwMH0.-JLeYj3339oLhzlituu9VInGauiBUKVdiVE_cxHMEGE';
+const validAnon = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzUxNTAwODAwLCJleHAiOjE5MDkyNjcyMDB9.w4OLwQ68oYkzZqzftTmKZPJx_fl8dDW4mLvMu0IkvQk';
+const validService = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoic2VydmljZV9yb2xlIiwiaXNzIjoic3VwYWJhc2UiLCJpYXQiOjE3NTE1MDA4MDAsImV4cCI6MTkwOTI2NzIwMH0.Zr-j7DRo-CwKVpguG9MaR3q8LAX4mgchZRjllA49W40';
 
 let count = 0;
 function walk(dir) {
