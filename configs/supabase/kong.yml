@@ -29,6 +29,10 @@ plugins:
         - X-Supabase-Api-Version
         - accept-profile
         - Accept-Profile
+        - content-profile
+        - Content-Profile
+        - x-neos-session-id
+        - X-Neos-Session-Id
         - prefer
         - Prefer
         - Range
