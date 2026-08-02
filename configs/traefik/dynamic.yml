@@ -97,6 +97,18 @@ http:
       priority: 10
       service: dashboard-ui-service
 
+    # Staging Subdomain App
+    test-staging-router:
+      rule: "Host(`test.neosfacility.com`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 100
+      service: test-staging-service
+      middlewares:
+        - security-headers@file
+        - compression@file
+
     # Canary / Subdomain Apps
     neos-app-production:
       rule: "HostRegexp(`app\\..+`)"
@@ -113,6 +125,11 @@ http:
   # Upstream Services Configurations
   # ----------------------------------------------------------------------------
   services:
+    test-staging-service:
+      loadBalancer:
+        servers:
+          - url: "http://neos_app:3000"
+        passHostHeader: true
     # Hostinger Shared Hosting Upstream (Legacy PHP Application)
     hostinger-shared-hosting-service:
       loadBalancer:
