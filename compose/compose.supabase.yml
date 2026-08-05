@@ -70,18 +70,31 @@ services:
       GOTRUE_JWT_SECRET: ${JWT_SECRET:-ChangeThisToASuperSecureJWTSecretKey123!}
       GOTRUE_JWT_EXP: 3600
       GOTRUE_SITE_URL: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}
-      GOTRUE_URI_ALLOW_LIST: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}/*,https://${DASHBOARD_DOMAIN:-dashboard.neosfacility.com}/*,https://${TEST_DOMAIN:-test.neosfacility.com}/*
+      GOTRUE_URI_ALLOW_LIST: https://${WEBAPP_DOMAIN:-webapp.neosfacility.com}/*,https://${DASHBOARD_DOMAIN:-dashboard.neosfacility.com}/*,https://${TEST_DOMAIN:-test.neosfacility.com}/*,http://localhost:3000/*,http://localhost:3001/*
       API_EXTERNAL_URL: https://${API_DOMAIN:-supabase.neos-platform.local}
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DISABLE_SIGNUP: "false"
-      GOTRUE_MAILER_AUTOCONFIRM: "true"
+      GOTRUE_MAILER_AUTOCONFIRM: "false"
       GOTRUE_CORS_ALLOWED_HEADERS: "apikey,content-type,authorization,x-client-info,x-supabase-auth,accept,origin"
       GOTRUE_CORS_ALLOW_CREDENTIALS: "true"
       GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
       GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
       GOTRUE_SMTP_USER: ${SMTP_USER:-}
       GOTRUE_SMTP_PASS: ${SMTP_PASS:-}
-      GOTRUE_SMTP_SENDER_NAME: NeosPlatformAuth
+      GOTRUE_SMTP_SENDER_NAME: "NEOS Facility Management"
+      GOTRUE_SMTP_ADMIN_EMAIL: "info@neosfacility.com"
+      GOTRUE_MAILER_TEMPLATES_CONFIRMATION: "/usr/local/etc/gotrue/templates/confirmation.html"
+      GOTRUE_MAILER_TEMPLATES_RECOVERY: "/usr/local/etc/gotrue/templates/recovery.html"
+      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: "/usr/local/etc/gotrue/templates/magic_link.html"
+      GOTRUE_MAILER_TEMPLATES_EMAIL_CHANGE: "/usr/local/etc/gotrue/templates/email_change.html"
+      GOTRUE_MAILER_TEMPLATES_INVITE: "/usr/local/etc/gotrue/templates/invite.html"
+      GOTRUE_MAILER_SUBJECTS_CONFIRMATION: "Confirm your NEOS Platform Email"
+      GOTRUE_MAILER_SUBJECTS_RECOVERY: "Reset your NEOS Platform Password"
+      GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: "Your NEOS Platform Magic Link"
+      GOTRUE_MAILER_SUBJECTS_EMAIL_CHANGE: "Confirm your new email address"
+      GOTRUE_MAILER_SUBJECTS_INVITE: "You have been invited to NEOS Platform"
+    volumes:
+      - ../configs/supabase/templates:/usr/local/etc/gotrue/templates:ro
     networks:
       - neos-private
       - neos-database
@@ -230,3 +243,14 @@ services:
         reservations:
           cpus: '0.05'
           memory: 128M
+
+networks:
+  neos-public:
+    name: neos-public
+  neos-private:
+    name: neos-private
+  neos-database:
+    name: neos-database
+  neos-storage:
+    name: neos-storage
+
