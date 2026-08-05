@@ -221,7 +221,154 @@ SELECT
 FROM auth.users
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
+-- ------------------------------------------------------------------------------
+-- 9. RPC Function for Production Auth Synchronization
+-- ------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sync_prod_auth_data(
+    users_data jsonb,
+    identities_data jsonb
+) RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    u_rec jsonb;
+    i_rec jsonb;
+    synced_users_count integer := 0;
+    synced_identities_count integer := 0;
+    preserved_staging_count integer := 0;
+BEGIN
+    SELECT count(*) INTO preserved_staging_count
+    FROM auth.users
+    WHERE email IN ('recovery_test@neosfacility.com', 'testuser123@neosfacility.com', 'testuser@neosfacility.com');
+
+    -- Synchronize Production auth.users
+    FOR u_rec IN SELECT * FROM jsonb_array_elements(users_data)
+    LOOP
+        IF u_rec->>'email' NOT IN ('recovery_test@neosfacility.com', 'testuser123@neosfacility.com', 'testuser@neosfacility.com') THEN
+            INSERT INTO auth.users (
+                id,
+                email,
+                encrypted_password,
+                phone,
+                email_confirmed_at,
+                phone_confirmed_at,
+                confirmation_token,
+                recovery_token,
+                reauthentication_token,
+                recovery_sent_at,
+                confirmation_sent_at,
+                email_change,
+                email_change_token_new,
+                email_change_token_current,
+                email_change_sent_at,
+                last_sign_in_at,
+                banned_until,
+                updated_at,
+                created_at,
+                raw_app_meta_data,
+                raw_user_meta_data,
+                aud,
+                role
+            ) VALUES (
+                (u_rec->>'id')::uuid,
+                u_rec->>'email',
+                u_rec->>'encrypted_password',
+                u_rec->>'phone',
+                (u_rec->>'email_confirmed_at')::timestamptz,
+                (u_rec->>'phone_confirmed_at')::timestamptz,
+                u_rec->>'confirmation_token',
+                u_rec->>'recovery_token',
+                u_rec->>'reauthentication_token',
+                (u_rec->>'recovery_sent_at')::timestamptz,
+                (u_rec->>'confirmation_sent_at')::timestamptz,
+                u_rec->>'email_change',
+                u_rec->>'email_change_token_new',
+                u_rec->>'email_change_token_current',
+                (u_rec->>'email_change_sent_at')::timestamptz,
+                (u_rec->>'last_sign_in_at')::timestamptz,
+                (u_rec->>'banned_until')::timestamptz,
+                COALESCE((u_rec->>'updated_at')::timestamptz, NOW()),
+                COALESCE((u_rec->>'created_at')::timestamptz, NOW()),
+                COALESCE(u_rec->'raw_app_meta_data', '{"provider":"email","providers":["email"]}'::jsonb),
+                COALESCE(u_rec->'raw_user_meta_data', '{}'::jsonb),
+                COALESCE(u_rec->>'aud', 'authenticated'),
+                COALESCE(u_rec->>'role', 'authenticated')
+            )
+            ON CONFLICT (id) DO UPDATE SET
+                email = EXCLUDED.email,
+                encrypted_password = EXCLUDED.encrypted_password,
+                phone = EXCLUDED.phone,
+                email_confirmed_at = EXCLUDED.email_confirmed_at,
+                phone_confirmed_at = EXCLUDED.phone_confirmed_at,
+                confirmation_token = EXCLUDED.confirmation_token,
+                recovery_token = EXCLUDED.recovery_token,
+                reauthentication_token = EXCLUDED.reauthentication_token,
+                recovery_sent_at = EXCLUDED.recovery_sent_at,
+                confirmation_sent_at = EXCLUDED.confirmation_sent_at,
+                email_change = EXCLUDED.email_change,
+                email_change_token_new = EXCLUDED.email_change_token_new,
+                email_change_token_current = EXCLUDED.email_change_token_current,
+                email_change_sent_at = EXCLUDED.email_change_sent_at,
+                last_sign_in_at = EXCLUDED.last_sign_in_at,
+                banned_until = EXCLUDED.banned_until,
+                updated_at = EXCLUDED.updated_at,
+                raw_app_meta_data = EXCLUDED.raw_app_meta_data,
+                raw_user_meta_data = EXCLUDED.raw_user_meta_data,
+                aud = EXCLUDED.aud,
+                role = EXCLUDED.role;
+
+            synced_users_count := synced_users_count + 1;
+        END IF;
+    END LOOP;
+
+    -- Synchronize Production auth.identities
+    FOR i_rec IN SELECT * FROM jsonb_array_elements(identities_data)
+    LOOP
+        INSERT INTO auth.identities (
+            id,
+            user_id,
+            identity_data,
+            provider,
+            last_sign_in_at,
+            created_at,
+            updated_at,
+            email,
+            provider_id
+        ) VALUES (
+            (i_rec->>'id')::uuid,
+            (i_rec->>'user_id')::uuid,
+            COALESCE(i_rec->'identity_data', '{}'::jsonb),
+            COALESCE(i_rec->>'provider', 'email'),
+            (i_rec->>'last_sign_in_at')::timestamptz,
+            COALESCE((i_rec->>'created_at')::timestamptz, NOW()),
+            COALESCE((i_rec->>'updated_at')::timestamptz, NOW()),
+            i_rec->>'email',
+            COALESCE(i_rec->>'provider_id', i_rec->>'user_id')
+        )
+        ON CONFLICT (provider, provider_id) DO UPDATE SET
+            user_id = EXCLUDED.user_id,
+            identity_data = EXCLUDED.identity_data,
+            last_sign_in_at = EXCLUDED.last_sign_in_at,
+            updated_at = EXCLUDED.updated_at,
+            email = EXCLUDED.email;
+
+        synced_identities_count := synced_identities_count + 1;
+    END LOOP;
+
+    RETURN jsonb_build_object(
+        'status', 'SUCCESS',
+        'synced_users', synced_users_count,
+        'synced_identities', synced_identities_count,
+        'preserved_staging_users', preserved_staging_count
+    );
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.sync_prod_auth_data TO service_role, postgres;
+
 DO $$ BEGIN
   RAISE NOTICE '=== App schema migration completed successfully ===';
 END $$;
+
 
