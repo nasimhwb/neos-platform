@@ -1,44 +1,86 @@
-name: CD Deploy Release
+name: Deploy NEOS Application
 
 on:
   push:
     branches:
-      - main
       - master
-  workflow_dispatch: # Allow manual deployment trigger
+  workflow_dispatch:
 
 jobs:
   deploy:
+    name: Deploy neos_app to VPS
     runs-on: ubuntu-latest
-    name: Deploy Atomic Release
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup SSH Connection
-        uses: webfactory/ssh-agent@v0.9.0
+      - name: Execute Deployment on Hostinger VPS
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop_on_error: true
+          script: |
+            set -e
 
-      - name: Upload Source to VPS Staging
-        run: |
-          # SSH command to verify staging directory
-          ssh -o StrictHostKeyChecking=no nasim@${{ secrets.VPS_HOST }} "mkdir -p /srv/neos/tmp/deploy-src"
-          
-          # Sync files to staging directory on VPS as nasim
-          rsync -avz --delete \
-            --exclude '.git/' \
-            --exclude '.github/' \
-            --exclude '.env' \
-            --exclude 'data/' \
-            --exclude 'backups/' \
-            -e "ssh -o StrictHostKeyChecking=no" \
-            ./ nasim@${{ secrets.VPS_HOST }}:/srv/neos/tmp/deploy-src/
+            echo "=== Step 1: Navigating to project directory ==="
+            cd /srv/neos/neos-platform
 
-      - name: Remote Trigger Atomic Release Deployment
-        run: |
-          # Connect to VPS and execute the release runner
-          ssh -o StrictHostKeyChecking=no nasim@${{ secrets.VPS_HOST }} "
-            chmod +x /srv/neos/tmp/deploy-src/scripts/deploy-release.sh
-            /srv/neos/tmp/deploy-src/scripts/deploy-release.sh
-          "
+            echo "=== Step 2: Fetching latest changes from origin ==="
+            git fetch origin
+
+            echo "=== Step 3: Hard resetting working tree to origin/master ==="
+            git reset --hard origin/master
+
+            echo "=== Step 4: Building neos_app container ==="
+            docker compose -f docker-compose.app.yml build neos_app
+
+            echo "=== Step 5: Deploying neos_app container ==="
+            docker compose -f docker-compose.app.yml up -d neos_app
+
+            echo "=== Step 6: Waiting for container to become healthy ==="
+            MAX_ATTEMPTS=24
+            ATTEMPT=0
+            HEALTH_STATUS="unknown"
+
+            until [ $ATTEMPT -ge $MAX_ATTEMPTS ]; do
+              HEALTH_STATUS=$(docker inspect --format='{{json .State.Health.Status}}' neos_app 2>/dev/null | tr -d '"' || echo "unknown")
+              echo "Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Container status is '$HEALTH_STATUS'"
+
+              if [ "$HEALTH_STATUS" = "healthy" ]; then
+                echo "SUCCESS: Container neos_app is healthy!"
+                break
+              fi
+
+              if [ "$HEALTH_STATUS" = "unhealthy" ]; then
+                echo "ERROR: Container neos_app reported unhealthy status."
+                docker logs --tail 50 neos_app
+                exit 1
+              fi
+
+              ATTEMPT=$((ATTEMPT+1))
+              sleep 5
+            done
+
+            if [ "$HEALTH_STATUS" != "healthy" ]; then
+              IS_RUNNING=$(docker inspect --format='{{.State.Running}}' neos_app 2>/dev/null || echo "false")
+              if [ "$IS_RUNNING" != "true" ]; then
+                echo "ERROR: Container neos_app failed to become healthy/running."
+                docker logs --tail 50 neos_app
+                exit 1
+              fi
+            fi
+
+            echo "=== Step 7: Performing HTTP health check ==="
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health || curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/ || echo "000")
+            echo "HTTP Healthcheck returned status code: $HTTP_CODE"
+
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+              echo "=== DEPLOYMENT SUCCESSFUL: neos_app is live and healthy ==="
+            else
+              echo "ERROR: HTTP health check failed with status code $HTTP_CODE."
+              docker logs --tail 50 neos_app
+              exit 1
+            fi
