@@ -4,6 +4,12 @@ import type { NextRequest } from "next/server";
 const VALID_ROLES = ["Super Admin", "Platform Admin", "Developer", "Auditor", "Read Only"];
 
 export function middleware(request: NextRequest) {
+  // Completely exclude all health endpoints (/api/health, /api/health/ready, etc.) from authentication
+  if (request.nextUrl.pathname.startsWith("/api/health")) {
+    return NextResponse.next();
+  }
+
+
   // Only intercept API endpoints
   if (request.nextUrl.pathname.startsWith("/api")) {
     const requestHeaders = new Headers(request.headers);
@@ -48,7 +54,10 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Apply middleware to API routes only
+// Exclude /api/health from middleware matching
 export const config = {
-  matcher: "/api/:path*",
+  matcher: [
+    "/api/((?!health).*)",
+  ],
 };
+
