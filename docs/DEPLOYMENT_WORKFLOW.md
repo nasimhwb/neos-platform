@@ -1,31 +1,25 @@
-# NEOS Platform Production Deployment Workflow
+# NEOS App Production Deployment Workflow
 
-This document describes the automated Continuous Deployment (CD) architecture and pipeline for the NEOS Application (`neos_app`) running on the Hostinger VPS.
+This document describes the automated Continuous Deployment (CD) pipeline for the NEOS Application (`neos_app`) running on the Hostinger VPS.
 
-## Overview
-
-The deployment pipeline is powered by GitHub Actions. Every push to the `master` branch triggers an automated SSH workflow that builds, updates, verifies, and health-checks the application container (`neos_app`).
+## Repository Boundaries & Ownership
 
 > [!IMPORTANT]
-> **Isolated Scope:** The deployment workflow strictly isolates application deployment. Stateful and core infrastructure services—including **PostgreSQL**, **Supabase**, **Kong**, **Traefik**, **Redis**, and **MinIO**—are never restarted, rebuilt, or altered by this pipeline.
+> **Repository Ownership & Scope:**
+> - **This Repository (`neos-app`):** Owns ONLY the application codebase, `docker-compose.app.yml`, `.github/workflows/deploy.yml`, the `neos_app` container, and domain `webapp.neosfacility.com`.
+> - **The Infrastructure Repository (`neos-platform`):** Owns ALL core infrastructure including `neos_dashboard`, Traefik reverse proxy configuration (`configs/traefik/*`), Supabase (GoTrue, PostgREST, Gateway), PostgreSQL, Redis, MinIO, Kong, and base compose files (`compose.base.yml`, `compose.dashboard.yml`, `compose.supabase.yml`).
+>
+> This repository **NEVER** modifies infrastructure files, Traefik routing, or other container definitions.
 
 ---
 
-## 1. Production Architecture & Traefik Domain Routing
+## 1. Scope & Domain Target
 
-The NEOS Platform utilizes a decoupled microservice architecture fronted by Traefik V3.
-
-### Container & Domain Mapping Matrix
-
-| Domain / Subdomain | Path Pattern | Target Traefik Service | Upstream Container / Port | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `neosfacility.com`, `www.neosfacility.com` | `/`, `/dashboard`, `/api` | `dashboard-ui-service` | `http://neos_app:3000`<br>`http://neos_dashboard:3000` | Main Production Web Application & Control Center |
-| `neosfacility.com` | `/auth`, `/supabase` | `supabase-gateway-service` | `http://neos_supabase_gateway:8000` | Supabase Auth & Gateway Services |
-| `neosfacility.com` | `/neos_admin` | `hostinger-shared-hosting-service` | `https://legacy.neosfacility.com` | Legacy PHP Administrative Application |
-| `test.neosfacility.com` | `/*` | `test-staging-service` / `neos-app` | `http://neos_app:3000` | Staging Web Application |
-| `app.neosfacility.com` | `/*` | `neos-app-production-service` | `http://neos-app-blue:80` | Canary / Blue-Green App Target |
-
-To ensure both production (`neosfacility.com`) and staging (`test.neosfacility.com`) seamlessly route to the deployed application container without renaming legacy services, Traefik's dynamic load balancer configuration (`configs/traefik/dynamic.yml`) includes `http://neos_app:3000` under `dashboard-ui-service`.
+| Component / Target | Description | Upstream Container / Port |
+| :--- | :--- | :--- |
+| **Container Name** | `neos_app` | `neos_app:3000` |
+| **Target Domain** | `webapp.neosfacility.com` | Traefik Router: `Host(webapp.neosfacility.com)` |
+| **Compose File** | `docker-compose.app.yml` | Isolated standalone application compose definition |
 
 ---
 
@@ -48,7 +42,7 @@ Configure the following secrets in GitHub (**Settings > Secrets and variables > 
 > To preserve container isolation and security, port `3000` is **NOT** exposed to the host interface.
 
 Health checks execute entirely within the Docker container network:
-- **Internal Health Check:** `docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health`
+- **Internal Endpoint Check:** `docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health`
 - **Docker Daemon Healthcheck:** Configured in `docker-compose.app.yml` via `wget --no-verbose --spider http://127.0.0.1:3000/api/health`.
 
 ---
@@ -108,7 +102,7 @@ Upon completion (success or failure), the workflow outputs a summary block:
 ==========================================================================
                       DEPLOYMENT SUMMARY (SUCCESS)                        
 ==========================================================================
-  Commit SHA      : 662b2bf8da8aa6411e5681d8111a4a3c4ad8bb16
+  Commit SHA      : eae1cd45b736b4129b09d05d7620ed772d5c3dfb
   Branch          : master
   Build Duration  : 42s
   Container Name  : neos_app
