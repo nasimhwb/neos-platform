@@ -55,7 +55,7 @@ services:
       start_period: 15s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.neos-app.rule=Host(`${APP_DOMAIN:-app.neosfacility.com}`)"
+      - "traefik.http.routers.neos-app.rule=Host(`${APP_DOMAIN:-app.neosfacility.com}`) || Host(`test.neosfacility.com`)"
       - "traefik.http.routers.neos-app.entrypoints=websecure"
       - "traefik.http.routers.neos-app.tls=true"
       - "traefik.http.routers.neos-app.tls.certresolver=letsencrypt"

@@ -143,8 +143,10 @@ http:
     dashboard-ui-service:
       loadBalancer:
         servers:
+          - url: "http://neos_app:3000"
           - url: "http://neos_dashboard:3000"
         passHostHeader: true
+
 
     # VPS Supabase Ingress Gateway Service
     supabase-gateway-service:

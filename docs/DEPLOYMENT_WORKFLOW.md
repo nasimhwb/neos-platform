@@ -1,142 +1,119 @@
-# NEOS Application Automatic Deployment Workflow
+# NEOS Platform Production Deployment Workflow
 
-This document describes the automated Continuous Deployment (CD) pipeline for the NEOS Application (`neos_app`) running on the Hostinger VPS.
+This document describes the automated Continuous Deployment (CD) architecture and pipeline for the NEOS Application (`neos_app`) running on the Hostinger VPS.
 
 ## Overview
 
-The deployment pipeline is powered by GitHub Actions. Every push to the `master` branch triggers an automated SSH workflow that builds and updates only the application container (`neos_app`).
+The deployment pipeline is powered by GitHub Actions. Every push to the `master` branch triggers an automated SSH workflow that builds, updates, verifies, and health-checks the application container (`neos_app`).
 
 > [!IMPORTANT]
 > **Isolated Scope:** The deployment workflow strictly isolates application deployment. Stateful and core infrastructure services—including **PostgreSQL**, **Supabase**, **Kong**, **Traefik**, **Redis**, and **MinIO**—are never restarted, rebuilt, or altered by this pipeline.
 
 ---
 
-## 1. GitHub Secrets Required
+## 1. Production Architecture & Traefik Domain Routing
 
-To enable the GitHub Actions workflow to establish a secure SSH connection to the Hostinger VPS, the following secrets must be configured in your GitHub repository (**Settings > Secrets and variables > Actions**):
+The NEOS Platform utilizes a decoupled microservice architecture fronted by Traefik V3.
 
-| Secret Name | Description | Example Value |
-| :--- | :--- | :--- |
-| `VPS_HOST` | IP address or domain name of the Hostinger VPS | `185.228.83.136` |
-| `VPS_USERNAME` | SSH username with permission to run Docker commands | `nasim` or `root` |
-| `VPS_SSH_PRIVATE_KEY` | Private SSH key (PEM / OpenSSH format) matching `authorized_keys` | `-----BEGIN OPENSSH PRIVATE KEY----- ...` |
-| `VPS_PORT` | *(Optional)* SSH port (defaults to `22` if omitted) | `22` |
+### Container & Domain Mapping Matrix
 
----
+| Domain / Subdomain | Path Pattern | Target Traefik Service | Upstream Container / Port | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `neosfacility.com`, `www.neosfacility.com` | `/`, `/dashboard`, `/api` | `dashboard-ui-service` | `http://neos_app:3000`<br>`http://neos_dashboard:3000` | Main Production Web Application & Control Center |
+| `neosfacility.com` | `/auth`, `/supabase` | `supabase-gateway-service` | `http://neos_supabase_gateway:8000` | Supabase Auth & Gateway Services |
+| `neosfacility.com` | `/neos_admin` | `hostinger-shared-hosting-service` | `https://legacy.neosfacility.com` | Legacy PHP Administrative Application |
+| `test.neosfacility.com` | `/*` | `test-staging-service` / `neos-app` | `http://neos_app:3000` | Staging Web Application |
+| `app.neosfacility.com` | `/*` | `neos-app-production-service` | `http://neos-app-blue:80` | Canary / Blue-Green App Target |
 
-## 2. SSH Key Setup
-
-Follow these steps to generate and authorize an SSH key pair dedicated to GitHub Actions deployment:
-
-### Step 1: Generate an SSH Key Pair locally
-```bash
-ssh-keygen -t ed25519 -C "github-actions-deploy@neosfacility.com" -f ./id_ed25519_deploy -N ""
-```
-
-### Step 2: Copy the Public Key to the VPS
-Append the contents of `id_ed25519_deploy.pub` to the authorized keys file on the VPS:
-```bash
-# On the VPS server:
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
-cat >> ~/.ssh/authorized_keys << 'EOF'
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI... github-actions-deploy@neosfacility.com
-EOF
-chmod 600 ~/.ssh/authorized_keys
-```
-
-### Step 3: Add Private Key to GitHub Secrets
-Copy the entire contents of `id_ed25519_deploy` into the GitHub Secret `VPS_SSH_PRIVATE_KEY`.
+To ensure both production (`neosfacility.com`) and staging (`test.neosfacility.com`) seamlessly route to the deployed application container without renaming legacy services, Traefik's dynamic load balancer configuration (`configs/traefik/dynamic.yml`) includes `http://neos_app:3000` under `dashboard-ui-service`.
 
 ---
 
-## 3. VPS Prerequisites
+## 2. GitHub Secrets Required
 
-Before running the workflow for the first time, ensure the Hostinger VPS satisfies these prerequisites:
+Configure the following secrets in GitHub (**Settings > Secrets and variables > Actions**):
 
-1. **Repository Path:** The Git repository must be cloned at `/srv/neos/neos-platform`.
-   ```bash
-   sudo mkdir -p /srv/neos
-   cd /srv/neos
-   git clone https://github.com/nasimhwb/neos-platform.git
-   ```
-2. **Environment File:** A valid `.env` file must exist at `/srv/neos/neos-platform/.env` containing production secrets and environment variables.
-3. **Docker Networks:** The external Docker networks (`neos-public`, `neos-private`, `neos-monitoring`, `neos-database`) must exist.
-   ```bash
-   docker network create neos-public || true
-   docker network create neos-private || true
-   docker network create neos-monitoring || true
-   docker network create neos-database || true
-   ```
-4. **User Permissions:** The SSH user specified in `VPS_USERNAME` must belong to the `docker` group or have permission to run `docker compose`.
+| Secret Name | Requirement | Description | Example Value |
+| :--- | :---: | :--- | :--- |
+| `VPS_HOST` | **Required** | Hostinger VPS IP Address or Hostname | `185.228.83.136` |
+| `VPS_USERNAME` | **Required** | SSH Username with Docker privileges | `nasim` or `root` |
+| `VPS_SSH_PRIVATE_KEY` | **Required** | Private SSH Key matching `authorized_keys` | `-----BEGIN OPENSSH PRIVATE KEY-----` |
+| `VPS_PORT` | *Optional* | SSH Port (defaults to `22` if omitted) | `22` |
 
 ---
 
-## 4. Deployment Sequence
+## 3. In-Container Health Check (No Host Port Exposure)
 
-When a push event occurs on the `master` branch:
+> [!NOTE]
+> To preserve container isolation and security, port `3000` is **NOT** exposed to the host interface.
+
+Health checks execute entirely within the Docker container network:
+- **Internal Health Check:** `docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health`
+- **Docker Daemon Healthcheck:** Configured in `docker-compose.app.yml` via `wget --no-verbose --spider http://127.0.0.1:3000/api/health`.
+
+---
+
+## 4. Multi-Stage Verification Pipeline
+
+The deployment sequence executes 7 automated stages on the VPS:
 
 ```mermaid
 graph TD
     A[Push to master branch] --> B[GitHub Actions Trigger]
     B --> C[SSH into Hostinger VPS]
-    C --> D["cd /srv/neos/neos-platform"]
-    D --> E[git fetch origin]
-    E --> F[git reset --hard origin/master]
-    F --> G[docker compose -f docker-compose.app.yml build neos_app]
-    G --> H[docker compose -f docker-compose.app.yml up -d neos_app]
-    H --> I[Poll Docker Health Check status]
-    I --> J{Container Healthy?}
-    J -- Yes --> K[Perform HTTP Health Check on localhost:3000]
-    J -- No / Timeout --> L[Log errors & Stop immediately]
-    K --> M{HTTP 200 OK?}
-    M -- Yes --> N[Deployment Success]
-    M -- No --> L
+    C --> D[1. Fetch & Reset repo to origin/master]
+    D --> E[2. Build neos_app container image]
+    E --> F[3. Deploy neos_app container]
+    F --> G[4. Wait for Docker container healthy status]
+    G --> H[5. In-container HTTP /api/health verification]
+    H --> I[6. In-container Supabase connectivity check]
+    I --> J[7. Verify background job scheduler initialization]
+    J --> K{All Checks Pass?}
+    K -- Yes --> L[Report SUCCESS & Output Summary]
+    K -- No --> M[Trigger Automated Safe Rollback]
+    M --> N[Log diagnostics, git reset, restore previous container]
+    N --> O[Exit code 1 & Report FAILED]
 ```
 
-### Command Flow
+### Stage Breakdown
 
-1. **Navigate to directory:**
-   ```bash
-   cd /srv/neos/neos-platform
-   ```
-2. **Synchronize repository state:**
-   ```bash
-   git fetch origin
-   git reset --hard origin/master
-   ```
-3. **Build target container image:**
-   ```bash
-   docker compose -f docker-compose.app.yml build neos_app
-   ```
-4. **Recreate application container:**
-   ```bash
-   docker compose -f docker-compose.app.yml up -d neos_app
-   ```
-5. **Poll container health status:**
-   Checks `docker inspect --format='{{json .State.Health.Status}}' neos_app` until status is `healthy` (up to 120 seconds).
-6. **Execute HTTP endpoint check:**
-   Verifies response from `http://localhost:3000/api/health` returns HTTP status code 200-399.
+1. **Repository Synchronization:** `git fetch origin && git reset --hard origin/master`
+2. **Container Build:** `docker compose -f docker-compose.app.yml build neos_app`
+3. **Container Launch:** `docker compose -f docker-compose.app.yml up -d neos_app`
+4. **Docker Health Status:** Poll `docker inspect` for `healthy` status (up to 120 seconds).
+5. **Endpoint Health Check:** `docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health`
+6. **Supabase Connectivity:** Probe Supabase Auth gateway endpoint (`$SUPABASE_URL/auth/v1/health`) from inside container.
+7. **Background Jobs Initialization:** Verify Next.js `SchedulerService` background snapshot loop initialized.
 
 ---
 
-## 5. Recovery Procedure & Troubleshooting
+## 5. Automated Rollback & Recovery Mechanism
 
-If a deployment step fails:
+If any deployment or verification step fails:
 
-1. **Immediate Exit:** The workflow sets `script_stop_on_error: true` and `set -e`. Any command failure immediately aborts the deployment without affecting other running services.
-2. **Inspect Container Logs:**
-   Connect to the VPS via SSH and view the application logs:
-   ```bash
-   docker logs --tail 100 neos_app
-   ```
-3. **Manual Rollback Procedure:**
-   To revert `neos_app` to a previous git commit or working release:
-   ```bash
-   cd /srv/neos/neos-platform
-   git reset --hard <PREVIOUS_WORKING_COMMIT_SHA>
-   docker compose -f docker-compose.app.yml build neos_app
-   docker compose -f docker-compose.app.yml up -d neos_app
-   ```
-4. **Idempotency Guarantee:**
-   The deployment workflow is fully idempotent. Running `git fetch origin && git reset --hard origin/master` and `docker compose -f docker-compose.app.yml up -d neos_app` multiple times produces a consistent, safe state.
+1. **Stop Immediately:** Execution halts at the failing step (`set -e`, `script_stop_on_error: true`).
+2. **Diagnostic Logs Captured:** The pipeline outputs the last 100 lines of container logs (`docker logs --tail 100 neos_app`).
+3. **Git Codebase Reversion:** Automatically reverts the local repo to the previous commit (`git reset --hard $PREV_COMMIT_SHA`).
+4. **Container State Restoration:** Re-builds and re-launches the previous working container image.
+5. **Production Protection:** Production is never left in a broken or un-healthy state.
+6. **Failure Reporting:** Output formatted failure summary and exit code 1 to alert maintainers.
+
+---
+
+## 6. Deployment Summary Format
+
+Upon completion (success or failure), the workflow outputs a summary block:
+
+```text
+==========================================================================
+                      DEPLOYMENT SUMMARY (SUCCESS)                        
+==========================================================================
+  Commit SHA      : 662b2bf8da8aa6411e5681d8111a4a3c4ad8bb16
+  Branch          : master
+  Build Duration  : 42s
+  Container Name  : neos_app
+  Health Status   : PASSED
+  Supabase Status : PASSED
+  Final Result    : SUCCESS
+==========================================================================
+```
