@@ -220,12 +220,12 @@ services:
       TENANT_ID: stub
       FILE_SIZE_LIMIT: "52428800"
       GLOBAL_S3_BUCKET: supabase-storage
+      STORAGE_S3_ENDPOINT: http://object-store:9000
+      STORAGE_S3_FORCE_PATH_STYLE: "true"
+      STORAGE_S3_REGION: us-east-1
       AWS_ACCESS_KEY_ID: supabase_user
       AWS_SECRET_ACCESS_KEY: ${SUPABASE_S3_PASSWORD:-ChangeThisToASuperSecureS3Password123!}
-      AWS_REGION: us-east-1
       REGION: us-east-1
-      AWS_ENDPOINT: http://object-store:9000
-      AWS_S3_FORCE_PATH_STYLE: "true"
     networks:
       - neos-private
       - neos-database
