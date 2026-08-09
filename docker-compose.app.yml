@@ -1,21 +1,16 @@
 version: '3.8'
 
 services:
-  # ------------------------------------------------------------------------------
-  # NEOS Platform Dashboard
-  # Next.js 15 control center for the entire platform
-  # ------------------------------------------------------------------------------
-  dashboard:
+  neos_app:
     build:
-      context: ../dashboard
+      context: ./dashboard
       dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_PLATFORM_PROVIDER: ${NEXT_PUBLIC_PLATFORM_PROVIDER:-self-hosted}
         NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://supabase.neosfacility.com}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-    image: neos_dashboard:latest
-    container_name: neos_dashboard
-    user: root
+    image: neos_app:latest
+    container_name: neos_app
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -27,13 +22,12 @@ services:
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_PLATFORM_NAME: ${NEXT_PUBLIC_PLATFORM_NAME:-NEOS Platform}
-      NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neos-platform.local}
+      NEXT_PUBLIC_BASE_DOMAIN: ${BASE_DOMAIN:-neosfacility.com}
       NEXT_PUBLIC_PLATFORM_PROVIDER: ${NEXT_PUBLIC_PLATFORM_PROVIDER:-self-hosted}
       NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://supabase.neosfacility.com}
       SUPABASE_URL: ${SUPABASE_URL:-https://supabase.neosfacility.com}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      # Core platform connection configs
       POSTGRES_HOST: pgbouncer
       POSTGRES_PORT: 6432
       POSTGRES_SUPERUSER: ${POSTGRES_SUPERUSER:-postgres}
@@ -45,12 +39,6 @@ services:
       MINIO_PORT: 9000
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-      PROMETHEUS_HOST: prometheus
-      PROMETHEUS_PORT: 9090
-      ALERTMANAGER_HOST: alertmanager
-      ALERTMANAGER_PORT: 9093
-      LOKI_HOST: loki
-      LOKI_PORT: 3100
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /srv/neos/shared:/srv/neos/shared:ro
@@ -61,22 +49,29 @@ services:
       - neos-database
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --spider http://127.0.0.1:3000/api/health || exit 1"]
-      interval: 15s
+      interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 15s
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard-ui.rule=Host(`${DASHBOARD_DOMAIN:-dashboard.neos-platform.local}`)"
-      - "traefik.http.routers.dashboard-ui.entrypoints=websecure"
-      - "traefik.http.routers.dashboard-ui.tls=true"
-      - "traefik.http.routers.dashboard-ui.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard-ui.middlewares=security-headers@file,compression@file,rate-limit@file"
-      - "traefik.http.services.dashboard-ui.loadbalancer.server.port=3000"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-        reservations:
-          cpus: '0.1'
-          memory: 256M
+      - "traefik.http.routers.neos-app.rule=Host(`${WEBAPP_DOMAIN:-webapp.neosfacility.com}`)"
+      - "traefik.http.routers.neos-app.entrypoints=websecure"
+      - "traefik.http.routers.neos-app.tls=true"
+      - "traefik.http.routers.neos-app.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.neos-app.middlewares=security-headers@file,compression@file,rate-limit@file"
+      - "traefik.http.services.neos-app.loadbalancer.server.port=3000"
+
+networks:
+  neos-public:
+    name: neos-public
+    external: true
+  neos-private:
+    name: neos-private
+    external: true
+  neos-monitoring:
+    name: neos-monitoring
+    external: true
+  neos-database:
+    name: neos-database
+    external: true

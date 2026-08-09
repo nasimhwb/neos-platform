@@ -18,7 +18,6 @@ http:
         stsIncludeSubdomains: true
         stsPreload: true
         referrerPolicy: "strict-origin-when-cross-origin"
-        # Content-Security-Policy custom fallback
         contentSecurityPolicy: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https:; img-src 'self' data: https:; child-src 'self' blob:; connect-src 'self' wss: https:;"
 
     # 2. Gzip Compression
@@ -38,28 +37,129 @@ http:
         users:
           - "admin:$2y$05$y8.yH77e0340Gf85/n2NSeY4w514h/h9j5cOu349d91e3e7f59d57a"
 
-  # ----------------------------------------------------------------------------
-  # Production Ingress Routing (Handled by Docker Compose labels in docker-compose.app.yml)
-  # ----------------------------------------------------------------------------
-  # routers:
-  #   neos-app-production:
-  #     rule: "HostRegexp(`app\\..+`)"
-  #     entryPoints:
-  #       - websecure
-  #     tls: {}
-  #     service: neos-app-production-service
-  #     middlewares:
-  #       - security-headers@file
-  #       - compression@file
-  #       - rate-limit@file
+    # 5. Hostinger Shared Hosting Reverse Proxy Headers
+    hostinger-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+          X-Forwarded-Port: "443"
+          X-Forwarded-Host: "neosfacility.com"
 
-  # services:
-  #   neos-app-production-service:
-  #     loadBalancer:
-  #       servers:
-  #         # Swapped dynamically by deployment script (blue vs green)
-  #         - url: "http://neos-app-blue:80"
-  #       passHostHeader: true
+  # ----------------------------------------------------------------------------
+  # Production Ingress Routing
+  # ----------------------------------------------------------------------------
+  routers:
+    # Legacy PHP Application on Hostinger Shared Hosting
+    legacy-php-hostinger:
+      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/neos_admin`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 100
+      service: hostinger-shared-hosting-service
+      middlewares:
+        - hostinger-headers@file
+        - compression@file
+
+    # VPS Next.js Dashboard UI
+    vps-dashboard-router:
+      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/dashboard`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 90
+      service: dashboard-ui-service
+
+    # VPS Platform API Routes
+    vps-api-router:
+      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/api`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 90
+      service: dashboard-ui-service
+
+    # VPS Supabase Auth & Gateway Services
+    vps-supabase-auth-router:
+      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && (PathPrefix(`/auth`) || PathPrefix(`/supabase`))"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 90
+      service: supabase-gateway-service
+
+    # VPS Main Web Application Catch-All
+    vps-main-app-router:
+      rule: "Host(`neosfacility.com`, `www.neosfacility.com`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 10
+      service: dashboard-ui-service
+
+    # Staging Subdomain App
+    test-staging-router:
+      rule: "Host(`test.neosfacility.com`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      priority: 100
+      service: test-staging-service
+      middlewares:
+        - security-headers@file
+        - compression@file
+
+    # Canary / Subdomain Apps
+    neos-app-production:
+      rule: "HostRegexp(`app\\..+`)"
+      entryPoints:
+        - websecure
+      tls: {}
+      service: neos-app-production-service
+      middlewares:
+        - security-headers@file
+        - compression@file
+        - rate-limit@file
+
+  # ----------------------------------------------------------------------------
+  # Upstream Services Configurations
+  # ----------------------------------------------------------------------------
+  services:
+    test-staging-service:
+      loadBalancer:
+        servers:
+          - url: "http://neos_app:3000"
+        passHostHeader: true
+    # Hostinger Shared Hosting Upstream (Legacy PHP Application)
+    hostinger-shared-hosting-service:
+      loadBalancer:
+        servers:
+          - url: "https://legacy.neosfacility.com"
+        passHostHeader: true
+        responseForwarding:
+          flushInterval: "100ms"
+
+    # VPS Next.js Dashboard Service
+    dashboard-ui-service:
+      loadBalancer:
+        servers:
+          - url: "http://neos_dashboard:3000"
+        passHostHeader: true
+
+
+    # VPS Supabase Ingress Gateway Service
+    supabase-gateway-service:
+      loadBalancer:
+        servers:
+          - url: "http://neos_supabase_gateway:8000"
+        passHostHeader: true
+
+    neos-app-production-service:
+      loadBalancer:
+        servers:
+          # Swapped dynamically by deployment script (blue vs green)
+          - url: "http://neos-app-blue:80"
+        passHostHeader: true
 
 tls:
   options:
@@ -76,3 +176,4 @@ tls:
         - CurveP256
         - CurveP384
         - X25519
+      preferServerCipherSuites: true

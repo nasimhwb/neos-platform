@@ -1,0 +1,5224 @@
+{
+  "summary": {
+    "total_referenced_tables": 294,
+    "total_referenced_rpcs": 27,
+    "total_referenced_buckets": 5
+  },
+  "referenced_tables": [
+    "activity_logs",
+    "ai_interaction_logs",
+    "ai_orchestration_logs",
+    "api_endpoint_metrics",
+    "approval_audit_logs",
+    "approval_delegations",
+    "approval_request_steps",
+    "approval_requests",
+    "approval_rules",
+    "assemblies",
+    "assembly_components",
+    "asset_assignments",
+    "asset_audit_items",
+    "asset_audit_tasks",
+    "asset_audits",
+    "asset_history",
+    "asset_issuances",
+    "asset_repairs",
+    "asset_returns",
+    "asset_transfers",
+    "assets",
+    "attachments",
+    "attendance_sessions",
+    "audit_logs",
+    "automation_rules",
+    "automation_templates",
+    "automation_workflow_logs",
+    "automation_workflow_queue",
+    "automation_workflows",
+    "bi_audit_logs",
+    "bi_catalogues",
+    "bi_categories",
+    "bi_pairing_drafts",
+    "bi_publish_confirmations",
+    "bi_seller_defaults",
+    "bill_of_materials",
+    "billing_consultancy_ledger",
+    "billing_history",
+    "bin_stock",
+    "biometric_sync_logs",
+    "bom_items",
+    "brap_escalation_queue",
+    "brap_execution_log",
+    "brap_rule_simulations",
+    "brap_rules",
+    "catalogue_extraction_events",
+    "catalogue_missing_fields",
+    "catalogue_raw_payloads",
+    "catalogue_records",
+    "catalogue_sessions",
+    "categories",
+    "client_interactions",
+    "client_salespersons",
+    "clients",
+    "collection_reminder_rules",
+    "companies",
+    "company_hierarchy_roles",
+    "company_holidays",
+    "component_health_metrics",
+    "config_audit_logs",
+    "config_parameters",
+    "cycle_count_items",
+    "cycle_count_tasks",
+    "db_health_metrics",
+    "department_hierarchy_roles",
+    "department_permissions",
+    "designation_levels",
+    "disassemblies",
+    "dispatch_manifests",
+    "dispatch_runs",
+    "dispatches",
+    "document_links",
+    "document_versions",
+    "documents",
+    "dqce_corrections",
+    "dqce_issue_history",
+    "dqce_issues",
+    "dqce_notification_routing",
+    "dqce_rules",
+    "dqce_scans",
+    "dqce_scores",
+    "dqce_settings",
+    "drivers",
+    "eaac_audit_logs",
+    "eaac_delegations",
+    "eaac_temporary_grants",
+    "eaac_user_configs",
+    "efop_activity_logs",
+    "efop_workflow_configs",
+    "eiap_api_keys",
+    "eiap_api_logs",
+    "eiap_integrations",
+    "eiap_sync_jobs",
+    "eiap_sync_runs",
+    "eiap_webhook_jobs",
+    "eiap_webhooks_incoming",
+    "eiap_webhooks_outgoing",
+    "ekdp_articles",
+    "ekdp_ratings",
+    "ekr_actions",
+    "ekr_fields",
+    "ekr_knowledge_graph",
+    "ekr_pages",
+    "ekr_workflows",
+    "employee_attendance",
+    "employee_daily_attendance",
+    "employee_exit_process",
+    "employee_leave_adjustments",
+    "employee_loans",
+    "employee_location_mappings",
+    "employee_payroll_runs",
+    "employee_reporting_lines",
+    "employee_salaries",
+    "employee_update_requests",
+    "employees",
+    "enterprise_identifiers",
+    "eophc_incident_timeline",
+    "eophc_incidents",
+    "error_logs",
+    "expense_claims",
+    "failed_background_jobs",
+    "field_tracking_location_reviews",
+    "gem_lead_interactions",
+    "gem_leads",
+    "geocoding_cache",
+    "goods_receipt_notes",
+    "grn_items",
+    "groups",
+    "hierarchy_audit_logs",
+    "home_location_audit_logs",
+    "ignored_client_merges",
+    "ignored_item_merges",
+    "ignored_vendor_merges",
+    "ignored_zoho_invoices",
+    "inventory",
+    "inventory_transfer_items",
+    "inventory_transfers",
+    "invoices",
+    "item_stock",
+    "items",
+    "leave_requests",
+    "library_documents",
+    "loan_repayments",
+    "locations",
+    "manual_provider_costs",
+    "manual_provider_usage",
+    "market_surveys",
+    "master_data",
+    "mdm_merge_history",
+    "mdm_pending_changes",
+    "mdm_rules",
+    "mdm_stewards",
+    "notification_push_log",
+    "notification_templates",
+    "notifications",
+    "oem_alternative_components",
+    "oem_approved_suppliers",
+    "oem_components",
+    "offline_scan_queue",
+    "order_costing",
+    "order_items",
+    "order_search_keys",
+    "order_status_events",
+    "orders",
+    "orders_with_status_toggles",
+    "package_items",
+    "packages",
+    "pay_runs",
+    "payment_compliance_activity",
+    "payment_compliance_records",
+    "payment_compliance_rules",
+    "payment_doc_checklist",
+    "payment_doc_types",
+    "performance_badges",
+    "performance_categories",
+    "performance_distribution_rules",
+    "performance_levels",
+    "performance_monthly_summary",
+    "performance_quality_signals",
+    "performance_rules",
+    "performance_transactions",
+    "performance_user_badges",
+    "performance_user_summary",
+    "picking_items",
+    "picking_lists",
+    "procurement_assignment_rules",
+    "procurement_checklist_configs",
+    "procurement_cost_adjustments",
+    "procurement_handover_items",
+    "procurement_handover_logs",
+    "procurement_handover_messages",
+    "procurement_handover_requests",
+    "procurement_handover_revisions",
+    "procurement_handover_shortlists",
+    "procurement_item_checklists",
+    "procurement_knowledge_base",
+    "product_suggestions",
+    "profiles",
+    "provider_alert_history",
+    "provider_alerts",
+    "provider_budgets",
+    "provider_categories",
+    "provider_credentials",
+    "provider_logs",
+    "provider_renewals",
+    "provider_subscriptions",
+    "provider_usage",
+    "provider_usage_snapshots",
+    "providers",
+    "purchase_items",
+    "purchase_order_items",
+    "purchase_orders",
+    "purchase_request_items",
+    "purchase_requests",
+    "purchase_suggestions",
+    "putaway_tasks",
+    "qr_codes",
+    "qr_scan_logs",
+    "quotation_items",
+    "refundable_asset_categories",
+    "refundable_asset_history",
+    "refundable_assets",
+    "refurbishments",
+    "revenue_follow_ups",
+    "rfq_items",
+    "rfqs",
+    "role_permissions",
+    "roster_schedules",
+    "salary_components",
+    "salary_increments",
+    "search_events",
+    "search_history",
+    "search_rankings",
+    "search_sessions",
+    "seller_profiles",
+    "shifts",
+    "sister_companies",
+    "sister_company_compliance_history",
+    "sister_company_compliances",
+    "site_operations_document_attachments",
+    "site_operations_document_items",
+    "site_operations_documents",
+    "stock_audit_items",
+    "stock_audits",
+    "stock_movements",
+    "suggestion_votes",
+    "suggestions",
+    "system_activities",
+    "task_assignees",
+    "task_due_date_history",
+    "task_notes",
+    "task_stages",
+    "tasks",
+    "telemetry_events",
+    "telemetry_health_snapshots",
+    "telemetry_incidents",
+    "transporters",
+    "trusted_devices",
+    "user_notification_preferences",
+    "user_sessions",
+    "vehicles",
+    "vendor_category_tags",
+    "vendor_contacts",
+    "vendor_interactions",
+    "vendor_items",
+    "vendor_list_view",
+    "vendor_meetings",
+    "vendor_purchase_stats",
+    "vendor_quality",
+    "vendor_quotations",
+    "vendor_risk_profiles",
+    "vendor_zoho_sources",
+    "vendors",
+    "view_workflow_step_bottlenecks",
+    "warehouse_bins",
+    "warehouse_racks",
+    "warehouse_returns",
+    "warehouse_shelves",
+    "warehouses",
+    "whatsapp_configs",
+    "whatsapp_group_mappings",
+    "whatsapp_groups",
+    "whatsapp_message_read_receipts",
+    "whatsapp_messages",
+    "whatsapp_phone_mappings",
+    "workflow_stages",
+    "workflows",
+    "workspace_activity",
+    "workspace_events",
+    "workspace_page_states",
+    "workspace_sessions",
+    "zoho_sync_logs",
+    "zoho_sync_runs",
+    "zoho_unmatched_bills"
+  ],
+  "referenced_rpcs": [
+    "_run_notification_migration_once",
+    "acquire_job_lock",
+    "action_approval_step",
+    "append_unique_to_array",
+    "calculate_haversine_distance",
+    "check_approval_slas",
+    "claim_due_task_reminders",
+    "convert_inventory_to_asset_rpc",
+    "exec_migration",
+    "exec_sql",
+    "execute_mdm_merge",
+    "get_direct_reports",
+    "get_employee_approval_chain",
+    "get_item_usage_stats",
+    "get_module_turnaround_metrics",
+    "get_org_tree",
+    "get_span_of_control",
+    "get_system_db_stats",
+    "get_table_columns",
+    "get_user_order_counts",
+    "initiate_approval_flow",
+    "pss_upsert_monthly_summary",
+    "recalculate_monthly_summary",
+    "release_job_lock",
+    "rollback_mdm_merge",
+    "run_monthly_depreciation_rpc",
+    "search_erp"
+  ],
+  "referenced_buckets": [
+    "attachments",
+    "efop-photos",
+    "efop-signatures",
+    "field-tracking",
+    "order-attachments"
+  ],
+  "file_matches": {
+    "scratch\\check_status_events.js": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scratch\\create_interactions.ts": {
+      "from": [
+        "gem_lead_interactions"
+      ],
+      "rpc": [
+        "exec_sql"
+      ],
+      "storage": []
+    },
+    "scratch\\find_asif_june_orders.js": {
+      "from": [
+        "employees",
+        "profiles",
+        "orders",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scratch\\get_entity_types.js": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scratch\\inspect_audit_logs.js": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scratch\\reset-reminders.ts": {
+      "from": [
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scratch\\test-reminders-query.ts": {
+      "from": [
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\backfill-pss.ts": {
+      "from": [
+        "profiles",
+        "performance_transactions",
+        "performance_monthly_summary",
+        "performance_user_summary",
+        "performance_quality_signals",
+        "employee_daily_attendance",
+        "clients",
+        "client_salespersons",
+        "activity_logs",
+        "client_interactions",
+        "gem_leads",
+        "orders",
+        "audit_logs",
+        "order_costing",
+        "order_status_events",
+        "tasks",
+        "task_assignees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\check-notifications-db.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\count-clients.ts": {
+      "from": [
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\inspect-db-tables.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\inspect-notifications-schema.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [
+        "get_table_columns"
+      ],
+      "storage": []
+    },
+    "scripts\\migrate_neos_db3.ts": {
+      "from": [
+        "groups",
+        "sister_companies",
+        "items",
+        "orders",
+        "order_items",
+        "order_costing",
+        "order_status_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "scripts\\run-sync-attachments.ts": {
+      "from": [
+        "employees",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\activities\\route.ts": {
+      "from": [
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ai-analytics\\route.ts": {
+      "from": [
+        "profiles",
+        "ai_interaction_logs",
+        "suggestions",
+        "ai_orchestration_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\apply-notification-migration\\route.ts": {
+      "from": [],
+      "rpc": [
+        "_run_notification_migration_once"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\automation-rules\\route.ts": {
+      "from": [
+        "profiles",
+        "automation_rules",
+        "clients",
+        "task_stages",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\collection-reminder-rules\\route.ts": {
+      "from": [
+        "profiles",
+        "collection_reminder_rules",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\configuration\\route.ts": {
+      "from": [
+        "profiles",
+        "master_data",
+        "workflows",
+        "workflow_stages",
+        "approval_rules",
+        "notification_templates",
+        "config_parameters",
+        "config_audit_logs",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\compliance\\route.ts": {
+      "from": [
+        "vendors",
+        "employees",
+        "clients",
+        "assets"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\corrections\\route.ts": {
+      "from": [
+        "dqce_issues",
+        "dqce_corrections",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\issues\\route.ts": {
+      "from": [
+        "dqce_issues",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\notify\\route.ts": {
+      "from": [
+        "dqce_issues",
+        "profiles",
+        "notifications",
+        "notification_templates"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\route.ts": {
+      "from": [
+        "dqce_scans",
+        "dqce_issues",
+        "dqce_scores",
+        "dqce_rules",
+        "dqce_settings",
+        "config_audit_logs",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\rules\\route.ts": {
+      "from": [
+        "dqce_rules",
+        "config_audit_logs",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\scan\\route.ts": {
+      "from": [
+        "employees",
+        "vendors",
+        "clients",
+        "assets",
+        "orders",
+        "purchase_requests",
+        "purchase_orders",
+        "purchase_items",
+        "purchase_request_items",
+        "item_stock",
+        "items",
+        "asset_assignments",
+        "dqce_scans"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\dqce\\scores\\route.ts": {
+      "from": [
+        "dqce_scans",
+        "dqce_scores",
+        "dqce_issue_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eaac\\delegations\\route.ts": {
+      "from": [
+        "eaac_delegations",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eaac\\grants\\route.ts": {
+      "from": [
+        "eaac_temporary_grants",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eaac\\my-permissions\\route.ts": {
+      "from": [
+        "profiles",
+        "eaac_user_configs",
+        "role_permissions",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eaac\\route.ts": {
+      "from": [
+        "profiles",
+        "eaac_user_configs",
+        "eaac_delegations",
+        "eaac_temporary_grants",
+        "eaac_audit_logs",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eaac\\simulator\\route.ts": {
+      "from": [
+        "profiles",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eapc\\audit\\route.ts": {
+      "from": [
+        "profiles",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eapc\\explorer\\route.ts": {
+      "from": [
+        "role_permissions",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eapc\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "eaac_user_configs",
+        "role_permissions",
+        "sister_companies",
+        "department_permissions",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eapc\\simulator\\route.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eiap\\keys\\route.ts": {
+      "from": [
+        "eiap_api_keys"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eiap\\route.ts": {
+      "from": [
+        "eiap_integrations",
+        "eiap_webhooks_incoming",
+        "eiap_webhooks_outgoing",
+        "eiap_webhook_jobs",
+        "eiap_api_keys",
+        "eiap_api_logs",
+        "eiap_sync_jobs",
+        "eiap_sync_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eiap\\sync\\route.ts": {
+      "from": [
+        "eiap_sync_jobs",
+        "eiap_sync_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eiap\\webhooks\\route.ts": {
+      "from": [
+        "eiap_webhooks_incoming",
+        "eiap_webhooks_outgoing"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ekdp\\insights\\route.ts": {
+      "from": [
+        "dispatch_manifests",
+        "purchase_orders",
+        "warehouse_returns",
+        "orders",
+        "procurement_knowledge_base"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ekdp\\rating\\route.ts": {
+      "from": [
+        "ekdp_ratings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ekdp\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "ekdp_articles"
+      ],
+      "rpc": [
+        "initiate_approval_flow"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ekdp\\support\\route.ts": {
+      "from": [
+        "ekdp_articles",
+        "dispatch_manifests",
+        "purchase_orders",
+        "orders",
+        "procurement_knowledge_base"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\ekr\\route.ts": {
+      "from": [
+        "ekr_pages",
+        "ekr_actions",
+        "ekr_fields",
+        "ekr_workflows"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eophc\\incidents\\route.ts": {
+      "from": [
+        "eophc_incidents",
+        "eophc_incident_timeline"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\eophc\\route.ts": {
+      "from": [
+        "error_logs",
+        "eiap_api_logs",
+        "eiap_webhook_jobs",
+        "eiap_sync_jobs",
+        "eiap_sync_runs",
+        "automation_workflow_queue",
+        "automation_workflow_logs",
+        "eiap_integrations",
+        "eophc_incidents",
+        "dqce_settings",
+        "dqce_scans",
+        "dqce_rules",
+        "notifications",
+        "dqce_scores"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\analytics\\route.ts": {
+      "from": [
+        "master_data",
+        "sister_companies",
+        "locations",
+        "categories",
+        "mdm_rules",
+        "mdm_pending_changes",
+        "config_audit_logs",
+        "employees",
+        "clients",
+        "vendors",
+        "orders",
+        "purchase_requests",
+        "purchase_orders",
+        "assets",
+        "items",
+        "item_stock",
+        "employee_location_mappings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\pending\\route.ts": {
+      "from": [
+        "mdm_merge_history",
+        "mdm_pending_changes"
+      ],
+      "rpc": [
+        "rollback_mdm_merge"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "mdm_stewards",
+        "mdm_rules",
+        "master_data",
+        "locations",
+        "categories",
+        "sister_companies",
+        "dqce_issues",
+        "dqce_settings",
+        "mdm_pending_changes",
+        "config_audit_logs"
+      ],
+      "rpc": [
+        "initiate_approval_flow",
+        "execute_mdm_merge"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\rules\\route.ts": {
+      "from": [
+        "mdm_rules",
+        "config_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\stewards\\route.ts": {
+      "from": [
+        "mdm_stewards",
+        "mdm_pending_changes",
+        "approval_requests",
+        "sister_companies",
+        "locations",
+        "categories",
+        "master_data",
+        "config_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\usage\\route.ts": {
+      "from": [
+        "employees",
+        "locations",
+        "orders",
+        "purchase_requests",
+        "purchase_orders",
+        "assets",
+        "item_stock",
+        "employee_location_mappings",
+        "items",
+        "categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\mdm\\versions\\route.ts": {
+      "from": [
+        "config_audit_logs",
+        "mdm_merge_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\migrate-lead-interactions\\route.ts": {
+      "from": [
+        "gem_lead_interactions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\notification-diagnostics\\route.ts": {
+      "from": [
+        "profiles",
+        "notifications",
+        "notification_push_log"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\notification-health\\route.ts": {
+      "from": [
+        "profiles",
+        "notifications",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\notification-health\\trigger-test\\route.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\number-series\\next\\route.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\run-migration\\route.ts": {
+      "from": [],
+      "rpc": [
+        "exec_migration"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\sessions\\route.ts": {
+      "from": [
+        "profiles",
+        "user_sessions",
+        "audit_logs",
+        "trusted_devices"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\task-labels\\route.ts": {
+      "from": [
+        "profiles",
+        "task_stages",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\users\\bulk\\route.ts": {
+      "from": [
+        "profiles",
+        "sister_companies",
+        "employees",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\users\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "sister_companies",
+        "locations",
+        "audit_logs",
+        "employee_location_mappings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\workflows\\logs\\route.ts": {
+      "from": [
+        "profiles",
+        "automation_workflow_logs",
+        "automation_workflows",
+        "tasks",
+        "orders",
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\workflows\\route.ts": {
+      "from": [
+        "profiles",
+        "automation_workflows",
+        "clients",
+        "task_stages",
+        "automation_templates",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\admin\\workflows\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "automation_workflows",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\feedback\\route.ts": {
+      "from": [
+        "ai_interaction_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\help-chat\\route.ts": {
+      "from": [
+        "suggestions",
+        "profiles",
+        "sister_companies",
+        "ai_interaction_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\orchestration-log\\route.ts": {
+      "from": [
+        "ai_orchestration_logs",
+        "profiles",
+        "sister_companies",
+        "suggestions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\parse-contract-pdf\\route.ts": {
+      "from": [
+        "clients",
+        "sister_companies",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\research-vendor\\route.ts": {
+      "from": [
+        "vendors",
+        "vendor_category_tags",
+        "vendor_items",
+        "vendor_zoho_sources",
+        "categories",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\suggest-items\\route.ts": {
+      "from": [
+        "clients",
+        "categories",
+        "items",
+        "orders",
+        "order_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\ai\\suggest-sourcing\\route.ts": {
+      "from": [
+        "vendor_list_view",
+        "vendor_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\approvals\\delegations\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "approval_delegations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\approvals\\reports\\route.ts": {
+      "from": [
+        "approval_requests",
+        "approval_request_steps"
+      ],
+      "rpc": [
+        "get_module_turnaround_metrics"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\approvals\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "approval_request_steps",
+        "approval_requests"
+      ],
+      "rpc": [
+        "check_approval_slas",
+        "initiate_approval_flow"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\approvals\\whatsapp-action\\route.ts": {
+      "from": [
+        "approval_request_steps",
+        "profiles",
+        "employees"
+      ],
+      "rpc": [
+        "action_approval_step"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\approvals\\[id]\\route.ts": {
+      "from": [
+        "approval_requests",
+        "approval_request_steps",
+        "approval_audit_logs"
+      ],
+      "rpc": [
+        "action_approval_step"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\convert\\route.ts": {
+      "from": [
+        "assets"
+      ],
+      "rpc": [
+        "convert_inventory_to_asset_rpc"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\depreciation\\route.ts": {
+      "from": [],
+      "rpc": [
+        "run_monthly_depreciation_rpc"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\employee\\[empId]\\route.ts": {
+      "from": [
+        "asset_assignments",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\route.ts": {
+      "from": [
+        "assets",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\acknowledge\\route.ts": {
+      "from": [
+        "asset_issuances",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\assign\\route.ts": {
+      "from": [
+        "profiles",
+        "assets",
+        "employees",
+        "asset_assignments",
+        "asset_transfers",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\audit\\route.ts": {
+      "from": [
+        "asset_audits",
+        "assets",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\history\\route.ts": {
+      "from": [
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\issue\\route.ts": {
+      "from": [
+        "assets",
+        "employees",
+        "asset_issuances",
+        "asset_history",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\repair\\route.ts": {
+      "from": [
+        "asset_repairs",
+        "assets",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\return\\route.ts": {
+      "from": [
+        "assets",
+        "asset_issuances",
+        "asset_returns",
+        "asset_history",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\route.ts": {
+      "from": [
+        "assets",
+        "asset_history",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\assets\\[id]\\transfer\\route.ts": {
+      "from": [
+        "assets",
+        "asset_transfers",
+        "asset_history",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\auth\\change-password\\route.ts": {
+      "from": [
+        "user_sessions",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\auth\\register-session\\route.ts": {
+      "from": [
+        "trusted_devices",
+        "user_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\auth\\session-check\\route.ts": {
+      "from": [
+        "user_sessions",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\auto-tasks\\reminders\\route.ts": {
+      "from": [
+        "profiles",
+        "task_assignees",
+        "notifications",
+        "notification_push_log"
+      ],
+      "rpc": [
+        "claim_due_task_reminders"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\auto-tasks\\sync\\route.ts": {
+      "from": [
+        "tasks",
+        "audit_logs",
+        "profiles",
+        "employees",
+        "task_assignees",
+        "notifications",
+        "orders",
+        "clients",
+        "collection_reminder_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\escalations\\process\\route.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\logs\\route.ts": {
+      "from": [
+        "profiles",
+        "brap_execution_log"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\rules\\route.ts": {
+      "from": [
+        "profiles",
+        "brap_rules",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\rules\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "brap_rules",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\rules\\[id]\\simulate\\route.ts": {
+      "from": [
+        "profiles",
+        "brap_rules",
+        "brap_rule_simulations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\brap\\templates\\route.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\merge\\route.ts": {
+      "from": [
+        "orders",
+        "tasks",
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\suggestions\\ignore\\route.ts": {
+      "from": [
+        "ignored_client_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\suggestions\\merge\\route.ts": {
+      "from": [
+        "clients",
+        "ignored_client_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\[id]\\interactions\\route.ts": {
+      "from": [
+        "client_interactions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\[id]\\restore\\route.ts": {
+      "from": [
+        "profiles",
+        "clients",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\clients\\[id]\\route.ts": {
+      "from": [
+        "clients",
+        "client_salespersons",
+        "attachments",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\digital-twin\\relations\\route.ts": {
+      "from": [
+        "document_links",
+        "employees",
+        "tasks",
+        "companies",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\documents\\route.ts": {
+      "from": [
+        "documents",
+        "profiles",
+        "document_links",
+        "employees",
+        "sister_companies",
+        "attachments",
+        "document_versions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\documents\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "documents",
+        "attachments",
+        "employees",
+        "sister_companies",
+        "document_versions",
+        "document_links",
+        "clients",
+        "vendors",
+        "assets",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\documents\\[id]\\version\\route.ts": {
+      "from": [
+        "profiles",
+        "documents",
+        "document_versions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\efop\\activity\\route.ts": {
+      "from": [
+        "efop_workflow_configs",
+        "warehouses",
+        "clients",
+        "vendors",
+        "sister_companies",
+        "efop_activity_logs"
+      ],
+      "rpc": [
+        "calculate_haversine_distance"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\efop\\config\\route.ts": {
+      "from": [
+        "efop_workflow_configs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\eip\\resolve\\route.ts": {
+      "from": [
+        "enterprise_identifiers",
+        "qr_scan_logs",
+        "assets",
+        "items",
+        "item_stock",
+        "employees",
+        "warehouses",
+        "dispatch_manifests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\eip\\scan-log\\route.ts": {
+      "from": [
+        "qr_scan_logs",
+        "enterprise_identifiers"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\eip\\sync-queue\\route.ts": {
+      "from": [
+        "offline_scan_queue",
+        "enterprise_identifiers",
+        "qr_scan_logs",
+        "assets",
+        "asset_history",
+        "item_stock"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\field-configs\\route.ts": {
+      "from": [
+        "profiles",
+        "config_parameters",
+        "config_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "attachments",
+        "employee_salaries",
+        "config_parameters",
+        "locations",
+        "employee_location_mappings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\salaries\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "employee_salaries"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\salaries\\[employee_id]\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_salaries"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\sync-attachments\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\employees\\[id]\\route.ts": {
+      "from": [
+        "employees",
+        "attachments",
+        "config_parameters",
+        "employee_salaries",
+        "profiles",
+        "employee_location_mappings",
+        "locations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\errors\\analyze\\route.ts": {
+      "from": [
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\errors\\capture\\route.ts": {
+      "from": [
+        "profiles",
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\executive\\analytics\\route.ts": {
+      "from": [
+        "profiles",
+        "orders",
+        "leave_requests",
+        "items",
+        "assets",
+        "tasks",
+        "audit_logs",
+        "view_workflow_step_bottlenecks",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\approvals\\route.ts": {
+      "from": [
+        "profiles",
+        "attendance_sessions",
+        "activity_logs",
+        "clients",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\dashboard-stats\\route.ts": {
+      "from": [
+        "profiles",
+        "attendance_sessions",
+        "activity_logs",
+        "field_tracking_location_reviews"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\employee-home\\route.ts": {
+      "from": [
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\location-reviews\\route.ts": {
+      "from": [
+        "profiles",
+        "field_tracking_location_reviews",
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\validate-activity\\route.ts": {
+      "from": [
+        "clients",
+        "field_tracking_location_reviews"
+      ],
+      "rpc": [
+        "calculate_haversine_distance"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\field-tracking\\validate-checkin\\route.ts": {
+      "from": [
+        "profiles",
+        "home_location_audit_logs",
+        "employees",
+        "employee_location_mappings"
+      ],
+      "rpc": [
+        "calculate_haversine_distance"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\fleet\\drivers\\route.ts": {
+      "from": [
+        "drivers"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\fleet\\runs\\route.ts": {
+      "from": [
+        "dispatch_runs",
+        "orders",
+        "dispatch_manifests",
+        "vehicles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\fleet\\vehicles\\route.ts": {
+      "from": [
+        "vehicles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\gem-leads\\import\\route.ts": {
+      "from": [
+        "gem_leads",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\gem-leads\\import-pdf\\route.ts": {
+      "from": [
+        "gem_leads",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\gem-leads\\parse-pdf\\route.ts": {
+      "from": [
+        "gem_leads"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\gem-leads\\[id]\\interactions\\route.ts": {
+      "from": [
+        "gem_lead_interactions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\approval-chain\\route.ts": {
+      "from": [],
+      "rpc": [
+        "get_employee_approval_chain"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\audit-logs\\route.ts": {
+      "from": [
+        "hierarchy_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\direct-reports\\route.ts": {
+      "from": [],
+      "rpc": [
+        "get_direct_reports"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\org-chart\\route.ts": {
+      "from": [],
+      "rpc": [
+        "get_org_tree"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\route.ts": {
+      "from": [
+        "designation_levels",
+        "locations",
+        "employee_reporting_lines",
+        "department_hierarchy_roles",
+        "company_hierarchy_roles",
+        "employees",
+        "hierarchy_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\hierarchy\\span-of-control\\route.ts": {
+      "from": [],
+      "rpc": [
+        "get_span_of_control"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\assemble\\route.ts": {
+      "from": [
+        "assemblies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\boms\\route.ts": {
+      "from": [
+        "bill_of_materials",
+        "bom_items",
+        "items",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\boms\\[id]\\route.ts": {
+      "from": [
+        "bill_of_materials",
+        "bom_items",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\disassemble\\route.ts": {
+      "from": [
+        "disassemblies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\refurbish\\route.ts": {
+      "from": [
+        "refurbishments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\reports\\route.ts": {
+      "from": [
+        "assembly_components",
+        "bill_of_materials",
+        "assemblies",
+        "item_stock",
+        "refurbishments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\stock\\route.ts": {
+      "from": [
+        "sister_companies",
+        "items",
+        "item_stock",
+        "stock_movements",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\sync\\route.ts": {
+      "from": [
+        "sister_companies",
+        "zoho_sync_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\inventory\\warehouses\\route.ts": {
+      "from": [
+        "warehouses"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\invoices\\route.ts": {
+      "from": [
+        "invoices",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\invoices\\[id]\\route.ts": {
+      "from": [
+        "invoices",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\items\\merge\\route.ts": {
+      "from": [
+        "items",
+        "order_items",
+        "vendor_items",
+        "vendor_interactions",
+        "ignored_item_merges",
+        "item_stock"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\items\\suggestions\\ignore\\route.ts": {
+      "from": [
+        "ignored_item_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\items\\suggestions\\merge\\route.ts": {
+      "from": [
+        "items",
+        "ignored_item_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\maps\\geocode\\route.ts": {
+      "from": [
+        "geocoding_cache",
+        "config_parameters"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\maps\\settings\\route.ts": {
+      "from": [
+        "config_parameters"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\maps\\usage-stats\\route.ts": {
+      "from": [
+        "geocoding_cache"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\notifications\\analytics\\route.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\notifications\\log-navigation-failure\\route.ts": {
+      "from": [
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\notifications\\preferences\\route.ts": {
+      "from": [
+        "user_notification_preferences"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\notifications\\route.ts": {
+      "from": [
+        "audit_logs",
+        "notifications",
+        "tasks",
+        "task_assignees",
+        "profiles",
+        "asset_assignments",
+        "assets"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\notifications\\[id]\\ai-explain\\route.ts": {
+      "from": [
+        "notifications",
+        "tasks",
+        "orders",
+        "approval_requests",
+        "clients",
+        "assets"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\operations\\control-tower\\route.ts": {
+      "from": [
+        "orders_with_status_toggles",
+        "procurement_handover_requests",
+        "procurement_handover_items",
+        "item_stock",
+        "items",
+        "picking_lists",
+        "packages",
+        "vehicles",
+        "dispatch_runs",
+        "dispatch_manifests",
+        "efop_activity_logs",
+        "offline_scan_queue",
+        "profiles",
+        "dqce_issues",
+        "dqce_scans",
+        "dqce_scores",
+        "dqce_corrections"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\operations\\revenue-realization\\compile-package\\route.ts": {
+      "from": [
+        "orders",
+        "document_links",
+        "documents",
+        "document_versions",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\operations\\revenue-realization\\follow-ups\\route.ts": {
+      "from": [
+        "revenue_follow_ups",
+        "orders",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\operations\\revenue-realization\\stats\\route.ts": {
+      "from": [
+        "orders_with_status_toggles",
+        "invoices",
+        "revenue_follow_ups"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\orders\\[id]\\restore\\route.ts": {
+      "from": [
+        "profiles",
+        "orders",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payment-compliance\\doc-types\\route.ts": {
+      "from": [
+        "payment_doc_types",
+        "payment_compliance_rules",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payment-compliance\\route.ts": {
+      "from": [
+        "payment_compliance_records"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payment-compliance\\stats\\route.ts": {
+      "from": [
+        "payment_compliance_records",
+        "sister_companies",
+        "payment_doc_checklist"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payment-compliance\\sync\\route.ts": {
+      "from": [
+        "payment_compliance_rules",
+        "order_costing",
+        "payment_compliance_records",
+        "billing_consultancy_ledger",
+        "payment_doc_checklist"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payment-compliance\\[id]\\document\\route.ts": {
+      "from": [
+        "attachments",
+        "payment_doc_checklist",
+        "profiles",
+        "payment_compliance_activity"
+      ],
+      "rpc": [],
+      "storage": [
+        "attachments"
+      ]
+    },
+    "src\\app\\api\\payment-compliance\\[id]\\route.ts": {
+      "from": [
+        "payment_compliance_records",
+        "profiles",
+        "payment_doc_checklist",
+        "payment_compliance_activity"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\attendance\\biometric-sync\\route.ts": {
+      "from": [
+        "biometric_sync_logs",
+        "employees",
+        "profiles",
+        "employee_daily_attendance",
+        "attendance_sessions"
+      ],
+      "rpc": [
+        "recalculate_monthly_summary"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\attendance\\daily\\route.ts": {
+      "from": [
+        "profiles",
+        "attendance_sessions",
+        "employee_daily_attendance",
+        "employees",
+        "employee_attendance",
+        "company_holidays",
+        "employee_leave_adjustments",
+        "employee_payroll_runs"
+      ],
+      "rpc": [
+        "recalculate_monthly_summary"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\attendance\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_attendance"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\exits\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_exit_process"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\expense-claims\\route.ts": {
+      "from": [
+        "profiles",
+        "expense_claims"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\holidays\\generate\\route.ts": {
+      "from": [
+        "profiles",
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\holidays\\route.ts": {
+      "from": [
+        "profiles",
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\holidays\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\increments\\route.ts": {
+      "from": [
+        "profiles",
+        "salary_increments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\leave-adjustments\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_leave_adjustments",
+        "employee_salaries"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\leave-balance\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "employee_attendance",
+        "employee_leave_adjustments",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\leave-summary\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "employee_attendance",
+        "employee_leave_adjustments",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\leaves\\route.ts": {
+      "from": [
+        "profiles",
+        "leave_requests",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\leaves\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "leave_requests",
+        "employees",
+        "employee_daily_attendance"
+      ],
+      "rpc": [
+        "recalculate_monthly_summary"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\loans\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_loans"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\loans\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "employee_loans",
+        "loan_repayments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employees",
+        "employee_salaries",
+        "orders",
+        "employee_attendance",
+        "employee_leave_adjustments",
+        "employee_payroll_runs",
+        "employee_loans",
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\approve\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\pay\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employee_payroll_runs",
+        "employee_loans",
+        "loan_repayments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\reject\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\rerun\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employees",
+        "employee_salaries",
+        "orders",
+        "employee_attendance",
+        "employee_leave_adjustments",
+        "employee_payroll_runs",
+        "employee_loans",
+        "expense_claims",
+        "employee_exit_process",
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employee_payroll_runs",
+        "employee_salaries",
+        "employees",
+        "employee_leave_adjustments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\pay-runs\\[id]\\submit\\route.ts": {
+      "from": [
+        "profiles",
+        "pay_runs",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\payslip\\[employeeId]\\[month]\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "employee_payroll_runs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\rosters\\route.ts": {
+      "from": [
+        "profiles",
+        "roster_schedules",
+        "employee_daily_attendance",
+        "employees"
+      ],
+      "rpc": [
+        "recalculate_monthly_summary"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\salary-components\\route.ts": {
+      "from": [
+        "profiles",
+        "salary_components"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\shifts\\route.ts": {
+      "from": [
+        "profiles",
+        "shifts"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\payroll\\shifts\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "shifts"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\analytics\\route.ts": {
+      "from": [
+        "purchase_requests",
+        "rfqs",
+        "purchase_orders",
+        "procurement_handover_requests",
+        "item_stock",
+        "purchase_suggestions",
+        "vendor_purchase_stats"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\dispatch\\planner\\route.ts": {
+      "from": [
+        "purchase_order_items",
+        "order_items",
+        "items",
+        "inventory_transfer_items",
+        "item_stock",
+        "transporters",
+        "dispatch_manifests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\dispatch\\route.ts": {
+      "from": [
+        "dispatch_manifests",
+        "purchase_orders",
+        "orders",
+        "inventory_transfers",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\dispatch\\[id]\\route.ts": {
+      "from": [
+        "dispatch_manifests",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\grns\\route.ts": {
+      "from": [
+        "goods_receipt_notes",
+        "grn_items",
+        "purchase_orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\analytics\\route.ts": {
+      "from": [
+        "procurement_handover_requests",
+        "procurement_handover_messages",
+        "procurement_handover_revisions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\checklist-config\\route.ts": {
+      "from": [
+        "procurement_checklist_configs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\route.ts": {
+      "from": [
+        "profiles",
+        "procurement_handover_requests",
+        "orders",
+        "procurement_handover_items",
+        "procurement_handover_logs",
+        "role_permissions",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\rules\\route.ts": {
+      "from": [
+        "procurement_assignment_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\[id]\\chat\\route.ts": {
+      "from": [
+        "profiles",
+        "procurement_handover_messages",
+        "procurement_handover_requests",
+        "orders",
+        "procurement_handover_logs",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\handover\\[id]\\route.ts": {
+      "from": [
+        "profiles",
+        "procurement_handover_requests",
+        "procurement_handover_items",
+        "procurement_handover_logs",
+        "procurement_handover_revisions",
+        "procurement_handover_shortlists",
+        "document_links",
+        "documents",
+        "procurement_item_checklists",
+        "orders",
+        "notifications",
+        "procurement_knowledge_base"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\intelligence\\dashboard\\route.ts": {
+      "from": [
+        "dispatch_manifests",
+        "purchase_orders",
+        "market_surveys",
+        "vendor_risk_profiles",
+        "orders",
+        "inventory_transfers"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\intelligence\\decision-engine\\route.ts": {
+      "from": [
+        "purchase_requests",
+        "item_stock",
+        "orders",
+        "order_items",
+        "purchase_orders",
+        "purchase_order_items",
+        "market_surveys",
+        "vendor_items",
+        "vendor_quality",
+        "vendor_risk_profiles",
+        "dispatch_manifests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\intelligence\\fraud-check\\route.ts": {
+      "from": [
+        "purchase_orders",
+        "market_surveys",
+        "purchase_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\inventory-transfers\\route.ts": {
+      "from": [
+        "inventory_transfers",
+        "inventory_transfer_items",
+        "item_stock",
+        "stock_movements"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\market-surveys\\route.ts": {
+      "from": [
+        "market_surveys"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\oem\\route.ts": {
+      "from": [
+        "oem_components",
+        "oem_approved_suppliers",
+        "oem_alternative_components",
+        "bill_of_materials",
+        "bom_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\purchase-orders\\route.ts": {
+      "from": [
+        "purchase_orders",
+        "purchase_order_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\purchase-orders\\[id]\\route.ts": {
+      "from": [
+        "purchase_orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\purchase-requests\\route.ts": {
+      "from": [
+        "purchase_requests",
+        "purchase_request_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\purchase-requests\\[id]\\route.ts": {
+      "from": [
+        "purchase_requests",
+        "purchase_request_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\quotations\\route.ts": {
+      "from": [
+        "vendor_quotations",
+        "quotation_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\rfqs\\route.ts": {
+      "from": [
+        "rfqs",
+        "rfq_items",
+        "purchase_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\scm-automation\\route.ts": {
+      "from": [
+        "role_permissions",
+        "item_stock",
+        "profiles",
+        "notifications",
+        "employees",
+        "attachments",
+        "vendor_contacts",
+        "items",
+        "market_surveys",
+        "vendor_meetings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\transporters\\route.ts": {
+      "from": [
+        "transporters"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\vehicles\\route.ts": {
+      "from": [
+        "vehicles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\vendor-meetings\\route.ts": {
+      "from": [
+        "vendor_meetings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\procurement\\vendor-risk\\route.ts": {
+      "from": [
+        "vendor_risk_profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\admin\\categories\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_categories",
+        "performance_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\admin\\distribution\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_distribution_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\admin\\recalculate\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_transactions",
+        "performance_monthly_summary"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\admin\\rules\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_rules",
+        "performance_transactions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\admin\\seed\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_categories",
+        "performance_levels",
+        "performance_rules",
+        "performance_distribution_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\badges\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_badges",
+        "performance_user_badges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\leaderboard\\route.ts": {
+      "from": [
+        "performance_user_summary",
+        "performance_monthly_summary",
+        "performance_categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\my-score\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_user_summary",
+        "performance_monthly_summary",
+        "performance_transactions",
+        "orders",
+        "performance_user_badges",
+        "performance_quality_signals"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\pss\\transactions\\route.ts": {
+      "from": [
+        "profiles",
+        "performance_transactions",
+        "performance_categories",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\refundable-assets\\categories\\route.ts": {
+      "from": [
+        "refundable_asset_categories",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\refundable-assets\\reminders\\route.ts": {
+      "from": [
+        "refundable_assets",
+        "profiles",
+        "notifications",
+        "refundable_asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\refundable-assets\\route.ts": {
+      "from": [
+        "refundable_assets",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\refundable-assets\\[id]\\route.ts": {
+      "from": [
+        "refundable_assets",
+        "refundable_asset_history",
+        "attachments",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\search\\route.ts": {
+      "from": [],
+      "rpc": [
+        "search_erp"
+      ],
+      "storage": []
+    },
+    "src\\app\\api\\site-operations\\documents\\route.ts": {
+      "from": [
+        "site_operations_documents",
+        "site_operations_document_items",
+        "profiles",
+        "audit_logs",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\site-operations\\documents\\[id]\\attachments\\route.ts": {
+      "from": [
+        "site_operations_document_attachments"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\api\\site-operations\\documents\\[id]\\route.ts": {
+      "from": [
+        "site_operations_documents",
+        "profiles",
+        "audit_logs",
+        "site_operations_document_items",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\suggestions\\route.ts": {
+      "from": [
+        "profiles",
+        "suggestions",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\suggestions\\vote\\route.ts": {
+      "from": [
+        "suggestion_votes",
+        "product_suggestions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\attachments\\[id]\\route.ts": {
+      "from": [
+        "attachments",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\autocomplete-orders\\route.ts": {
+      "from": [
+        "profiles",
+        "role_permissions",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "task_assignees",
+        "tasks",
+        "attachments",
+        "task_due_date_history",
+        "clients",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\[id]\\attachments\\route.ts": {
+      "from": [
+        "attachments",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\[id]\\notes\\route.ts": {
+      "from": [
+        "task_notes",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\tasks\\[id]\\route.ts": {
+      "from": [
+        "tasks",
+        "profiles",
+        "role_permissions",
+        "employees",
+        "task_due_date_history",
+        "notifications",
+        "task_assignees",
+        "audit_logs",
+        "automation_workflows"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\telemetry\\analyze\\route.ts": {
+      "from": [
+        "telemetry_incidents",
+        "telemetry_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\telemetry\\event\\route.ts": {
+      "from": [
+        "profiles",
+        "telemetry_events",
+        "component_health_metrics",
+        "api_endpoint_metrics",
+        "telemetry_incidents"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\telemetry\\health\\route.ts": {
+      "from": [
+        "profiles",
+        "telemetry_health_snapshots",
+        "telemetry_events",
+        "db_health_metrics",
+        "order_costing"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\telemetry\\predict\\route.ts": {
+      "from": [
+        "profiles",
+        "api_endpoint_metrics",
+        "db_health_metrics",
+        "telemetry_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\user\\security\\route.ts": {
+      "from": [
+        "user_sessions",
+        "trusted_devices",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\v1\\integration\\webhooks\\cron\\route.ts": {
+      "from": [
+        "eiap_sync_jobs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\v1\\integration\\webhooks\\incoming\\[endpoint]\\route.ts": {
+      "from": [
+        "eiap_webhooks_incoming",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\v1\\integration\\[...slug]\\route.ts": {
+      "from": [
+        "orders",
+        "tasks",
+        "warehouses",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\merge\\route.ts": {
+      "from": [
+        "vendor_zoho_sources",
+        "order_costing",
+        "vendor_contacts",
+        "vendor_items",
+        "vendor_category_tags",
+        "vendor_interactions",
+        "tasks",
+        "vendor_purchase_stats",
+        "vendor_quality",
+        "vendors"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\performance\\route.ts": {
+      "from": [
+        "vendors",
+        "vendor_quality",
+        "vendor_risk_profiles",
+        "vendor_purchase_stats",
+        "vendor_category_tags",
+        "vendor_items",
+        "purchase_order_items",
+        "purchase_orders",
+        "vendor_meetings",
+        "dispatch_manifests",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\route.ts": {
+      "from": [
+        "vendor_list_view",
+        "vendors",
+        "vendor_contacts",
+        "vendor_category_tags",
+        "vendor_items",
+        "vendor_quality",
+        "vendor_purchase_stats",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\suggestions\\ignore\\route.ts": {
+      "from": [
+        "ignored_vendor_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\suggestions\\merge\\route.ts": {
+      "from": [
+        "vendor_list_view",
+        "ignored_vendor_merges"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\sync\\route.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "sister_companies",
+        "zoho_sync_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\[id]\\interactions\\route.ts": {
+      "from": [
+        "vendor_interactions",
+        "vendor_quality"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\[id]\\restore\\route.ts": {
+      "from": [
+        "profiles",
+        "vendors",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\vendors\\[id]\\route.ts": {
+      "from": [
+        "vendors",
+        "vendor_contacts",
+        "vendor_category_tags",
+        "vendor_items",
+        "vendor_purchase_stats",
+        "vendor_quality",
+        "vendor_interactions",
+        "vendor_zoho_sources",
+        "order_costing",
+        "attachments",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\ai-suggestions\\route.ts": {
+      "from": [
+        "bin_stock",
+        "warehouse_bins",
+        "qr_scan_logs",
+        "item_stock",
+        "picking_lists"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\cycle-count\\route.ts": {
+      "from": [
+        "cycle_count_tasks",
+        "bin_stock",
+        "cycle_count_items",
+        "warehouse_bins",
+        "items",
+        "item_stock",
+        "stock_movements"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\dispatch\\route.ts": {
+      "from": [
+        "dispatch_manifests",
+        "vehicles",
+        "orders",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\fulfillment\\package\\route.ts": {
+      "from": [
+        "orders",
+        "documents",
+        "document_links",
+        "document_versions",
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\fulfillment\\stats\\route.ts": {
+      "from": [
+        "orders",
+        "procurement_handover_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\goods-receiving\\route.ts": {
+      "from": [
+        "goods_receipt_notes",
+        "grn_items",
+        "putaway_tasks",
+        "warehouse_bins",
+        "bin_stock",
+        "purchase_orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\packing\\route.ts": {
+      "from": [
+        "orders",
+        "packages",
+        "package_items",
+        "dispatch_manifests",
+        "enterprise_identifiers"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\performance\\route.ts": {
+      "from": [
+        "putaway_tasks",
+        "picking_lists",
+        "packages",
+        "cycle_count_items",
+        "warehouse_bins",
+        "bin_stock"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\picking\\route.ts": {
+      "from": [
+        "picking_lists",
+        "orders",
+        "bin_stock",
+        "warehouse_bins",
+        "picking_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\putaway\\route.ts": {
+      "from": [
+        "putaway_tasks",
+        "warehouse_bins",
+        "bin_stock"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\returns\\route.ts": {
+      "from": [
+        "warehouse_returns",
+        "warehouse_bins",
+        "warehouse_shelves",
+        "warehouse_racks",
+        "bin_stock",
+        "item_stock",
+        "stock_movements",
+        "assets",
+        "asset_repairs",
+        "warehouses",
+        "refurbishments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\wes\\stock-audit\\route.ts": {
+      "from": [
+        "stock_audits",
+        "stock_audit_items",
+        "bin_stock",
+        "item_stock",
+        "stock_movements",
+        "warehouses"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\whatsapp\\chats\\route.ts": {
+      "from": [
+        "whatsapp_messages"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\whatsapp\\config\\route.ts": {
+      "from": [
+        "whatsapp_configs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\whatsapp\\groups\\route.ts": {
+      "from": [
+        "whatsapp_groups"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\whatsapp\\messages\\route.ts": {
+      "from": [
+        "whatsapp_configs",
+        "whatsapp_messages"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\whatsapp\\unidentified\\route.ts": {
+      "from": [
+        "whatsapp_messages",
+        "whatsapp_group_mappings",
+        "whatsapp_phone_mappings",
+        "clients",
+        "vendors",
+        "vendor_contacts",
+        "profiles",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\invoices-unmapped\\details\\route.ts": {
+      "from": [
+        "clients",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\invoices-unmapped\\ignore\\route.ts": {
+      "from": [
+        "ignored_zoho_invoices"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\invoices-unmapped\\route.ts": {
+      "from": [
+        "sister_companies",
+        "orders",
+        "ignored_zoho_invoices"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\unmatched\\route.ts": {
+      "from": [
+        "zoho_unmatched_bills"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\unmatched\\[id]\\ignore\\route.ts": {
+      "from": [
+        "zoho_unmatched_bills"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\unmatched\\[id]\\map\\route.ts": {
+      "from": [
+        "zoho_unmatched_bills"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\unmatched\\[id]\\resync\\route.ts": {
+      "from": [
+        "zoho_unmatched_bills"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\verify\\route.ts": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\api\\zoho\\webhook\\route.ts": {
+      "from": [
+        "orders",
+        "invoices"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\business-intelligence\\dashboard\\page.tsx": {
+      "from": [
+        "search_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\activities\\page.tsx": {
+      "from": [
+        "profiles",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\attendance-rules\\page.tsx": {
+      "from": [
+        "company_holidays"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\audit-logs\\page.tsx": {
+      "from": [
+        "profiles",
+        "audit_logs",
+        "order_costing",
+        "order_items",
+        "order_status_events",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\ekdp\\page.tsx": {
+      "from": [
+        "approval_request_steps",
+        "approval_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\error-center\\page.tsx": {
+      "from": [
+        "profiles",
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\payments\\page.tsx": {
+      "from": [
+        "profiles",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\productivity\\page.tsx": {
+      "from": [
+        "profiles",
+        "orders",
+        "tasks",
+        "task_assignees",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\reports\\page.tsx": {
+      "from": [
+        "profiles",
+        "tasks",
+        "orders_with_status_toggles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\restore\\page.tsx": {
+      "from": [
+        "clients",
+        "vendors",
+        "orders",
+        "audit_logs",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\suggestions\\page.tsx": {
+      "from": [
+        "profiles",
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\ui-health\\page.tsx": {
+      "from": [
+        "telemetry_incidents",
+        "api_endpoint_metrics",
+        "component_health_metrics",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\admin\\users\\page.tsx": {
+      "from": [
+        "profiles",
+        "role_permissions",
+        "audit_logs",
+        "employees"
+      ],
+      "rpc": [
+        "get_user_order_counts"
+      ],
+      "storage": []
+    },
+    "src\\app\\dashboard\\assets\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "employees",
+        "vendors",
+        "warehouses",
+        "config_parameters",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\assets\\reports\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "assets",
+        "asset_issuances",
+        "asset_transfers",
+        "asset_repairs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\assets\\[id]\\page.tsx": {
+      "from": [
+        "config_parameters",
+        "employees",
+        "vendors",
+        "sister_companies",
+        "asset_issuances",
+        "asset_repairs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\categories\\page.tsx": {
+      "from": [
+        "categories",
+        "items",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\crm\\gem-leads\\page.tsx": {
+      "from": [
+        "gem_leads"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\crm\\stage-tracking\\page.tsx": {
+      "from": [
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\documents\\dms\\page.tsx": {
+      "from": [
+        "employees",
+        "sister_companies",
+        "clients",
+        "vendors",
+        "documents",
+        "assets",
+        "orders",
+        "approval_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\documents\\library\\page.tsx": {
+      "from": [
+        "document_versions",
+        "library_documents"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\field-tracking\\page.tsx": {
+      "from": [
+        "profiles",
+        "attendance_sessions",
+        "audit_logs",
+        "tasks",
+        "activity_logs",
+        "clients",
+        "categories",
+        "sister_companies",
+        "task_assignees",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": [
+        "field-tracking"
+      ]
+    },
+    "src\\app\\dashboard\\gem\\page.tsx": {
+      "from": [
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\page.tsx": {
+      "from": [
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\attendance\\page.tsx": {
+      "from": [
+        "employees",
+        "employee_attendance"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\exits\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\expense-claims\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\holidays\\page.tsx": {
+      "from": [
+        "locations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\hr-directory\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "employee_update_requests",
+        "employees",
+        "profiles",
+        "employee_location_mappings",
+        "locations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\increments\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "employees",
+        "employee_salaries"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\page.tsx": {
+      "from": [
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\pay-runs\\[id]\\page.tsx": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\payroll\\shifts\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "locations",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\hr\\salary\\page.tsx": {
+      "from": [
+        "profiles",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\inventory\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "items",
+        "clients",
+        "employees",
+        "warehouses",
+        "item_stock"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\items\\page.tsx": {
+      "from": [
+        "order_items",
+        "items"
+      ],
+      "rpc": [
+        "get_item_usage_stats"
+      ],
+      "storage": []
+    },
+    "src\\app\\dashboard\\leaves\\page.tsx": {
+      "from": [
+        "employee_attendance",
+        "employee_leave_adjustments",
+        "employee_payroll_runs",
+        "employees",
+        "master_data",
+        "leave_requests",
+        "performance_transactions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\notifications\\page.tsx": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\operations\\delivery\\page.tsx": {
+      "from": [
+        "dispatch_manifests",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\operations\\delivery\\run\\page.tsx": {
+      "from": [
+        "dispatch_manifests",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\operations\\eip-reports\\page.tsx": {
+      "from": [
+        "qr_scan_logs",
+        "enterprise_identifiers",
+        "assets"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\operations\\fleet\\page.tsx": {
+      "from": [
+        "vehicles",
+        "drivers",
+        "transporters",
+        "dispatch_manifests",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\operations\\fulfillment\\page.tsx": {
+      "from": [
+        "orders",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\operations\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "warehouses",
+        "purchase_requests",
+        "rfqs",
+        "purchase_orders",
+        "purchase_suggestions",
+        "vendor_risk_profiles",
+        "dispatch_manifests",
+        "vehicles",
+        "orders",
+        "inventory_transfers",
+        "profiles",
+        "approval_request_steps",
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\operations\\wes\\page.tsx": {
+      "from": [
+        "warehouses",
+        "vehicles",
+        "transporters",
+        "purchase_orders",
+        "orders",
+        "dispatch_manifests",
+        "cycle_count_tasks",
+        "asset_audit_tasks",
+        "asset_audit_items",
+        "asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\orders\\bulk\\page.tsx": {
+      "from": [
+        "orders",
+        "order_status_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\orders\\create\\page.tsx": {
+      "from": [
+        "clients",
+        "sister_companies",
+        "categories",
+        "profiles",
+        "items",
+        "orders",
+        "audit_logs",
+        "order_status_events",
+        "order_items",
+        "attachments",
+        "groups"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\orders\\[id]\\page.tsx": {
+      "from": [
+        "orders",
+        "procurement_handover_requests",
+        "items",
+        "item_stock",
+        "bill_of_materials",
+        "audit_logs",
+        "profiles",
+        "attachments",
+        "order_status_events",
+        "groups",
+        "categories",
+        "clients",
+        "sister_companies",
+        "order_costing",
+        "order_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\orders\\_components\\CreateDocumentDialog.tsx": {
+      "from": [
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\orders\\_components\\OrderAttachmentsCard.tsx": {
+      "from": [
+        "attachments",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\orders\\_components\\OrderDetailsDrawer.tsx": {
+      "from": [
+        "orders_with_status_toggles",
+        "attachments",
+        "order_status_events",
+        "orders",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\orders\\_components\\SendToProcurementDialog.tsx": {
+      "from": [
+        "vendors"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\app\\dashboard\\orders\\_hooks\\useOrdersData.ts": {
+      "from": [
+        "profiles",
+        "sister_companies",
+        "categories",
+        "groups",
+        "clients",
+        "order_items",
+        "order_costing",
+        "orders_with_status_toggles",
+        "order_status_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\page.tsx": {
+      "from": [
+        "leave_requests",
+        "purchase_requests",
+        "rfqs",
+        "vendor_quotations",
+        "items",
+        "inventory",
+        "orders",
+        "order_status_events",
+        "profiles",
+        "clients",
+        "employees",
+        "order_costing"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\payment-compliance\\layout.tsx": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\performance\\history\\page.tsx": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\performance\\page.tsx": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\performance\\score\\page.tsx": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\grn\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "warehouses",
+        "purchase_orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\handover\\page.tsx": {
+      "from": [
+        "vendors",
+        "profiles",
+        "items",
+        "item_stock",
+        "purchase_order_items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\intelligence\\page.tsx": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\logistics\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "warehouses",
+        "items",
+        "purchase_orders",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\oem\\page.tsx": {
+      "from": [
+        "items",
+        "vendors"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\orders\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "vendors",
+        "items",
+        "approval_request_steps"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "purchase_suggestions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\requests\\page.tsx": {
+      "from": [
+        "purchase_request_items",
+        "purchase_items",
+        "sister_companies",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\rfqs\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "vendors",
+        "items",
+        "purchase_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\procurement\\sourcing\\page.tsx": {
+      "from": [
+        "items",
+        "profiles",
+        "vendors"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\profile\\page.tsx": {
+      "from": [
+        "profiles",
+        "sister_companies",
+        "employees",
+        "audit_logs",
+        "employee_update_requests",
+        "employee_payroll_runs",
+        "employee_loans",
+        "loan_repayments",
+        "asset_issuances",
+        "orders",
+        "employee_location_mappings",
+        "locations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\refundable-assets\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "refundable_asset_categories",
+        "clients",
+        "vendors",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\refundable-assets\\[id]\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "refundable_asset_categories",
+        "attachments",
+        "refundable_asset_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\resource-costs\\alerts\\page.tsx": {
+      "from": [
+        "provider_alert_history",
+        "provider_alerts"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\resource-costs\\layout.tsx": {
+      "from": [
+        "sister_companies",
+        "provider_categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\dashboard\\sister-companies\\page.tsx": {
+      "from": [
+        "sister_companies",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\app\\verify\\doc\\[id]\\page.tsx": {
+      "from": [
+        "site_operations_documents",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\admin\\configuration\\DynamicFormRenderer.tsx": {
+      "from": [
+        "config_parameters",
+        "sister_companies",
+        "profiles",
+        "employees",
+        "master_data",
+        "vendors",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\admin\\configuration\\LocationRulesTab.tsx": {
+      "from": [
+        "employees",
+        "profiles",
+        "employee_location_mappings",
+        "attendance_sessions",
+        "home_location_audit_logs",
+        "audit_logs",
+        "locations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\admin\\PermissionMatrix.tsx": {
+      "from": [
+        "role_permissions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\admin\\RoleManager.tsx": {
+      "from": [
+        "role_permissions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\AppUpdateModal.tsx": {
+      "from": [
+        "config_parameters"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\billing-consultancy-card.tsx": {
+      "from": [
+        "orders",
+        "clients",
+        "billing_consultancy_ledger",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\business-intelligence\\gem\\SessionNotes.tsx": {
+      "from": [
+        "workspace_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\business-intelligence\\gem\\SimulatorConsole.tsx": {
+      "from": [
+        "workspace_sessions",
+        "workspace_page_states",
+        "workspace_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\business-intelligence\\search\\SearchHistoryTimeline.tsx": {
+      "from": [
+        "search_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\category-dialog.tsx": {
+      "from": [
+        "categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\client-detail-modal.tsx": {
+      "from": [
+        "task_stages",
+        "items",
+        "sister_companies",
+        "orders",
+        "billing_consultancy_ledger",
+        "audit_logs",
+        "profiles",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\client-dialog.tsx": {
+      "from": [
+        "profiles",
+        "client_salespersons",
+        "clients",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\client-merge-dialog.tsx": {
+      "from": [
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\dashboard\\FieldTrackingWidget.tsx": {
+      "from": [
+        "attendance_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\dashboard\\TaskAgingWidget.tsx": {
+      "from": [
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\efop\\EFOPActivityModal.tsx": {
+      "from": [
+        "efop_workflow_configs"
+      ],
+      "rpc": [],
+      "storage": [
+        "efop-photos",
+        "efop-signatures"
+      ]
+    },
+    "src\\components\\eip\\LabelPrinter.tsx": {
+      "from": [
+        "assets",
+        "items",
+        "employees",
+        "warehouses"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\eip\\SmartActionCard.tsx": {
+      "from": [
+        "employees",
+        "warehouses",
+        "assets",
+        "asset_history",
+        "item_stock",
+        "dispatch_manifests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\employees\\EmployeeDetailsDialog.tsx": {
+      "from": [
+        "attachments",
+        "employees",
+        "config_parameters",
+        "sister_companies",
+        "asset_issuances",
+        "document_links"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\employees\\EmployeeProfile.tsx": {
+      "from": [
+        "config_parameters",
+        "document_links",
+        "attachments",
+        "asset_issuances"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\gem-lead-dialog.tsx": {
+      "from": [
+        "profiles",
+        "gem_leads",
+        "clients",
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\gem-leads-import-dialog.tsx": {
+      "from": [
+        "gem_leads",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\item-dialog.tsx": {
+      "from": [
+        "categories",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\items\\AISuggestItemsModal.tsx": {
+      "from": [
+        "clients",
+        "categories",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\layout\\UniversalQuickActions.tsx": {
+      "from": [
+        "orders",
+        "profiles",
+        "purchase_requests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\layout\\UniversalSearchBar.tsx": {
+      "from": [
+        "sister_companies",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\order-costing-card.tsx": {
+      "from": [
+        "order_costing",
+        "orders",
+        "audit_logs",
+        "billing_consultancy_ledger",
+        "profiles",
+        "procurement_cost_adjustments",
+        "vendors"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\components\\payroll\\AddAttendanceDialog.tsx": {
+      "from": [
+        "employee_attendance"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\payroll\\PayslipModal.tsx": {
+      "from": [
+        "employee_loans",
+        "employee_payroll_runs",
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\profile\\MyAttendanceCalendar.tsx": {
+      "from": [
+        "employee_daily_attendance",
+        "attendance_sessions",
+        "employees",
+        "employee_location_mappings",
+        "company_holidays",
+        "employee_attendance"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\providers\\AuthProvider.tsx": {
+      "from": [
+        "role_permissions",
+        "profiles",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\sister-company-dialog.tsx": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\SisterCompanyDetailModal.tsx": {
+      "from": [
+        "sister_companies",
+        "sister_company_compliances",
+        "profiles",
+        "attachments",
+        "document_links",
+        "sister_company_compliance_history",
+        "documents"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\components\\status-timeline-card.tsx": {
+      "from": [
+        "order_status_events",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\status-update-dialog.tsx": {
+      "from": [
+        "order_status_events",
+        "attachments",
+        "orders",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\components\\tasks\\TaskDetailsDrawer.tsx": {
+      "from": [
+        "task_due_date_history",
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\tasks\\TaskDueDateHistoryDialog.tsx": {
+      "from": [
+        "task_due_date_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\tasks\\TaskDueDateReportsDialog.tsx": {
+      "from": [
+        "task_due_date_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\tasks\\TasksPageClient.tsx": {
+      "from": [
+        "tasks"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\ui\\enterprise-delete-mode.tsx": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\ui\\enterprise-edit-mode.tsx": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\ui\\enterprise-field-renderer.tsx": {
+      "from": [
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\ui\\enterprise-reveal-toggle.tsx": {
+      "from": [
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\user-activity-tracker.tsx": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\UserPerformanceReport.tsx": {
+      "from": [
+        "orders",
+        "activity_logs",
+        "tasks",
+        "task_assignees",
+        "employee_daily_attendance",
+        "audit_logs",
+        "order_status_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\components\\vendors\\AIContactModal.tsx": {
+      "from": [
+        "attachments"
+      ],
+      "rpc": [],
+      "storage": [
+        "order-attachments"
+      ]
+    },
+    "src\\components\\vendors\\VendorDetailModal.tsx": {
+      "from": [
+        "categories",
+        "items",
+        "clients",
+        "orders"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\hooks\\useClientsData.ts": {
+      "from": [
+        "clients",
+        "activity_logs",
+        "tasks",
+        "attachments",
+        "client_interactions",
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\activity-logger.ts": {
+      "from": [
+        "system_activities"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\ai\\copilot-service.ts": {
+      "from": [
+        "orders",
+        "vendors",
+        "assets",
+        "profiles",
+        "pay_runs",
+        "ekdp_articles",
+        "dispatch_manifests",
+        "purchase_orders",
+        "employees",
+        "approval_request_steps",
+        "item_stock",
+        "leave_requests",
+        "tasks",
+        "sister_companies",
+        "items"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\ai\\ekr-router.ts": {
+      "from": [
+        "profiles",
+        "ekr_pages",
+        "ekr_workflows",
+        "ekr_fields",
+        "ekr_actions",
+        "master_data",
+        "orders",
+        "procurement_handover_requests",
+        "item_stock",
+        "dispatch_manifests"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\ai\\knowledge-graph-cache.ts": {
+      "from": [
+        "ekr_knowledge_graph"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\automation\\engine.ts": {
+      "from": [
+        "automation_workflows",
+        "profiles",
+        "employees",
+        "clients",
+        "vendors",
+        "orders",
+        "automation_workflow_logs",
+        "automation_workflow_queue",
+        "tasks",
+        "audit_logs",
+        "task_assignees",
+        "notifications",
+        "documents",
+        "qr_codes",
+        "purchase_requests",
+        "dispatches",
+        "whatsapp_phone_mappings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\background-job-wrapper.ts": {
+      "from": [
+        "failed_background_jobs",
+        "eophc_incidents"
+      ],
+      "rpc": [
+        "acquire_job_lock",
+        "release_job_lock"
+      ],
+      "storage": []
+    },
+    "src\\lib\\brap\\engine.ts": {
+      "from": [
+        "profiles",
+        "employees",
+        "tasks",
+        "task_assignees",
+        "notifications",
+        "orders",
+        "purchase_orders",
+        "system_activities",
+        "eiap_webhooks_outgoing",
+        "eiap_integrations",
+        "eiap_webhook_jobs",
+        "brap_rules",
+        "brap_escalation_queue",
+        "brap_execution_log"
+      ],
+      "rpc": [
+        "initiate_approval_flow"
+      ],
+      "storage": []
+    },
+    "src\\lib\\business-intelligence\\catalogueState.tsx": {
+      "from": [
+        "search_sessions",
+        "catalogue_sessions",
+        "catalogue_records",
+        "catalogue_raw_payloads",
+        "catalogue_missing_fields",
+        "bi_seller_defaults",
+        "bi_pairing_drafts",
+        "bi_publish_confirmations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\business-intelligence\\searchState.tsx": {
+      "from": [
+        "search_history",
+        "search_sessions",
+        "search_events",
+        "bi_categories",
+        "bi_catalogues"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\compliance\\recalculate.ts": {
+      "from": [
+        "payment_doc_checklist",
+        "payment_compliance_records"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\config-service.ts": {
+      "from": [
+        "config_parameters",
+        "master_data",
+        "workflows",
+        "workflow_stages",
+        "approval_rules",
+        "notification_templates"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\dqce\\pipeline.ts": {
+      "from": [
+        "dqce_settings",
+        "dqce_rules",
+        "system_activities",
+        "dqce_issues",
+        "dqce_corrections",
+        "dqce_notification_routing",
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\dqce\\scan-runner.ts": {
+      "from": [
+        "employees",
+        "vendors",
+        "clients",
+        "assets",
+        "orders",
+        "purchase_requests",
+        "purchase_orders",
+        "purchase_items",
+        "purchase_request_items",
+        "item_stock",
+        "items",
+        "asset_assignments",
+        "dqce_scans",
+        "system_activities",
+        "dqce_rules",
+        "dqce_issues",
+        "dqce_issue_history",
+        "dqce_scores"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\dqce\\scheduler.ts": {
+      "from": [
+        "dqce_settings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\eaac\\service.ts": {
+      "from": [
+        "profiles",
+        "eaac_user_configs",
+        "employees",
+        "department_hierarchy_roles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\eapc\\service.ts": {
+      "from": [
+        "profiles",
+        "role_permissions",
+        "eaac_user_configs",
+        "eaac_temporary_grants",
+        "eaac_delegations",
+        "employees",
+        "department_permissions",
+        "eaac_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\eiap\\service.ts": {
+      "from": [
+        "eiap_api_keys",
+        "eiap_api_logs",
+        "eiap_webhooks_outgoing",
+        "eiap_webhook_jobs",
+        "eiap_sync_jobs",
+        "eiap_sync_runs",
+        "eiap_integrations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\events\\bus.ts": {
+      "from": [
+        "profiles",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications\\auto-resolve.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications\\create.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications\\escalation.ts": {
+      "from": [
+        "tasks",
+        "notifications",
+        "profiles",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications\\taskReminders.ts": {
+      "from": [
+        "profiles",
+        "task_assignees",
+        "notifications"
+      ],
+      "rpc": [
+        "claim_due_task_reminders"
+      ],
+      "storage": []
+    },
+    "src\\lib\\notifications\\telemetry.ts": {
+      "from": [
+        "error_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications\\timeline.ts": {
+      "from": [
+        "notifications"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\notifications.ts": {
+      "from": [
+        "whatsapp_configs",
+        "whatsapp_messages",
+        "notifications",
+        "profiles",
+        "employees",
+        "notification_templates"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\payroll\\attendanceEngine.ts": {
+      "from": [
+        "config_parameters",
+        "activity_logs",
+        "attendance_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\procurement\\assignment-engine.ts": {
+      "from": [
+        "items",
+        "categories",
+        "procurement_assignment_rules"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\pss\\pss-engine.ts": {
+      "from": [
+        "performance_rules",
+        "performance_distribution_rules",
+        "performance_transactions",
+        "profiles",
+        "performance_monthly_summary",
+        "performance_levels",
+        "performance_user_summary"
+      ],
+      "rpc": [
+        "pss_upsert_monthly_summary"
+      ],
+      "storage": []
+    },
+    "src\\lib\\pss\\pss-events.ts": {
+      "from": [
+        "audit_logs",
+        "order_costing",
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\supabase\\middleware.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\whatsapp\\db.ts": {
+      "from": [
+        "whatsapp_messages",
+        "whatsapp_message_read_receipts"
+      ],
+      "rpc": [
+        "append_unique_to_array"
+      ],
+      "storage": []
+    },
+    "src\\lib\\whatsapp\\processors.ts": {
+      "from": [
+        "whatsapp_phone_mappings",
+        "employees",
+        "profiles",
+        "whatsapp_configs",
+        "whatsapp_group_mappings",
+        "tasks",
+        "task_assignees",
+        "audit_logs",
+        "whatsapp_messages",
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\zoho\\config.ts": {
+      "from": [
+        "sister_companies"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\zoho\\costingCalculator.ts": {
+      "from": [
+        "orders",
+        "order_costing"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\zoho\\orderMatchingService.ts": {
+      "from": [
+        "order_search_keys"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\zoho\\processVouchers.ts": {
+      "from": [
+        "vendor_zoho_sources",
+        "zoho_unmatched_bills",
+        "orders",
+        "billing_consultancy_ledger",
+        "order_costing",
+        "audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\lib\\zoho\\syncService.ts": {
+      "from": [
+        "orders",
+        "sister_companies",
+        "profiles",
+        "order_status_events",
+        "audit_logs",
+        "invoices",
+        "order_costing",
+        "billing_consultancy_ledger",
+        "vendor_zoho_sources",
+        "tasks",
+        "task_assignees",
+        "zoho_sync_runs",
+        "vendor_contacts",
+        "vendor_quality",
+        "vendors",
+        "vendor_purchase_stats",
+        "warehouses",
+        "items",
+        "item_stock",
+        "stock_movements"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\providers\\CustomAdapter.ts": {
+      "from": [
+        "manual_provider_usage"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\providers\\GeminiAdapter.ts": {
+      "from": [
+        "ai_interaction_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\providers\\GoogleMapsAdapter.ts": {
+      "from": [
+        "geocoding_cache"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\providers\\GroqAdapter.ts": {
+      "from": [
+        "ai_interaction_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\providers\\SupabaseAdapter.ts": {
+      "from": [],
+      "rpc": [
+        "get_system_db_stats"
+      ],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\repositories\\AlertRepository.ts": {
+      "from": [
+        "provider_alerts",
+        "provider_alert_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\repositories\\BillingRepository.ts": {
+      "from": [
+        "billing_history",
+        "manual_provider_costs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\repositories\\ProviderRepository.ts": {
+      "from": [
+        "providers",
+        "provider_categories",
+        "provider_credentials",
+        "provider_budgets",
+        "provider_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\repositories\\RenewalRepository.ts": {
+      "from": [
+        "provider_renewals",
+        "provider_subscriptions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\repositories\\UsageRepository.ts": {
+      "from": [
+        "provider_usage",
+        "provider_usage_snapshots",
+        "manual_provider_usage"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\services\\AlertService.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\services\\ProviderService.ts": {
+      "from": [
+        "profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\modules\\resource-costs\\utils\\auth-guards.ts": {
+      "from": [
+        "profiles",
+        "employees"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\AuditRepository.ts": {
+      "from": [
+        "bi_audit_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\CatalogueRepository.ts": {
+      "from": [
+        "bi_catalogues"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\CategoryRepository.ts": {
+      "from": [
+        "bi_categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\SearchRepository.ts": {
+      "from": [
+        "search_history"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\SellerRepository.ts": {
+      "from": [
+        "seller_profiles"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\repositories\\business-intelligence\\SessionRepository.ts": {
+      "from": [
+        "search_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\ActivityService.ts": {
+      "from": [
+        "workspace_activity"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\BIAuditService.ts": {
+      "from": [
+        "bi_audit_logs",
+        "search_events",
+        "catalogue_extraction_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\BISellerService.ts": {
+      "from": [
+        "bi_seller_defaults"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\CatalogueExtractionService.ts": {
+      "from": [
+        "catalogue_sessions",
+        "catalogue_records",
+        "catalogue_raw_payloads",
+        "catalogue_missing_fields"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\CategoryDiscoveryService.ts": {
+      "from": [
+        "bi_categories"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\FinalPublishService.ts": {
+      "from": [
+        "bi_pairing_drafts"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\PairingService.ts": {
+      "from": [
+        "catalogue_records",
+        "bi_pairing_drafts"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\PublishConfirmationService.ts": {
+      "from": [
+        "bi_publish_confirmations"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\RankingService.ts": {
+      "from": [
+        "search_rankings"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\ScoringService.ts": {
+      "from": [
+        "catalogue_records"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\SearchHistoryService.ts": {
+      "from": [
+        "search_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\SearchOrchestrationService.ts": {
+      "from": [
+        "bi_catalogues"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\SearchSessionService.ts": {
+      "from": [
+        "search_sessions"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "src\\services\\business-intelligence\\SessionService.ts": {
+      "from": [
+        "workspace_sessions",
+        "workspace_page_states",
+        "workspace_events"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "supabase\\functions\\geocode-activity\\index.ts": {
+      "from": [
+        "activity_logs"
+      ],
+      "rpc": [],
+      "storage": []
+    },
+    "__tests__\\customer-data-integrity.test.ts": {
+      "from": [
+        "orders",
+        "clients"
+      ],
+      "rpc": [],
+      "storage": []
+    }
+  }
+}
