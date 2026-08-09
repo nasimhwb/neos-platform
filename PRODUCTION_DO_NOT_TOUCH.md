@@ -15,8 +15,9 @@ The following actions and commands must **NEVER** be executed on the production 
 - 🛑 `docker compose down -v` (Destroys named and anonymous volumes)
 - 🛑 `docker volume rm ...` / `docker volume prune`
 - 🛑 `docker system prune --volumes` or `docker system prune -a --volumes`
-- 🛑 Removing persistent Docker volumes: `postgres_data`, `minio_data`, `redis_data`, `uptime_kuma_data`
+- 🛑 Removing persistent Docker volumes: `neos_postgres_data`, `neos_minio_data`, `neos_redis_data`, `neos_uptime_kuma_data` (or legacy aliases)
 - 🛑 Deleting or altering volume mount directories under `/srv/neos/shared/` or `/var/lib/docker/volumes/`
+- 🛑 **Explicit Production Safety Rule:** Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume.
 
 ### 1.2 Database Destructive Commands
 - 🛑 `DROP DATABASE ...` (e.g. `DROP DATABASE postgres`, `DROP DATABASE neos_app`, `DROP DATABASE neos_erp`, etc.)

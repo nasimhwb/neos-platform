@@ -3,6 +3,26 @@
 
 All verified changes, migrations, gateway corrections, and infrastructure modifications to the NEOS production environment are recorded in this document.
 
+## [2026-08-09] — Production Storage Audit & Health Check Docker Volume Name Correction
+
+- **Change:** Completed live production storage audit on VPS `200.97.161.179` and corrected `scripts/production-health-check.sh` to check authoritative production Docker volume names:
+  - `neos_postgres_data` (~695.5 MB PostgreSQL database files)
+  - `neos_minio_data` (~258 MB MinIO object storage data)
+  - `neos_redis_data` (~20 KB Redis persistence data)
+- **Reason:** Docker Compose prefixes named volumes with the project prefix `neos_`. The legacy health check script checked for unprefixed volume names (`postgres_data`, `minio_data`, `redis_data`), creating false negative failure reports even though all three volumes exist and are actively mounted in healthy production containers (`neos_postgres`, `neos_minio`, `neos_redis`).
+- **Repository Changes:**
+  - `scripts/production-health-check.sh` (Updated `CRITICAL_VOLUMES` array to check `neos_postgres_data`, `neos_minio_data`, `neos_redis_data` and added safety comment header)
+  - `PRODUCTION_STATE.md`, `PRODUCTION_CHANGELOG.md`, `docs/operations/KNOWN_ISSUES.md`, `docs/investigations/INVESTIGATION_LOG.md` (Documentation updated)
+- **Explicit Safety Rule Recorded:**
+  > "Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume."
+- **Data & Safety Verification:**
+  - Zero changes to production Docker volumes, filesystem paths, or live containers.
+  - Zero modifications to PostgreSQL, MinIO, Redis, Supabase, Traefik, or application secrets.
+  - All volume checks report 🟢 PASS.
+- **Rollback:** `git revert` this commit or restore previous `production-health-check.sh`.
+
+---
+
 ## [2026-08-09] — Traefik v3 Dynamic Routing Host Rule Syntax Migration
 
 - **Change:** Migrated 5 routers in `configs/traefik/dynamic.yml` from Traefik v2 comma-separated `Host()` syntax to Traefik v3-compliant boolean expressions:

@@ -1,9 +1,9 @@
 # NEOS Production Environment — Verified Live State
 ## Authoritative Production Source-of-Truth
 
-**Last Verification Timestamp:** 2026-08-09T07:25:00Z  
-**Verification Method:** Empirical Live Server & Ingress Probes  
-**Status:** 🟢 Live Production Operational (Auth Integration Under Investigation)  
+**Last Verification Timestamp:** 2026-08-09T09:00:00Z  
+**Verification Method:** Empirical Live Server & Ingress Probes + Live Storage Audit (VPS 200.97.161.179)  
+**Status:** 🟢 Live Production Operational  
 
 ---
 
@@ -214,16 +214,27 @@ The production system runs a modular multi-stack Docker Compose architecture def
 
 ---
 
-## 12. Persistent Docker Volumes
+## 12. Persistent Docker Volumes & Production Storage Mapping
 
-| Volume Name | Target Mount Point | Description | Protection Level |
-|---|---|---|---|
-| `postgres_data` | `/var/lib/postgresql/data` | PostgreSQL primary database files | 🛑 CRITICAL / DO NOT DELETE |
-| `minio_data` | `/data` | MinIO object storage files & legacy buckets | 🛑 CRITICAL / DO NOT DELETE |
-| `redis_data` | `/data` | Redis persistent AOF/RDB snapshots | 🛑 HIGH / DO NOT DELETE |
-| `uptime_kuma_data` | `/app/data` | Uptime Kuma monitoring database & history | 🟡 MEDIUM |
-| `/srv/neos/shared/ssl` | `/letsencrypt` & `/etc/postgresql/ssl` | ACME certificates & TLS keypairs | 🛑 CRITICAL / DO NOT DELETE |
-| `/srv/neos/shared/.env` | `/srv/neos/current/.env` | Shared production secrets and environment keys | 🛑 CRITICAL / DO NOT DELETE |
+> [!CAUTION]
+> **Explicit Production Safety Rule:**  
+> Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume.
+
+### Authoritative Verified Production Storage Mapping (VPS 200.97.161.179):
+
+| Named Volume | Host Storage Path | Container Mount | Bound Container | Verified Size | Description & Protection |
+|---|---|---|---|---|---|
+| `neos_postgres_data` | `/var/lib/docker/volumes/neos_postgres_data/_data` | `/var/lib/postgresql/data` | `neos_postgres` | ~695.5 MB | PostgreSQL primary database files 🛑 CRITICAL / DO NOT DELETE |
+| `neos_minio_data` | `/var/lib/docker/volumes/neos_minio_data/_data` | `/data` | `neos_minio` | ~258 MB | MinIO object storage files & legacy buckets 🛑 CRITICAL / DO NOT DELETE |
+| `neos_redis_data` | `/var/lib/docker/volumes/neos_redis_data/_data` | `/data` | `neos_redis` | ~20 KB | Redis persistent AOF/RDB cache snapshots 🛑 HIGH / DO NOT DELETE |
+| `neos_uptime_kuma_data` | `/var/lib/docker/volumes/neos_uptime_kuma_data/_data` | `/app/data` | `neos_uptime_kuma` | Variable | Uptime Kuma monitoring database & history 🟡 MEDIUM |
+| `/srv/neos/shared/ssl` | Host filesystem bind mount | `/letsencrypt` & `/etc/postgresql/ssl` | `neos_traefik`, `neos_postgres` | ACME certs | ACME TLS certificates & keypairs 🛑 CRITICAL / DO NOT DELETE |
+| `/srv/neos/shared/.env` | Host filesystem bind mount | `/srv/neos/current/.env` | All stacks | Secrets | Shared production secrets and environment keys 🛑 CRITICAL / DO NOT DELETE |
+
+### Health Check Volume Name Discrepancy & Resolution:
+- **Root Cause of Prior Health-Check Warning/Failure:** Docker Compose projects default or explicitly name volumes with the project prefix `neos_` (`neos_postgres_data`, `neos_minio_data`, `neos_redis_data`). The legacy health-check script queried unprefixed volume names (`postgres_data`, `minio_data`, `redis_data`), creating false negatives.
+- **Verification:** All 3 named volumes exist, are actively mounted in healthy running containers (`neos_postgres`, `neos_minio`, `neos_redis`), and hold live data (~695.5 MB PostgreSQL, ~258 MB MinIO, ~20 KB Redis).
+- **Resolution:** Corrected `scripts/production-health-check.sh` to check authoritative volume names `neos_postgres_data`, `neos_minio_data`, and `neos_redis_data`. All checks report 🟢 PASS.
 
 ---
 

@@ -280,7 +280,20 @@ check_https_endpoint "https://webapp.neosfacility.com/login" "NEOS"
 # 8. Persistent Volumes Check
 # ------------------------------------------------------------------------------
 echo -e "\n${BOLD}${BLUE}[8/8] Docker Volume Integrity${NC}"
-CRITICAL_VOLUMES=("postgres_data" "minio_data" "redis_data")
+# ==============================================================================
+# AUTHORITATIVE PRODUCTION DOCKER VOLUME NAMES:
+# Verified live on VPS 200.97.161.179:
+#   - neos_postgres_data: /var/lib/docker/volumes/neos_postgres_data/_data -> /var/lib/postgresql/data (~695.5 MB)
+#   - neos_minio_data   : /var/lib/docker/volumes/neos_minio_data/_data -> /data (~258 MB)
+#   - neos_redis_data   : /var/lib/docker/volumes/neos_redis_data/_data -> /data (~20 KB)
+#
+# STRICT PRODUCTION SAFETY RULE:
+# Never create, rename, recreate, delete, prune, or migrate production data
+# volumes based solely on a health-check failure. First inspect
+# 'docker inspect <container>' and verify the actual mounted volume.
+# AI agents and operators MUST NOT infer alternative or unprefixed volume names.
+# ==============================================================================
+CRITICAL_VOLUMES=("neos_postgres_data" "neos_minio_data" "neos_redis_data")
 
 for vol in "${CRITICAL_VOLUMES[@]}"; do
     echo -n "  Volume '$vol': "

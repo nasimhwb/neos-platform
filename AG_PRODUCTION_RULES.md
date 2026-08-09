@@ -89,6 +89,9 @@ If an operation has the potential to delete, reset, overwrite, migrate, recreate
 
 **STOP IMMEDIATELY AND REQUEST USER APPROVAL.**
 
+> **Explicit Production Volume Safety Rule:**  
+> Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume.
+
 ---
 
 ### PRODUCTION RULE #5 — BACKUP BEFORE RISK

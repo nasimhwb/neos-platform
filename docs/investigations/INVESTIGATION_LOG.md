@@ -184,6 +184,35 @@ This document records all root-cause technical investigations, API stack traces,
 - **Recommended Non-Destructive Action**:
   - Execute a clean, non-destructive container restart: `docker compose restart neos_traefik` (or `docker restart neos_traefik`). This rebinds the current file inode and loads the valid Traefik v3 dynamic configuration.
 
+### [2026-08-09] — Production Storage Audit & Volume Name Resolution
+- **Objective**: Audit live production storage on VPS 200.97.161.179 and investigate false negative Docker volume check failures in `scripts/production-health-check.sh`.
+- **Empirical Storage Audit Findings (VPS 200.97.161.179)**:
+  1. **PostgreSQL Database Storage**:
+     - Docker volume: `neos_postgres_data`
+     - Host mount path: `/var/lib/docker/volumes/neos_postgres_data/_data`
+     - Container mount point in `neos_postgres`: `/var/lib/postgresql/data`
+     - Verified live size: approximately **695.5 MB**.
+  2. **MinIO Object Storage**:
+     - Docker volume: `neos_minio_data`
+     - Host mount path: `/var/lib/docker/volumes/neos_minio_data/_data`
+     - Container mount point in `neos_minio`: `/data`
+     - Verified live size: approximately **258 MB**.
+  3. **Redis Cache Storage**:
+     - Docker volume: `neos_redis_data`
+     - Host mount path: `/var/lib/docker/volumes/neos_redis_data/_data`
+     - Container mount point in `neos_redis`: `/data`
+     - Verified live size: approximately **20 KB**.
+  4. **Active Containers**:
+     - Containers `neos_postgres`, `neos_minio`, and `neos_redis` are running, healthy, and actively reading/writing their respective `neos_` volumes.
+- **Root Cause of Health Check False Negatives**:
+  - Docker Compose automatically namespaces named volumes with the compose project name prefix `neos_` (as configured in `compose/compose.base.yml`).
+  - `scripts/production-health-check.sh` inspected `postgres_data`, `minio_data`, and `redis_data` without the `neos_` prefix, falsely reporting `FAIL (Volume missing!)`.
+- **Action Taken & Safety Rule**:
+  - Corrected `CRITICAL_VOLUMES` in `scripts/production-health-check.sh` to check `neos_postgres_data`, `neos_minio_data`, and `neos_redis_data`.
+  - Added explicit safety comment to the health-check script.
+  - Added strict production safety rule: *"Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume."*
+- **Status**: 🟢 **RESOLVED & DOCUMENTED**.
+
 
 
 
