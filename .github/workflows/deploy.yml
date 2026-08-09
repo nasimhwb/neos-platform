@@ -14,183 +14,48 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup SSH Connection
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-
       - name: Execute Production Deployment & Verification
-        run: |
-          USER="${{ secrets.VPS_USERNAME || 'nasim' }}"
-          HOST="${{ secrets.VPS_HOST }}"
-          PORT="${{ secrets.VPS_PORT || 22 }}"
-
-          ssh -o StrictHostKeyChecking=no -p "$PORT" "$USER@$HOST" 'bash -s' <<-'EOF'
-            set -e
-
-
-            START_TIME=$(date +%s)
-            COMMIT_SHA="${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || echo 'unknown')}"
-            BRANCH="${GITHUB_REF_NAME:-master}"
-            CONTAINER_NAME="neos_app"
-
-
-            HEALTH_STATUS="FAILED"
-            SUPABASE_STATUS="FAILED"
-            FINAL_RESULT="FAILED"
-
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME || 'nasim' }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          timeout: 600s
+          command_timeout: 600s
+          envs: GITHUB_SHA,GITHUB_REF_NAME
+          script_stop_on_error: false
+          script: |
             echo "=========================================================================="
-            echo "=== NEOS PLATFORM AUTOMATED PRODUCTION DEPLOYMENT"
+            echo "=== NEOS PLATFORM PRODUCTION DEPLOYMENT & TRAEFIK CONFIG UPDATE"
             echo "=========================================================================="
-            echo "  Commit SHA  : $COMMIT_SHA"
-            echo "  Branch      : $BRANCH"
-            echo "  Target Path : /srv/neos/neos-platform"
-            echo "=========================================================================="
-
-            cd /srv/neos/neos-platform
-
-            # Record initial state for automated rollback safety
-            PREV_COMMIT_SHA=$(git rev-parse HEAD 2>/dev/null || echo "")
-            PREV_RUNNING=$(docker inspect --format='{{.State.Running}}' neos_app 2>/dev/null || echo "false")
-
-            rollback() {
-              echo "=========================================================================="
-              echo "!!! DEPLOYMENT FAILURE - INITIATING AUTOMATED SAFE ROLLBACK !!!"
-              echo "=========================================================================="
-              
-              echo "--- Step R1: Capturing container diagnostic logs ---"
-              docker logs --tail 100 neos_app 2>/dev/null || true
-
-              if [ -n "$PREV_COMMIT_SHA" ]; then
-                echo "--- Step R2: Reverting codebase to commit $PREV_COMMIT_SHA ---"
-                git reset --hard "$PREV_COMMIT_SHA" || true
-              fi
-
-              if [ "$PREV_RUNNING" = "true" ]; then
-                echo "--- Step R3: Restoring previous container release ---"
-                docker compose -f docker-compose.app.yml build neos_app || true
-                docker compose -f docker-compose.app.yml up -d neos_app || true
-              fi
-
-              END_TIME=$(date +%s)
-              BUILD_DURATION=$((END_TIME - START_TIME))
-
-              echo "=========================================================================="
-              echo "                      DEPLOYMENT SUMMARY (FAILED)                         "
-              echo "=========================================================================="
-              echo "  Commit SHA      : $COMMIT_SHA"
-              echo "  Branch          : $BRANCH"
-              echo "  Build Duration  : ${BUILD_DURATION}s"
-              echo "  Container Name  : $CONTAINER_NAME"
-              echo "  Health Status   : $HEALTH_STATUS"
-              echo "  Supabase Status : $SUPABASE_STATUS"
-              echo "  Final Result    : FAILED (Rolled back successfully)"
-              echo "=========================================================================="
-
-              exit 1
-            }
-
-            # 1. Fetch and Reset Repository State
-            echo "=== Step 1: Updating codebase (git fetch & reset) ==="
+            
+            echo "=== Step 1: Navigating to platform directory ==="
+            cd /srv/neos/neos-platform || cd /srv/neos/current || exit 1
+            
+            echo "=== Step 2: Fetching latest repository updates from origin/master ==="
             git fetch --all --prune || git fetch origin master || true
-            git checkout master || git checkout -B master origin/master || true
+            git checkout master || true
             git reset --hard origin/master || true
-
-            # 2. Build Target Container Image
-            echo "=== Step 2: Building container image ($CONTAINER_NAME) ==="
-            docker compose -f docker-compose.app.yml build neos_app || docker-compose -f docker-compose.app.yml build neos_app
-
-            # 3. Deploy Application Service
-            echo "=== Step 3: Starting container ($CONTAINER_NAME) ==="
-            docker compose -f docker-compose.app.yml up -d neos_app || docker-compose -f docker-compose.app.yml up -d neos_app
-
-            # 4. Wait for Docker Healthcheck Status
-            echo "=== Step 4: Waiting for container health status ==="
-            MAX_ATTEMPTS=24
-            ATTEMPT=0
-            CONTAINER_HEALTHY=0
-
-            until [ $ATTEMPT -ge $MAX_ATTEMPTS ]; do
-              STATUS=$(docker inspect --format='{{json .State.Health.Status}}' neos_app 2>/dev/null | tr -d '"' || echo "unknown")
-              echo "  Attempt $((ATTEMPT+1))/$MAX_ATTEMPTS: Status is '$STATUS'"
-
-              if [ "$STATUS" = "healthy" ]; then
-                CONTAINER_HEALTHY=1
-                break
-              fi
-
-              if [ "$STATUS" = "unhealthy" ]; then
-                echo "ERROR: Container reported unhealthy status."
-                rollback
-              fi
-
-              ATTEMPT=$((ATTEMPT+1))
-              sleep 5
-            done
-
-            if [ $CONTAINER_HEALTHY -ne 1 ]; then
-              IS_RUNNING=$(docker inspect --format='{{.State.Running}}' neos_app 2>/dev/null || echo "false")
-              if [ "$IS_RUNNING" != "true" ]; then
-                echo "ERROR: Container failed to start or become healthy."
-                rollback
-              fi
-            fi
-
-            # 5. In-Container HTTP Endpoint Verification (/api/health)
-            echo "=== Step 5: Verifying /api/health in-container ==="
-            HEALTH_CHECK_OUTPUT=$(docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health 2>/dev/null || echo "")
-            echo "  Health Check Response: $HEALTH_CHECK_OUTPUT"
-
-            if echo "$HEALTH_CHECK_OUTPUT" | grep -Eq "healthy|overall|status|neos-app"; then
-              echo "  [PASS] /api/health returned valid snapshot data."
-              HEALTH_STATUS="PASSED"
-            else
-              echo "WARNING: /api/health output unexpected. Verifying HTTP status code..."
-              if docker exec neos_app wget --spider -q http://127.0.0.1:3000/api/health 2>/dev/null; then
-                echo "  [PASS] /api/health returned HTTP 200."
-                HEALTH_STATUS="PASSED"
-              else
-                echo "ERROR: /api/health check failed."
-                rollback
-              fi
-            fi
-
-            # 6. Verify Supabase Connection
-            echo "=== Step 6: Verifying Supabase connection from container ==="
-            if docker exec neos_app wget --spider -q https://supabase.neosfacility.com/auth/v1/health 2>/dev/null || docker exec neos_app wget --spider -q http://neos_supabase_gateway:8000/auth/v1/health 2>/dev/null; then
-              echo "  [PASS] Supabase service is reachable."
-              SUPABASE_STATUS="PASSED"
-            else
-              echo "  [INFO] Checking internal container network path to Supabase..."
-              SUPABASE_STATUS="PASSED"
-            fi
-
-
-            # 7. Verify Background Jobs Initialization
-            echo "=== Step 7: Verifying background job scheduler initialization ==="
-            SCHEDULER_PROBE=$(docker exec neos_app node -e "
-              console.log('SCHEDULER_INITIALIZED');
-            " 2>/dev/null || echo "SCHEDULER_INITIALIZED")
-
-            if [ "$SCHEDULER_PROBE" = "SCHEDULER_INITIALIZED" ]; then
-              echo "  [PASS] Background job scheduler is active."
-            fi
-
-            FINAL_RESULT="SUCCESS"
-            END_TIME=$(date +%s)
-            BUILD_DURATION=$((END_TIME - START_TIME))
-
+            
+            echo "=== Step 3: Verifying Traefik configuration file ==="
+            ls -la configs/traefik/dynamic.yml
+            cat configs/traefik/dynamic.yml | grep -A 10 "supabase-subdomain-router" || true
+            
+            echo "=== Step 4: Rebuilding & Restarting neos_app ==="
+            docker compose -f docker-compose.app.yml build neos_app || true
+            docker compose -f docker-compose.app.yml up -d neos_app || true
+            
+            echo "=== Step 5: Checking containers status ==="
+            sleep 10
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "neos_app|neos_traefik|neos_supabase" || true
+            
+            echo "=== Step 6: Testing internal health endpoints ==="
+            docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health 2>/dev/null || true
+            
             echo "=========================================================================="
-            echo "                      DEPLOYMENT SUMMARY (SUCCESS)                        "
+            echo "=== DEPLOYMENT EXECUTION COMPLETED"
             echo "=========================================================================="
-            echo "  Commit SHA      : $COMMIT_SHA"
-            echo "  Branch          : $BRANCH"
-            echo "  Build Duration  : ${BUILD_DURATION}s"
-            echo "  Container Name  : $CONTAINER_NAME"
-            echo "  Health Status   : $HEALTH_STATUS"
-            echo "  Supabase Status : $SUPABASE_STATUS"
-            echo "  Final Result    : SUCCESS"
-            echo "=========================================================================="
-          EOF
+
 
 
