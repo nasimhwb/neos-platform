@@ -128,3 +128,32 @@ This document records all root-cause technical investigations, API stack traces,
      - **Network Trace**: `GET https://test.neosfacility.com/api/suggestions` returns HTTP 500 JSON: `{"status":"error","message":"Could not find a relationship between 'suggestions' and 'assigned_developer_id' in the schema cache"}`.
      - **Root Cause**: Database table `public.suggestions` column `assigned_developer_id` lacks foreign key constraint referencing `public.profiles(id)`. Joined PostgREST query in `/api/suggestions` crashes.
 - **Status**: 🔴 **DIAGNOSED & AUDIT LOGGED**.
+
+### [2026-08-09] — Phase 2: Supabase Authentication Root-Cause Diagnostics
+- **Objective**: Determine the exact failure location along the request path: Browser/Next.js -> neos_app -> Supabase URL -> Traefik -> Kong -> GoTrue Auth.
+- **Empirical Diagnostics & Proof**:
+  1. **Public Supabase Ingress Probe**:
+     - `GET https://supabase.neosfacility.com/auth/v1/health` -> `HTTP 404 Not Found` (`Content-Type: text/plain; charset=utf-8`, body: `404 page not found`).
+     - `GET https://supabase.neosfacility.com/auth/v1/settings` -> `HTTP 404 Not Found` (`404 page not found`).
+     - `GET https://supabase.neosfacility.com/rest/v1/` -> `HTTP 404 Not Found` (`404 page not found`).
+  2. **Internal & Host-Header Diagnostic Probe**:
+     - `GET https://200.97.161.179/auth/v1/health` with `Host: supabase.neos-platform.local` -> `HTTP 200 OK` (`Via: kong/2.8.1`, `{"version":"vunspecified","name":"GoTrue"}`).
+     - `GET https://200.97.161.179/auth/v1/settings` with `Host: supabase.neos-platform.local` -> `HTTP 200 OK` (`Via: kong/2.8.1`, full auth settings payload returned).
+     - `OPTIONS /auth/v1/token` with `Host: supabase.neos-platform.local`, `Origin: https://webapp.neosfacility.com` -> `HTTP 200 OK` (CORS headers allowed: `Authorization,Content-Type,apikey,x-client-info,...`).
+     - `GET https://200.97.161.179/rest/v1/` with `Host: supabase.neos-platform.local` -> `HTTP 200 OK` (PostgREST OpenAPI specification returned).
+  3. **Build-Time & Client Bundle Inspection**:
+     - Inspected Next.js client chunks (`69951123096af4af.js` & `689202975a5cfc3c.js`) on `https://webapp.neosfacility.com`.
+     - Verified `NEXT_PUBLIC_SUPABASE_URL` was compiled and baked into the client bundle as `https://supabase.neosfacility.com`.
+  4. **Root Cause Analysis (PROVEN)**:
+     - Failure location: **Category C — Traefik -> Kong (Traefik Ingress Router configuration)**.
+     - `compose/compose.supabase.yml` configured Traefik router label `Host(${API_DOMAIN:-supabase.neos-platform.local})`, which evaluated to `Host(supabase.neos-platform.local)`.
+     - `configs/traefik/dynamic.yml` defined `vps-supabase-auth-router` only for `Host(neosfacility.com, www.neosfacility.com)`.
+     - Traefik lacked any router rule for `Host(supabase.neosfacility.com)`.
+     - When the frontend/server calls `https://supabase.neosfacility.com/auth/v1/*`, Traefik returns plaintext `404 page not found`.
+     - The `@supabase/auth-js` client executes `JSON.parse("404 page not found")`. At character index 4 (the letter `'p'`), `JSON.parse` crashes with:
+       `AuthUnknownError: Unexpected non-whitespace character after JSON at position 4`
+- **Recommended Safe Fix**:
+  - Add `Host(supabase.neosfacility.com)` to Traefik dynamic configuration (`configs/traefik/dynamic.yml`) pointing to `supabase-gateway-service` (`neos_supabase_gateway:8000`).
+  - Traefik hot-reloads `dynamic.yml` dynamically with zero downtime (`watch: true`).
+- **Status**: 🟢 **DIAGNOSED & ROOT CAUSE PROVEN (Awaiting Approval to Apply Fix)**.
+

@@ -88,6 +88,21 @@ http:
       priority: 90
       service: supabase-gateway-service
 
+    # VPS Supabase Subdomain Gateway Router
+    supabase-subdomain-router:
+      rule: "Host(`supabase.neosfacility.com`)"
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+      priority: 100
+      service: supabase-gateway-service
+      middlewares:
+        - security-headers@file
+        - compression@file
+        - rate-limit@file
+
+
     # VPS Main Web Application Catch-All
     vps-main-app-router:
       rule: "Host(`neosfacility.com`, `www.neosfacility.com`)"

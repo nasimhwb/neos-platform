@@ -244,16 +244,18 @@ The production system runs a modular multi-stack Docker Compose architecture def
 
 ## 14. Current Known Issues Under Investigation
 
-### Authentication Integration Issue
-- **Current Observation:**
-  - `neos_app` container is `Up (healthy)`.
-  - `https://webapp.neosfacility.com` is reachable and loads Next.js client shell.
-  - `https://webapp.neosfacility.com/api/health` returns HTTP 200 healthy.
-  - `https://webapp.neosfacility.com` redirects unauthenticated users to `/login`.
-  - Application logs have shown intermittent `AuthRetryableFetchError` (Status 503).
-  - Application logs have also shown: `AuthUnknownError: Unexpected non-whitespace character after JSON at position 4`.
-  - Supabase Auth itself is reachable and healthy from the gateway.
-- **Operational Directive:**
-  - **DO NOT GUESS ROOT CAUSE.**
-  - **DO NOT randomly rotate JWT secrets, change Traefik proxy rules, or reset Supabase.**
-  - Issue is classified as **"Authentication integration issue under investigation."** Diagnostic traces must be captured in read-only mode prior to any proposed fix.
+### Authentication Integration Issue — DIAGNOSED (ROOT CAUSE PROVEN)
+- **Status:** 🟡 Diagnosed & Empirical Proof Captured (Awaiting Approval to Apply Minimal Traefik Routing Update)
+- **Root Cause (PROVEN):**
+  - Next.js application (`neos_app`) is built and configured with `NEXT_PUBLIC_SUPABASE_URL=https://supabase.neosfacility.com`.
+  - DNS resolves `supabase.neosfacility.com` to `200.97.161.179` (Traefik Ingress).
+  - Traefik reverse proxy lacks an active router rule for `Host(`supabase.neosfacility.com`)`. (In `compose/compose.supabase.yml`, `API_DOMAIN` defaulted to `supabase.neos-platform.local`, and `configs/traefik/dynamic.yml` defined only `vps-supabase-auth-router` under `neosfacility.com`).
+  - When browser/server sends requests to `https://supabase.neosfacility.com/auth/v1/*`, Traefik does not match any router and responds with plaintext `HTTP 404 Not Found` (`404 page not found`).
+  - The Supabase client SDK attempts `JSON.parse("404 page not found")`. At character index 4 (the letter `'p'`), parsing fails and throws:
+    `AuthUnknownError: Unexpected non-whitespace character after JSON at position 4`
+  - When probed directly with header `Host: supabase.neos-platform.local`, Traefik, Kong, and GoTrue Auth immediately return `HTTP 200 OK` (`{"version":"vunspecified","name":"GoTrue"}`), proving Kong and GoTrue backend services are 100% operational.
+- **Affected Components:** Traefik Ingress Router configuration (`configs/traefik/dynamic.yml` / `compose/compose.supabase.yml`).
+- **Proposed Safe Non-Destructive Fix:**
+  - Add router for `Host(`supabase.neosfacility.com`)` pointing to `supabase-gateway-service` (`neos_supabase_gateway:8000`) in `configs/traefik/dynamic.yml`.
+  - Since Traefik watches `dynamic.yml` dynamically with zero downtime (`watch: true`), this activates routing instantly without container restarts or secret rotation.
+

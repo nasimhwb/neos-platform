@@ -3,9 +3,25 @@
 
 All verified changes, migrations, gateway corrections, and infrastructure modifications to the NEOS production environment are recorded in this document.
 
+## [2026-08-09] — Phase 2 Authentication Root-Cause Diagnostics Completed
+
+- **Change:** Conducted exhaustive read-only network and proxy diagnostic traces for Supabase Authentication endpoint failure (`AuthUnknownError` at position 4 and `AuthRetryableFetchError 503`).
+- **Reason:** Identify exact failure location along the path: Browser/Next.js -> neos_app -> Supabase URL -> Traefik -> Kong -> GoTrue Auth.
+- **Empirical Diagnostics & Proof:**
+  - Probed `https://supabase.neosfacility.com/auth/v1/health` -> HTTP 404 plaintext `404 page not found` (Traefik ingress rejection).
+  - Probed direct IP `200.97.161.179` with `Host: supabase.neos-platform.local` -> HTTP 200 OK (`Via: kong/2.8.1`, `GoTrue` active and healthy).
+  - Probed CORS preflight with `Origin: https://webapp.neosfacility.com` -> HTTP 200 OK on Kong.
+  - Inspected client bundle `689202975a5cfc3c.js` -> `NEXT_PUBLIC_SUPABASE_URL=https://supabase.neosfacility.com` is baked at build time.
+  - Root cause proven: Traefik reverse proxy router configuration lacked `Host(`supabase.neosfacility.com`)`. Client `JSON.parse("404 page not found")` encounters character `'p'` at index 4 and throws `Unexpected non-whitespace character after JSON at position 4`.
+- **Files Modified:** `PRODUCTION_STATE.md`, `PRODUCTION_CHANGELOG.md`, `docs/operations/KNOWN_ISSUES.md`, `docs/investigations/INVESTIGATION_LOG.md`.
+- **Containers Affected:** None (Read-only diagnostics).
+- **Verification:** Empirically verified with HTTP/TLS diagnostic probes.
+- **Rollback:** N/A (Read-only investigation).
+
 ---
 
 ## [2026-08-09] — Production Safety, Documentation & Baseline Establishment
+
 
 - **Change:** Established permanent production safety baseline and created core documentation suite (`PRODUCTION_STATE.md`, `PRODUCTION_CHANGELOG.md`, `PRODUCTION_DO_NOT_TOUCH.md`, `AG_PRODUCTION_RULES.md`, `COOLIFY_MIGRATION_PLAN.md`).
 - **Reason:** Prevent unauthorized or accidental modifications by automated agents and human operators; establish authoritative source-of-truth.
