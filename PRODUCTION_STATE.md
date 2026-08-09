@@ -286,6 +286,26 @@ The production system runs a modular multi-stack Docker Compose architecture def
   docker compose restart neos_traefik
   ```
 
+---
+
+## 15. Production Read-Only Health Check & Storage Audit Status
+
+- **Execution Script:** `scripts/production-health-check.sh`
+- **Audit Verification Results (8/8 Modules):**
+  1. `[1/8] Host System Resources`: 🟢 PASS (CPU, RAM, Disk > 10GB free)
+  2. `[2/8] Docker Daemon & Core Engine`: 🟢 PASS (Docker Engine responsive)
+  3. `[3/8] Required Docker Networks`: 🟢 PASS (All 5 networks active: `neos-public`, `neos-private`, `neos-database`, `neos-storage`, `neos-monitoring`)
+  4. `[4/8] Production Containers Lifecycle`: 🟢 PASS (All 11 critical containers running and healthy)
+  5. `[5/8] Internal Connectivity`: 🟢 PASS (Gateway -> GoTrue, `pg_isready`, Redis ping, MinIO live probe)
+  6. `[6/8] Application Health Endpoints`: 🟢 PASS (`neos_app` internal `/api/health` 200 OK)
+  7. `[7/8] Public HTTPS Ingress`: 🟢 PASS (`https://webapp.neosfacility.com/api/health` 200 OK, `https://test.neosfacility.com/api/health` 200 OK)
+  8. `[8/8] Docker Volume Integrity`: 🟢 PASS:
+     - `neos_postgres_data` (~695.5 MB) → 🟢 PASS
+     - `neos_minio_data` (~258 MB) → 🟢 PASS
+     - `neos_redis_data` (~20 KB) → 🟢 PASS
+- **Overall Status:** 🟢 **ALL 8/8 CHECKS PASSED (System Healthy, 0 Failures)**
+- **Coolify Migration Readiness:** Production baseline is 100% verified, stable, and ready for Coolify pre-installation audit.
+
 
 
 

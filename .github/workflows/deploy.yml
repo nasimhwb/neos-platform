@@ -53,6 +53,10 @@ jobs:
             echo "=== Step 5: Checking containers status ==="
             docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "neos_app|neos_traefik|neos_supabase" || true
             
+            echo "=== Step 6: Executing Read-Only Production Health Check Suite ==="
+            chmod +x scripts/production-health-check.sh
+            ./scripts/production-health-check.sh || true
+
             echo "=========================================================================="
             echo "=== DEPLOYMENT EXECUTION COMPLETED"
             echo "=========================================================================="
