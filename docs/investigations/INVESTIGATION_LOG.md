@@ -173,5 +173,17 @@ This document records all root-cause technical investigations, API stack traces,
   - Zero database, storage, or secrets modifications. Zero downtime dynamic reload.
 - **Status**: 🟢 **OPERATIONAL & VERIFIED IN CONFIGURATION**.
 
+### [2026-08-09] — Forensic Investigation: Traefik Inotify / Docker Single-File Bind Mount Reload Analysis
+- **Objective**: Determine why Traefik returned 404 for `https://supabase.neosfacility.com/auth/v1/health` despite the corrected `dynamic.yml` existing on the host filesystem.
+- **Forensic Verification & Technical Proof**:
+  1. **Traefik Static Config**: `providers.file.filename=/etc/traefik/dynamic.yml`, `providers.file.watch=true`.
+  2. **Docker Volume Bind Mount**: `compose.proxy.yml` mounts `../configs/traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro` as a single file.
+  3. **Root Cause**: Linux `inotify` watches are bound to the specific **inode** of the file descriptor opened when the container was created. When `git pull` or `git checkout` updates the file on the host filesystem, Git unlinks the old inode and writes to a newly allocated inode. Because the running container's bind mount remains tied to the original inode (or inotify fails to receive events on the newly created inode), Traefik never received an `IN_MODIFY` event and did not reload the dynamic configuration from disk.
+  4. **Active State Mismatch**: Traefik's in-memory routing table remained in the failed state from initial container startup (when the 5 parser syntax errors caused Traefik to discard the dynamic configuration).
+  5. **Backend Reachability**: Direct probe confirmed `neos_supabase_gateway:8000` (Kong) is 100% healthy and reachable on `neos-public`/`neos-private`, returning HTTP 200 OK when addressed.
+- **Recommended Non-Destructive Action**:
+  - Execute a clean, non-destructive container restart: `docker compose restart neos_traefik` (or `docker restart neos_traefik`). This rebinds the current file inode and loads the valid Traefik v3 dynamic configuration.
+
+
 
 

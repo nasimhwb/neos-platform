@@ -263,16 +263,18 @@ The production system runs a modular multi-stack Docker Compose architecture def
 - **Safety & Backup:**
   - Backup created: `configs/traefik/dynamic.yml.bak_20260809_1402`.
   - Data safety: Zero changes to PostgreSQL, MinIO storage, JWT secrets, passwords, or persistent volumes.
-  - Zero downtime: Traefik dynamic file watcher (`watch: true`) automatically hot-reloads the configuration upon sync.
+  - Inode Reload Finding: Docker single-file bind mount (`dynamic.yml:/etc/traefik/dynamic.yml:ro`) binds the file inode at container launch. Git updates on the host assign a new inode, preventing inotify from receiving `IN_MODIFY` events until Traefik is restarted (`docker compose restart neos_traefik`).
 - **Observed Live Endpoint Status (External Probes):**
   - `https://webapp.neosfacility.com/api/health` → **HTTP 200 OK** (`{"status":"healthy","service":"neos-app"}`)
   - `https://webapp.neosfacility.com/login` → **HTTP 200 OK** (Next.js client shell renders)
   - `GET /storage/v1/version` via Kong (`supabase.neos-platform.local`) → **HTTP 200 OK** (`1.67.5`)
-- **VPS Fast-Forward Command:**
+- **VPS Ingress Activation Command:**
   ```bash
   cd /srv/neos/neos-platform
   git pull --ff-only origin master
+  docker compose restart neos_traefik
   ```
+
 
 
 

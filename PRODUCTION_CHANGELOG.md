@@ -20,8 +20,9 @@ All verified changes, migrations, gateway corrections, and infrastructure modifi
   - PostgreSQL databases, schemas, and tables: Untouched (0 modifications).
   - Supabase Auth/Storage/Realtime data & keys: Untouched (0 modifications).
   - MinIO persistent storage: Untouched (0 modifications).
-  - Container restarts required: None (hot-reloaded by Traefik dynamic file provider `watch: true`).
+  - Container reload behavior: Traefik dynamic file provider watches the inode bound at container startup. Rebinding requires `docker compose restart neos_traefik` (zero data loss, ~1s proxy reload).
 - **Rollback:** `cp configs/traefik/dynamic.yml.bak_20260809_1402 configs/traefik/dynamic.yml`.
+
 
 ---
 
