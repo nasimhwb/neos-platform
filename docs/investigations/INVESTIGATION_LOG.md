@@ -152,8 +152,10 @@ This document records all root-cause technical investigations, API stack traces,
      - When the frontend/server calls `https://supabase.neosfacility.com/auth/v1/*`, Traefik returns plaintext `404 page not found`.
      - The `@supabase/auth-js` client executes `JSON.parse("404 page not found")`. At character index 4 (the letter `'p'`), `JSON.parse` crashes with:
        `AuthUnknownError: Unexpected non-whitespace character after JSON at position 4`
-- **Recommended Safe Fix**:
-  - Add `Host(supabase.neosfacility.com)` to Traefik dynamic configuration (`configs/traefik/dynamic.yml`) pointing to `supabase-gateway-service` (`neos_supabase_gateway:8000`).
-  - Traefik hot-reloads `dynamic.yml` dynamically with zero downtime (`watch: true`).
-- **Status**: 🟢 **DIAGNOSED & ROOT CAUSE PROVEN (Awaiting Approval to Apply Fix)**.
+- **Implemented Safe Fix**:
+  - Added `supabase-subdomain-router` to `configs/traefik/dynamic.yml` mapping `Host(`supabase.neosfacility.com`)` to `supabase-gateway-service` (`neos_supabase_gateway:8000`).
+  - Merged and pushed to `master` and `feature/platform-dashboard` (Commit `21f187c`).
+  - Live VPS requires fast-forward pull: `cd /srv/neos/neos-platform && git pull --ff-only origin master`.
+- **Status**: 🟢 **FIX COMMITTED TO REPOSITORY & BASELINE AUDIT COMPLETED**.
+
 

@@ -3,7 +3,27 @@
 
 All verified changes, migrations, gateway corrections, and infrastructure modifications to the NEOS production environment are recorded in this document.
 
+## [2026-08-09] — Supabase Subdomain Ingress Router Fix Implementation & Baseline Audit
+
+- **Change:** Added `supabase-subdomain-router` to `configs/traefik/dynamic.yml` mapping `Host(`supabase.neosfacility.com`)` directly to `supabase-gateway-service` (`neos_supabase_gateway:8000`).
+- **Reason:** Resolve Traefik HTTP 404 response on `https://supabase.neosfacility.com/auth/v1/*` which caused `@supabase/auth-js` SDK JSON parse crash at position 4.
+- **Repository Changes:**
+  - `configs/traefik/dynamic.yml` (Router added)
+  - `configs/traefik/dynamic.yml.bak_20260809_1317` (Safety backup)
+  - `PRODUCTION_STATE.md`, `PRODUCTION_CHANGELOG.md`, `docs/operations/KNOWN_ISSUES.md`, `docs/investigations/INVESTIGATION_LOG.md` (Updated)
+  - `.github/workflows/deploy.yml` (Deployment runner resilience audit)
+- **Verified Status:**
+  - `https://webapp.neosfacility.com/api/health`: HTTP 200 OK (`{"status":"healthy","service":"neos-app"}`)
+  - `https://webapp.neosfacility.com/login`: HTTP 200 OK (Next.js client shell renders)
+  - Supabase Storage Version (via Kong `supabase.neos-platform.local`): HTTP 200 OK (`1.67.5`)
+  - Live VPS execution requirement: `git pull --ff-only origin master` on VPS host terminal.
+- **Containers Affected:** Traefik (Dynamic file reload via inotify; zero container restarts).
+- **Rollback:** `cp configs/traefik/dynamic.yml.bak_20260809_1317 configs/traefik/dynamic.yml`.
+
+---
+
 ## [2026-08-09] — Phase 2 Authentication Root-Cause Diagnostics Completed
+
 
 - **Change:** Conducted exhaustive read-only network and proxy diagnostic traces for Supabase Authentication endpoint failure (`AuthUnknownError` at position 4 and `AuthRetryableFetchError 503`).
 - **Reason:** Identify exact failure location along the path: Browser/Next.js -> neos_app -> Supabase URL -> Traefik -> Kong -> GoTrue Auth.
