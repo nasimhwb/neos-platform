@@ -18,44 +18,36 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME || 'nasim' }}
+          username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
-          timeout: 600s
-          command_timeout: 600s
           envs: GITHUB_SHA,GITHUB_REF_NAME
           script_stop_on_error: false
           script: |
             echo "=========================================================================="
-            echo "=== NEOS PLATFORM PRODUCTION DEPLOYMENT & TRAEFIK CONFIG UPDATE"
+            echo "=== NEOS PLATFORM PRODUCTION DEPLOYMENT"
             echo "=========================================================================="
+            cd /srv/neos/neos-platform || exit 1
             
-            echo "=== Step 1: Navigating to platform directory ==="
-            cd /srv/neos/neos-platform || cd /srv/neos/current || exit 1
+            echo "--- Current Git Status on VPS ---"
+            git status
             
-            echo "=== Step 2: Fetching latest repository updates from origin/master ==="
-            git fetch --all --prune || git fetch origin master || true
-            git checkout master || true
-            git reset --hard origin/master || true
+            echo "--- Fetching Updates ---"
+            git fetch --all --prune
+            git checkout master || git checkout -B master origin/master
+            git reset --hard origin/master
             
-            echo "=== Step 3: Verifying Traefik configuration file ==="
-            ls -la configs/traefik/dynamic.yml
-            cat configs/traefik/dynamic.yml | grep -A 10 "supabase-subdomain-router" || true
+            echo "--- Verifying configs/traefik/dynamic.yml ---"
+            grep -A 10 "supabase-subdomain-router" configs/traefik/dynamic.yml || echo "WARNING: router not found"
             
-            echo "=== Step 4: Rebuilding & Restarting neos_app ==="
-            docker compose -f docker-compose.app.yml build neos_app || true
-            docker compose -f docker-compose.app.yml up -d neos_app || true
+            echo "--- Syncing to /srv/neos/current if symlinked ---"
+            if [ -d "/srv/neos/current/configs/traefik" ]; then
+              cp -f configs/traefik/dynamic.yml /srv/neos/current/configs/traefik/dynamic.yml || true
+            fi
             
-            echo "=== Step 5: Checking containers status ==="
-            sleep 10
-            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "neos_app|neos_traefik|neos_supabase" || true
-            
-            echo "=== Step 6: Testing internal health endpoints ==="
-            docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health 2>/dev/null || true
+            echo "--- Container Status ---"
+            docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "neos_traefik|neos_supabase|neos_app" || true
             
             echo "=========================================================================="
-            echo "=== DEPLOYMENT EXECUTION COMPLETED"
+            echo "=== DEPLOYMENT STEP FINISHED"
             echo "=========================================================================="
-
-
-
