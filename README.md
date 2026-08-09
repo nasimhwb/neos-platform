@@ -1,5 +1,15 @@
 # Neos Platform Shared Infrastructure
 
+> [!IMPORTANT]
+> ### 🛑 PRODUCTION SAFETY & OPERATING POLICY
+> This repository and connected host manage a **LIVE PRODUCTION ENVIRONMENT**.  
+> All AI agents, automation tools, and developers MUST strictly follow the operating rules:
+> 1. **Rule #0: PULL BEFORE ACTION**: Always run `git pull` before executing any prompt or task.
+> 2. **Rule #1: READ BEFORE CHANGE**: Consult [`PRODUCTION_STATE.md`](file:///d:/WebApp/KVM2_HWB/PRODUCTION_STATE.md), [`PRODUCTION_DO_NOT_TOUCH.md`](file:///d:/WebApp/KVM2_HWB/PRODUCTION_DO_NOT_TOUCH.md), and [`AG_PRODUCTION_RULES.md`](file:///d:/WebApp/KVM2_HWB/AG_PRODUCTION_RULES.md).
+> 3. **Rule #2: NEVER GUESS**: Verify all container names, networks, and databases from live server state.
+> 4. **Rule #4: NO DESTRUCTIVE ACTION**: Never run `down -v`, drop tables/schemas, or prune volumes.
+> 5. **Coolify Policy**: Do NOT install Coolify without an approved plan. Consult [`COOLIFY_MIGRATION_PLAN.md`](file:///d:/WebApp/KVM2_HWB/COOLIFY_MIGRATION_PLAN.md).
+
 A production-ready infrastructure repository managing shared databases, caching, object storage, routing, and logging/monitoring services for multiple Neos SaaS products (ERP, CRM, HRMS, Billing Dashboard, Inventory).
 
 Orchestrated using **Docker Compose** and configured to run on an **Ubuntu 24.04 LTS VPS**.
