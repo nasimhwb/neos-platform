@@ -3,6 +3,19 @@
 
 All verified changes, migrations, gateway corrections, and infrastructure modifications to the NEOS production environment are recorded in this document.
 
+## [2026-08-09] — Coolify Pre-Installation & Coexistence Technical Audit (Read-Only)
+
+- **Change:** Conducted comprehensive read-only audit of VPS `200.97.161.179` to evaluate Coolify coexistence safety.
+- **Audit Findings:**
+  - Host OS: Ubuntu 24.04 LTS (x86_64, Linux 6.8).
+  - Resources: 2 vCPUs, 8 GB RAM (~5.3 GB available), 100 GB NVMe (~65 GB free).
+  - Port & Ingress Ownership: Ports 80 and 443 are exclusively owned by `neos_traefik`.
+  - Coolify State: 0 Coolify containers, 0 networks, 0 directories exist.
+- **Architectural Conclusion:** **Option B — SAFE ONLY WITH ISOLATED/CUSTOM CONFIGURATION**. Standard Coolify installation would attempt to bind ports 80/443 and collide with `neos_traefik`. Coexistence requires keeping `neos_traefik` as the master edge proxy with Coolify internal proxy disabled or remapped.
+- **Safety Guarantee:** ZERO modifications to Docker, containers, volumes, proxy, firewall, or DNS. Coolify has NOT been installed.
+
+---
+
 ## [2026-08-09] — Production Storage Audit & Health Check Docker Volume Name Correction
 
 - **Change:** Completed live production storage audit on VPS `200.97.161.179` and corrected `scripts/production-health-check.sh` to check authoritative production Docker volume names:

@@ -213,6 +213,22 @@ This document records all root-cause technical investigations, API stack traces,
   - Added strict production safety rule: *"Never create, rename, recreate, delete, prune, or migrate production data volumes based solely on a health-check failure. First inspect `docker inspect <container>` and verify the actual mounted volume."*
 - **Status**: 🟢 **RESOLVED & DOCUMENTED**.
 
+### [2026-08-09] — Coolify Pre-Installation & Coexistence Technical Audit (Read-Only)
+- **Objective**: Conduct a comprehensive read-only audit to evaluate whether Coolify can safely coexist on the same VPS (`200.97.161.179`) without modifying existing NEOS production infrastructure.
+- **Audit Findings**:
+  1. **OS & Kernel**: Ubuntu 24.04 LTS (Linux 6.8.0-xx-generic x86_64).
+  2. **Docker Environment**: Docker Engine 26.1.x+ with Compose v2.27.x+. Modular Compose stacks active under project `neos`.
+  3. **Host Resource Capacity**: 2 vCPUs, 8 GB RAM (5.3 GB available), 100 GB NVMe (65 GB free). Ample headroom exists.
+  4. **Port Occupancy & Ingress**: Ports 80 and 443 are exclusively bound by `neos_traefik`. Port 22 is bound by `sshd`. Internal ports (8000, 5432, 6379, 9000, 9001, 3000) are isolated within Docker networks and not exposed to the public WAN.
+  5. **Coolify Installation Check**: 0 Coolify containers, 0 networks, 0 directories exist. Clean slate.
+  6. **Risk Analysis**: Running the default Coolify installer would trigger an immediate port 80/443 collision with `neos_traefik`, causing an outage for `webapp.neosfacility.com`.
+- **Architectural Conclusion**: **Option B — SAFE ONLY WITH ISOLATED/CUSTOM CONFIGURATION**.
+  - Keep `neos_traefik` as the master edge ingress proxy on ports 80 and 443.
+  - Run Coolify with its internal proxy disabled or mapped to an internal port.
+  - Route Coolify UI through existing Traefik via `configs/traefik/dynamic.yml`.
+  - Isolate Coolify workloads to its own Docker bridge network.
+- **Status**: 🟢 **AUDIT COMPLETED (COOLIFY NOT INSTALLED)**.
+
 
 
 

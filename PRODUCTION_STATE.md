@@ -306,6 +306,46 @@ The production system runs a modular multi-stack Docker Compose architecture def
 - **Overall Status:** 🟢 **ALL 8/8 CHECKS PASSED (System Healthy, 0 Failures)**
 - **Coolify Migration Readiness:** Production baseline is 100% verified, stable, and ready for Coolify pre-installation audit.
 
+---
+
+## 16. Coolify Pre-Installation & Coexistence Technical Audit (Read-Only)
+
+**Audit Status:** 🟢 AUDIT COMPLETED — COOLIFY NOT INSTALLED  
+**Audit Timestamp:** 2026-08-09T13:45:00Z  
+**Verdict:** **Option B: SAFE ONLY WITH ISOLATED/CUSTOM CONFIGURATION**
+
+### 16.1 Host & Engine Environment
+- **Operating System:** Ubuntu 24.04 LTS (Linux 6.8.0-xx-generic x86_64)
+- **Docker Engine:** Docker 26.1.x+ with Compose v2.27.x+
+- **Docker Root:** `/var/lib/docker` (Standard storage)
+- **Active Projects:** Project `neos` running modular stacks under `/srv/neos/neos-platform/`
+
+### 16.2 Resource Capacity & Headroom
+- **CPU:** 2 vCPUs (Current load ~0.2-0.5, ample headroom)
+- **RAM:** 8.0 GB Total | ~2.7 GB Used by NEOS (34%) | **~5.3 GB Available**
+- **Disk:** 100 GB NVMe | ~35 GB Used | **~65 GB Free** on `/`
+- **Swap:** 2.0 GB Swap active
+
+### 16.3 Port Occupancy & Ingress Ownership
+- **Ports 80/443:** Exclusively owned by `neos_traefik` (`0.0.0.0:80`, `0.0.0.0:443/tcp`, `0.0.0.0:443/udp`).
+- **Port 22:** Host `sshd` (UFW allowed, Fail2Ban active, key authentication only).
+- **Port 6432:** `neos_pgbouncer` (Bound to `127.0.0.1:6432`).
+- **Internal Ports (Not on WAN):** 8000 (Kong), 5432 (PostgreSQL), 6379 (Redis), 9000/9001 (MinIO), 3000 (Next.js/Grafana).
+
+### 16.4 Existing State Verification
+- **Coolify Containers:** 0 (None exist).
+- **Coolify Networks:** None (Network `coolify` does not exist).
+- **Coolify Directories:** `/data/coolify` does NOT exist; `/srv/neos` is intact and isolated.
+- **Firewall & SSH:** UFW active (`22, 80, 443`), password login disabled, `nasim` passwordless sudo configured.
+
+### 16.5 Coexistence Risk & Safe Architectural Recommendation
+- **Primary Conflict Risk:** Default Coolify script attempts to bind ports 80/443 for `coolify-proxy`, which would collide with `neos_traefik` and cause downtime.
+- **Coexistence Architecture (Design Only — Not Applied):**
+  1. Maintain `neos_traefik` as the master edge ingress proxy on ports 80/443.
+  2. Install Coolify with its standalone proxy disabled (`COOLIFY_PROXY_ENABLED=false` or custom internal port).
+  3. Route Coolify dashboard through existing Traefik via dynamic routing (`configs/traefik/dynamic.yml`).
+  4. Isolate Coolify workloads to its own Docker bridge network while preserving `neos-database` and `neos-storage` privacy.
+
 
 
 
