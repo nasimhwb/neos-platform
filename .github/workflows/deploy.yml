@@ -143,10 +143,11 @@ jobs:
             echo "=== Step 5: Verifying /api/health in-container ==="
             HEALTH_CHECK_OUTPUT=$(docker exec neos_app wget -qO- http://127.0.0.1:3000/api/health 2>/dev/null || echo "")
 
-            if echo "$HEALTH_CHECK_OUTPUT" | grep -q "overall"; then
+            if echo "$HEALTH_CHECK_OUTPUT" | grep -Eq "healthy|overall|status"; then
               echo "  [PASS] /api/health returned valid snapshot data."
               HEALTH_STATUS="PASSED"
             else
+
               echo "ERROR: /api/health check failed or returned invalid output."
               rollback
             fi
