@@ -17,12 +17,14 @@ jobs:
       - name: Execute Production Deployment & Verification
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
+          host: ${{ secrets.VPS_HOST || '200.97.161.179' }}
+          username: nasim
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
-          port: ${{ secrets.VPS_PORT || 22 }}
+          port: 22
+          timeout: 120s
           envs: GITHUB_SHA,GITHUB_REF_NAME
           script_stop_on_error: false
+
           script: |
             echo "=========================================================================="
             echo "=== NEOS PLATFORM PRODUCTION DEPLOYMENT"
