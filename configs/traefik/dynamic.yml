@@ -51,7 +51,7 @@ http:
   routers:
     # Legacy PHP Application on Hostinger Shared Hosting
     legacy-php-hostinger:
-      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/neos_admin`)"
+      rule: "(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/neos_admin`)"
       entryPoints:
         - websecure
       tls: {}
@@ -63,7 +63,7 @@ http:
 
     # VPS Next.js Dashboard UI
     vps-dashboard-router:
-      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/dashboard`)"
+      rule: "(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/dashboard`)"
       entryPoints:
         - websecure
       tls: {}
@@ -72,7 +72,7 @@ http:
 
     # VPS Platform API Routes
     vps-api-router:
-      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && PathPrefix(`/api`)"
+      rule: "(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/api`)"
       entryPoints:
         - websecure
       tls: {}
@@ -81,7 +81,7 @@ http:
 
     # VPS Supabase Auth & Gateway Services
     vps-supabase-auth-router:
-      rule: "Host(`neosfacility.com`, `www.neosfacility.com`) && (PathPrefix(`/auth`) || PathPrefix(`/supabase`))"
+      rule: "(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && (PathPrefix(`/auth`) || PathPrefix(`/supabase`))"
       entryPoints:
         - websecure
       tls: {}
@@ -105,7 +105,7 @@ http:
 
     # VPS Main Web Application Catch-All
     vps-main-app-router:
-      rule: "Host(`neosfacility.com`, `www.neosfacility.com`)"
+      rule: "Host(`neosfacility.com`) || Host(`www.neosfacility.com`)"
       entryPoints:
         - websecure
       tls: {}

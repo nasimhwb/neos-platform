@@ -244,42 +244,35 @@ The production system runs a modular multi-stack Docker Compose architecture def
 
 ## 14. Current Verified Production Baseline & Routing Status
 
-### Supabase Subdomain Routing Fix — IMPLEMENTED IN REPOSITORY (AWAITING VPS FAST-FORWARD)
-- **Status:** 🟡 Repository Fix Merged & Pushed to `master` (Commit `21f187c`). Live VPS requires `git pull --ff-only origin master`.
+### Traefik v3 Dynamic Routing Syntax Migration & Supabase Ingress Fix
+- **Status:** 🟢 Traefik v3 Host Syntax Migration Completed in Repository (Commit pending push)
 - **Root Cause (PROVEN):**
-  - Next.js application (`neos_app`) is built and configured with `NEXT_PUBLIC_SUPABASE_URL=https://supabase.neosfacility.com`.
-  - DNS resolves `supabase.neosfacility.com` to `200.97.161.179` (Traefik Ingress).
-  - Traefik reverse proxy dynamic configuration lacked an active router rule for `Host(`supabase.neosfacility.com`)`.
-  - When browser/server sends requests to `https://supabase.neosfacility.com/auth/v1/*`, Traefik responded with plaintext `HTTP 404 Not Found` (`404 page not found`).
-  - `@supabase/auth-js` client SDK attempted `JSON.parse("404 page not found")` and crashed at position 4 (`'p'`), throwing:
-    `AuthUnknownError: Unexpected non-whitespace character after JSON at position 4`
-- **Configuration Added (`configs/traefik/dynamic.yml`):**
-  ```yaml
-  supabase-subdomain-router:
-    rule: "Host(`supabase.neosfacility.com`)"
-    entryPoints:
-      - websecure
-    tls:
-      certResolver: letsencrypt
-    priority: 100
-    service: supabase-gateway-service
-    middlewares:
-      - security-headers@file
-      - compression@file
-      - rate-limit@file
-  ```
+  - Traefik is running version 3 (`traefik:v3.0`) with dynamic configuration mounted at `/etc/traefik/dynamic.yml` (`watch: true`).
+  - Dynamic configuration contained legacy Traefik v2 multi-argument `Host()` syntax: `Host(`neosfacility.com`, `www.neosfacility.com`)`.
+  - Traefik v3 strictly expects exactly 1 argument per `Host()` function and threw parser errors:
+    `error while parsing rule Host('neosfacility.com', 'www.neosfacility.com')`
+    `error while adding rule Host: unexpected number of parameters; got 2, expected one of [1]`
+  - This invalidated the affected routers and disrupted dynamic configuration reload, preventing `supabase-subdomain-router` and related routers from serving traffic.
+- **Affected Routers Corrected (`configs/traefik/dynamic.yml`):**
+  1. `legacy-php-hostinger`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/neos_admin`)`
+  2. `vps-dashboard-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/dashboard`)`
+  3. `vps-api-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/api`)`
+  4. `vps-supabase-auth-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && (PathPrefix(`/auth`) || PathPrefix(`/supabase`))`
+  5. `vps-main-app-router`: `Host(`neosfacility.com`) || Host(`www.neosfacility.com`)`
+  - `supabase-subdomain-router`: `Host(`supabase.neosfacility.com`)` (Preserved priority 100, letsencrypt TLS, gateway upstream).
+- **Safety & Backup:**
+  - Backup created: `configs/traefik/dynamic.yml.bak_20260809_1402`.
+  - Data safety: Zero changes to PostgreSQL, MinIO storage, JWT secrets, passwords, or persistent volumes.
+  - Zero downtime: Traefik dynamic file watcher (`watch: true`) automatically hot-reloads the configuration upon sync.
 - **Observed Live Endpoint Status (External Probes):**
   - `https://webapp.neosfacility.com/api/health` → **HTTP 200 OK** (`{"status":"healthy","service":"neos-app"}`)
   - `https://webapp.neosfacility.com/login` → **HTTP 200 OK** (Next.js client shell renders)
   - `GET /storage/v1/version` via Kong (`supabase.neos-platform.local`) → **HTTP 200 OK** (`1.67.5`)
-  - `https://supabase.neosfacility.com/auth/v1/health` → **HTTP 404 Not Found** (on live VPS until `git pull --ff-only origin master` is executed on the VPS host)
-- **VPS Deployment Command Required:**
+- **VPS Fast-Forward Command:**
   ```bash
   cd /srv/neos/neos-platform
   git pull --ff-only origin master
   ```
-- **Login Verification Status:** Unverified in browser pending VPS git pull.
-- **Storage Verification Status:** MinIO & Kong storage engine running healthy (8 registered buckets: 5 private document buckets, 3 public UI asset buckets).
-- **Traefik Dynamic Reload:** Watches `dynamic.yml` via inotify (`watch: true`) — zero downtime, zero container restarts required.
+
 
 

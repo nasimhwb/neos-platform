@@ -3,6 +3,28 @@
 
 All verified changes, migrations, gateway corrections, and infrastructure modifications to the NEOS production environment are recorded in this document.
 
+## [2026-08-09] — Traefik v3 Dynamic Routing Host Rule Syntax Migration
+
+- **Change:** Migrated 5 routers in `configs/traefik/dynamic.yml` from Traefik v2 comma-separated `Host()` syntax to Traefik v3-compliant boolean expressions:
+  - `legacy-php-hostinger`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/neos_admin`)`
+  - `vps-dashboard-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/dashboard`)`
+  - `vps-api-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && PathPrefix(`/api`)`
+  - `vps-supabase-auth-router`: `(Host(`neosfacility.com`) || Host(`www.neosfacility.com`)) && (PathPrefix(`/auth`) || PathPrefix(`/supabase`))`
+  - `vps-main-app-router`: `Host(`neosfacility.com`) || Host(`www.neosfacility.com`)`
+- **Reason:** Resolve Traefik v3 parser error `unexpected number of parameters; got 2, expected one of [1]`, which invalidated dynamic configuration reloads on the running Traefik v3 container.
+- **Repository Changes:**
+  - `configs/traefik/dynamic.yml` (Host rules updated to v3 syntax)
+  - `configs/traefik/dynamic.yml.bak_20260809_1402` (Safety backup)
+  - `PRODUCTION_STATE.md`, `PRODUCTION_CHANGELOG.md`, `docs/operations/KNOWN_ISSUES.md`, `docs/investigations/INVESTIGATION_LOG.md` (Documentation updated)
+- **Data & Safety Verification:**
+  - PostgreSQL databases, schemas, and tables: Untouched (0 modifications).
+  - Supabase Auth/Storage/Realtime data & keys: Untouched (0 modifications).
+  - MinIO persistent storage: Untouched (0 modifications).
+  - Container restarts required: None (hot-reloaded by Traefik dynamic file provider `watch: true`).
+- **Rollback:** `cp configs/traefik/dynamic.yml.bak_20260809_1402 configs/traefik/dynamic.yml`.
+
+---
+
 ## [2026-08-09] — Supabase Subdomain Ingress Router Fix Implementation & Baseline Audit
 
 - **Change:** Added `supabase-subdomain-router` to `configs/traefik/dynamic.yml` mapping `Host(`supabase.neosfacility.com`)` directly to `supabase-gateway-service` (`neos_supabase_gateway:8000`).

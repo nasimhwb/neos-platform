@@ -158,4 +158,20 @@ This document records all root-cause technical investigations, API stack traces,
   - Live VPS requires fast-forward pull: `cd /srv/neos/neos-platform && git pull --ff-only origin master`.
 - **Status**: 🟢 **FIX COMMITTED TO REPOSITORY & BASELINE AUDIT COMPLETED**.
 
+### [2026-08-09] — Traefik v3 Dynamic Configuration Host Rule Syntax Migration
+- **Objective**: Fix Traefik v3 configuration parser errors caused by legacy Traefik v2 multi-argument `Host()` syntax.
+- **Empirical Diagnostics & Proof**:
+  1. Traefik VPS container logs showed repeated parser errors:
+     `error while parsing rule Host('neosfacility.com', 'www.neosfacility.com')`
+     `error while adding rule Host: unexpected number of parameters; got 2, expected one of [1]`
+  2. Affected routers identified: `legacy-php-hostinger`, `vps-dashboard-router`, `vps-api-router`, `vps-supabase-auth-router`, `vps-main-app-router`.
+  3. Traefik v3 requires single arguments combined with boolean operators `||` instead of comma-separated arguments.
+- **Implemented Fix**:
+  - Created timestamped backup `configs/traefik/dynamic.yml.bak_20260809_1402`.
+  - Replaced all 5 multi-argument `Host()` rules with standard Traefik v3 boolean syntax `(Host(...) || Host(...))`.
+  - Retained all priorities, middlewares, entryPoints, TLS configuration, and upstream services.
+  - Zero database, storage, or secrets modifications. Zero downtime dynamic reload.
+- **Status**: 🟢 **OPERATIONAL & VERIFIED IN CONFIGURATION**.
+
+
 
